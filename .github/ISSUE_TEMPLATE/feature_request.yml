@@ -1,0 +1,30 @@
+name: Feature request
+description: Suggest a new feature for FixIt
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the problem.
+      placeholder: I would like to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Suggested solution
+      description: Describe your idea.
+      placeholder: The app could...
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional information
+      description: Add any other details.
+    validations:
+      required: false
