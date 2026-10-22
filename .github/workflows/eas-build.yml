@@ -1,0 +1,12 @@
+name: EAS Build (placeholder)
+
+# TODO: decide build profile and platforms, then add expo/expo-github-action
+# and the EXPO_TOKEN secret. Manual trigger only until then.
+on:
+  workflow_dispatch:
+
+jobs:
+  eas-build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "EAS build is not configured yet"
