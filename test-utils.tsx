@@ -1,11 +1,10 @@
 import { ReactElement, ReactNode } from "react";
 import { render, RenderOptions } from "@testing-library/react-native";
-import { ThemeContext } from "./components/ThemeLabel";
 
 // Обгортає кожен тестований компонент у всі потрібні провайдери.
 // Пізніше сюди додамо справжні (навігація, тема, API-клієнт).
 function AllProviders({ children }: { children: ReactNode }) {
-  return <ThemeContext.Provider value="light">{children}</ThemeContext.Provider>;
+  return <>{children}</>;
 }
 
 function customRender(ui: ReactElement, options?: RenderOptions) {
