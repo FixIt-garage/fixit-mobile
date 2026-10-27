@@ -1,12 +1,11 @@
-import mockAsyncStorage from "@react-native-async-storage/async-storage/jest/async-storage-mock";
-
 // Runs before every test file.
 // Shared mocks and settings for all tests will live here.
 jest.setTimeout(10000);
 
 // Підробне сховище замість справжнього async storage
-jest.mock("@react-native-async-storage/async-storage", () => mockAsyncStorage);
-
+jest.mock("@react-native-async-storage/async-storage", () =>
+  require("@react-native-async-storage/async-storage/jest"),
+);
 // Підробна навігація: запамʼятовує виклики navigate / goBack
 const mockNavigate = jest.fn();
 const mockGoBack = jest.fn();
