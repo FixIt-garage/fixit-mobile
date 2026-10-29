@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
 import AppNavigator from './navigation/AppNavigator';
-import { useAppFonts } from './src/theme/fonts';
+import { ThemeProvider, useAppFonts } from './src/theme';
 
 // Тримаємо splash screen, поки не завантажаться шрифти.
 // Викликається один раз, ще до першого рендеру.
@@ -23,8 +23,10 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <AppNavigator />
-    </NavigationContainer>
+    <ThemeProvider>
+      <NavigationContainer>
+        <AppNavigator />
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }
