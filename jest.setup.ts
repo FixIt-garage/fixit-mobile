@@ -19,7 +19,7 @@ jest.mock("@react-navigation/native", () => {
 });
 
 // Після кожного тесту повертаємо справжній fetch
-const originalFetch = global.fetch;
+const originalFetch = globalThis.fetch;
 afterEach(() => {
-  global.fetch = originalFetch;
+  globalThis.fetch = originalFetch;
 });
