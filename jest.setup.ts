@@ -4,8 +4,9 @@ jest.setTimeout(10000);
 
 // Підробне сховище замість справжнього async storage
 jest.mock("@react-native-async-storage/async-storage", () =>
-  require("@react-native-async-storage/async-storage/jest"),
+  require("@react-native-async-storage/async-storage/jest/async-storage-mock"),
 );
+
 // Підробна навігація: запамʼятовує виклики navigate / goBack
 const mockNavigate = jest.fn();
 const mockGoBack = jest.fn();
@@ -19,7 +20,7 @@ jest.mock("@react-navigation/native", () => {
 });
 
 // Після кожного тесту повертаємо справжній fetch
-const originalFetch = global.fetch;
+const originalFetch = globalThis.fetch;
 afterEach(() => {
-  global.fetch = originalFetch;
+  globalThis.fetch = originalFetch;
 });
