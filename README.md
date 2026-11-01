@@ -83,8 +83,6 @@ npm run ios
 
 ## Project Structure
 
-## Project Structure
-
 ```text
 fixit-mobile/
 ├── api/              # API client and backend endpoints
@@ -93,6 +91,7 @@ fixit-mobile/
 ├── hooks/            # Custom React hooks
 ├── navigation/       # Navigation configuration
 ├── screens/          # Application screens
+├── src/theme/        # Design tokens, ThemeProvider and useTheme()
 ├── App.tsx           # Root component and navigation container
 ├── app.json          # Expo application configuration
 ├── package.json      # Dependencies and npm scripts
@@ -109,6 +108,34 @@ The home screen displays the backend connection status by calling the `/health` 
 - The user can retry the health check using the button on the home screen.
 
 The backend must be running and reachable from the device or emulator for a successful connection.
+
+## Design Tokens
+
+All colors, fonts, spacing, radii and shadows live in `src/theme/` and come from the **«Основи»** frame on page _02 Дизайн-система_ in Figma. Screens and components must not use raw hex colors — ESLint reports an error for any hex color outside `src/theme/`.
+
+| File            | What it contains                                                       |
+| --------------- | ---------------------------------------------------------------------- |
+| `colors.ts`     | Color variables, named as in Figma (`bg/screen` → `colors.bg.screen`)  |
+| `gradients.ts`  | `Gradient/Client`, `Master`, `Center`, `Org`                           |
+| `fonts.ts`      | Font names and the `useAppFonts()` loader                              |
+| `typography.ts` | Text styles used by the `Text` component                               |
+| `spacing.ts`    | Spacing scale and layout constants                                     |
+| `radius.ts`     | Corner radii                                                           |
+| `shadows.ts`    | `Shadow/Floating`                                                      |
+
+Use tokens through `useTheme()` inside components, or import `theme` from `src/theme` in `StyleSheet.create`. For text, use `components/Text` with a `variant` prop.
+
+### Updating tokens when the design changes
+
+Tokens are copied from Figma by hand:
+
+1. Open the «Основи» frame and select the changed element (Ctrl+click).
+2. Copy the new value from the **Properties** panel into the matching file in `src/theme/`. Keep the Figma variable name.
+3. Convert values that Figma and React Native measure differently:
+   - **Letter spacing:** Figma uses %, React Native uses points — `fontSize × percent / 100` (e.g. 32px at -2% → `-0.64`).
+   - **Shadow blur:** `shadowRadius = Blur / 2`.
+   - **Hex with opacity:** use 8-digit hex (e.g. `#11182780`).
+4. Run `npx tsc --noEmit` and `npm run lint`.
 
 ## Code Quality and Testing
 

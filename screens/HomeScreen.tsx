@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { getHealth } from '../api/health';
+import { theme } from '../src/theme';
 
 type RootStackParamList = {
   Home: undefined;
@@ -134,7 +135,7 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 16,
     borderWidth: 1,
-    borderColor: '#cccccc',
+    borderColor: theme.colors.border.default,
     borderRadius: 12,
   },
   sectionTitle: {
@@ -151,10 +152,10 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   successText: {
-    color: 'green',
+    color: theme.colors.text.success,
   },
   errorText: {
-    color: 'red',
+    color: theme.colors.text.error,
   },
   retryButton: {
     marginTop: 16,
