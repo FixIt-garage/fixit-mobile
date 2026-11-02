@@ -10,8 +10,10 @@ export const colors = {
     successSoft: '#F0FDF4',
     errorSoft: '#FEF2F2',
   },
-  border: {
+    border: {
     default: '#E3E6EB',
+    focus: '#2563EB',
+    error: '#DC2626',
   },
   text: {
     primary: '#111827',
