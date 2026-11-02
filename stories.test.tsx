@@ -11,7 +11,12 @@ import * as SegmentedControlStories from './components/SegmentedControl.stories'
 import * as SlideButtonStories from './components/SlideButton.stories';
 import * as TextAreaStories from './components/TextArea.stories';
 import * as ToggleStories from './components/Toggle.stories';
-
+import * as RoleCardStories from './components/RoleCard.stories';
+import * as TextStories from './components/Text.stories';
+import * as ColorsStories from './src/theme/Colors.stories';
+import * as GradientsStories from './src/theme/Gradients.stories';
+import * as TypographyStories from './src/theme/Typography.stories';
+import * as SpacingAndRadiusStories from './src/theme/SpacingAndRadius.stories';
 // Ті самі декоратори, що й у Storybook: тема і полотно 360
 setProjectAnnotations(preview);
 
@@ -25,6 +30,12 @@ const storyFiles = {
   SlideButton: SlideButtonStories,
   TextArea: TextAreaStories,
   Toggle: ToggleStories,
+  RoleCard: RoleCardStories,
+  Text: TextStories,
+  Colors: ColorsStories,
+  Gradients: GradientsStories,
+  Typography: TypographyStories,
+  SpacingAndRadius: SpacingAndRadiusStories,
 };
 
 describe.each(Object.entries(storyFiles))('%s stories', (_name, storiesModule) => {
