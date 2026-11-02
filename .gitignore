@@ -153,3 +153,6 @@ vite.config.ts.timestamp-*
 
 # IDE settings
 .idea/
+
+*storybook.log
+storybook-static
