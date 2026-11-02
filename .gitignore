@@ -150,3 +150,6 @@ vite.config.ts.timestamp-*
 
 # Expo
 .expo/
+
+# IDE settings
+.idea/
