@@ -1,4 +1,4 @@
-import { useEffect, useState, type ComponentType } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -7,12 +7,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import AppNavigator from './navigation/AppNavigator';
 import { ThemeProvider, useAppFonts } from './src/theme';
 import { hasStoredAccessToken } from './src/auth/session';
-
-// Storybook підвантажується лише з прапорцем; у звичайній збірці цей require вирізається.
-const StorybookUIRoot: ComponentType | null =
-  process.env.EXPO_PUBLIC_STORYBOOK_ENABLED === 'true'
-    ? require('./.rnstorybook').default
-    : null;
 
 // Тримаємо splash screen, поки не завантажаться шрифти і не перевіриться токен.
 // Викликається один раз, ще до першого рендеру.
@@ -48,15 +42,6 @@ export default function App() {
   // Поки вантажаться шрифти або перевіряється токен — користувач бачить splash.
   if ((!fontsLoaded && !fontError) || !tokenCheckCompleted) {
     return null;
-  }
-
-  // Режим Storybook: замість застосунку показуємо каталог компонентів (шрифти вже завантажені)
-  if (StorybookUIRoot) {
-    return (
-      <GestureHandlerRootView style={styles.root}>
-        <StorybookUIRoot />
-      </GestureHandlerRootView>
-    );
   }
 
   return (
