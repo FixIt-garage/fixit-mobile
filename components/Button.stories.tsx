@@ -8,9 +8,9 @@ const meta = {
     label: 'Надіслати заявку',
     variant: 'primary',
   },
-  argTypes: {
-    variant: { control: 'select', options: ['primary', 'secondary'] },
-    gradient: { control: 'select', options: ['client', 'master', 'center', 'org'] },
+    argTypes: {
+    variant: { control: { type: 'select' }, options: ['primary', 'secondary'] },
+    gradient: { control: { type: 'select' }, options: ['client', 'master', 'center', 'org'] },
     onPress: { action: 'pressed' },
   },
 } satisfies Meta<typeof Button>;

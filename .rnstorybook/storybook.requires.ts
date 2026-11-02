@@ -5,6 +5,7 @@ import { start, updateView, type View, type Features } from '@storybook/react-na
 
 import "@storybook/addon-ondevice-controls/register";
 import "@storybook/addon-ondevice-actions/register";
+import "@storybook/addon-ondevice-backgrounds/register";
 
 const normalizedStories = [
   {
