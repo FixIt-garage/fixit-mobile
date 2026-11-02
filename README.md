@@ -76,6 +76,7 @@ npm run ios
 | `npm run android`         | Starts the application on Android              |
 | `npm run ios`             | Starts the application on the iOS Simulator    |
 | `npm run web`             | Starts the web version                         |
+| `npm run storybook`       | Starts the app in Storybook mode               |
 | `npm run lint`            | Runs ESLint to check code quality              |
 | `npm test -- --runInBand` | Runs the Jest test suite                       |
 | `npm run format`          | Formats the project files using Prettier       |
@@ -85,15 +86,18 @@ npm run ios
 
 ```text
 fixit-mobile/
+├── .rnstorybook/     # Storybook config, preview decorators and entry point
 ├── api/              # API client and backend endpoints
 ├── assets/           # Images, fonts, and other static assets
-├── components/       # Reusable UI components
+├── components/       # Reusable UI components and their stories
 ├── hooks/            # Custom React hooks
 ├── navigation/       # Navigation configuration
 ├── screens/          # Application screens
 ├── src/theme/        # Design tokens, ThemeProvider and useTheme()
 ├── App.tsx           # Root component and navigation container
 ├── app.json          # Expo application configuration
+├── metro.config.js   # Metro bundler config (Storybook toggle)
+├── stories.test.tsx  # Renders every story as a Jest smoke test
 ├── package.json      # Dependencies and npm scripts
 ├── tsconfig.json     # TypeScript configuration
 └── README.md         # Project documentation
@@ -123,7 +127,7 @@ All colors, fonts, spacing, radii and shadows live in `src/theme/` and come from
 | `radius.ts`     | Corner radii                                                           |
 | `shadows.ts`    | `Shadow/Floating`                                                      |
 
-Use tokens through `useTheme()` inside components, or import `theme` from `src/theme` in `StyleSheet.create`. For text, use `components/Text` with a `variant` prop.
+Use tokens through `useTheme()` inside components, or import `theme` from `src/theme` in `StyleSheet.create`. For text, use `components/Text` with a `variant` prop. All tokens can be browsed in Storybook under **Foundations**.
 
 ### Updating tokens when the design changes
 
@@ -136,6 +140,44 @@ Tokens are copied from Figma by hand:
    - **Shadow blur:** `shadowRadius = Blur / 2`.
    - **Hex with opacity:** use 8-digit hex (e.g. `#11182780`).
 4. Run `npx tsc --noEmit` and `npm run lint`.
+
+## Storybook
+
+Shared components and design tokens are built and reviewed in isolation in [React Native Storybook](https://storybookjs.github.io/react-native/).
+
+### Running Storybook
+
+```bash
+npm run storybook
+```
+
+Scan the QR code with Expo Go on your phone (or use `npm run storybook:ios` on a Mac with the iOS Simulator). Storybook replaces the app while it runs: `metro.config.js` swaps the entry point to `.rnstorybook/index.ts` when `EXPO_PUBLIC_STORYBOOK_ENABLED=true`. Without the flag, Storybook is stripped from the bundle and never ships to production.
+
+Every story is rendered inside `ThemeProvider` with the app fonts loaded, on a 360 pt canvas (the Figma frame width). Use the **Backgrounds** tab to switch between `screen`, `surface` and `graphite`, **Controls** to change props, and **Actions** to see callbacks.
+
+### Adding a story
+
+1. Create `ComponentName.stories.tsx` next to the component (stories under `components/` and `src/` are picked up automatically).
+2. Use one of the sections as the title prefix: `Foundations/`, `Icons/`, `Controls/`, `Navigation/`, `Display/`, `Cards/`.
+3. Add the stories module to `storyFiles` in `stories.test.tsx` — each story then becomes a Jest smoke test.
+
+```tsx
+import type { Meta, StoryObj } from '@storybook/react-native';
+import { Button } from './Button';
+
+const meta = {
+  title: 'Controls/Button',
+  component: Button,
+  args: { label: 'Надіслати заявку' },
+} satisfies Meta<typeof Button>;
+
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+export const Primary: Story = {};
+export const Secondary: Story = { args: { variant: 'secondary' } };
+```
 
 ## Code Quality and Testing
 
