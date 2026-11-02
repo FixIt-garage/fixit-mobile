@@ -4,12 +4,16 @@ import HomeScreen from '../screens/HomeScreen';
 import PlaceholderScreen from '../screens/PlaceholderScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
+import WhoAreYouScreen from '../screens/WhoAreYouScreen';
+import type { Role } from '../src/roles';
 
 export type RootStackParamList = {
   Home: undefined;
   Profile: undefined;
   Welcome: undefined;
   WhoAreYou: undefined;
+  // Обрана на екрані 02 роль: від неї залежить акцентний колір реєстрації
+  SignUp: { role: Role };
   Login: undefined;
 };
 
@@ -32,11 +36,16 @@ export default function AppNavigator({
         component={WelcomeScreen}
         options={{ headerShown: false }}
       />
-      {/* Тимчасові заглушки: замінити на реальні екрани, коли вони з'являться */}
       <Stack.Screen
         name="WhoAreYou"
+        component={WhoAreYouScreen}
+        options={{ headerShown: false }}
+      />
+      {/* Тимчасові заглушки: замінити на реальні екрани, коли вони з'являться */}
+      <Stack.Screen
+        name="SignUp"
         component={PlaceholderScreen}
-        options={{ title: 'Хто ви' }}
+        options={{ title: 'Реєстрація' }}
       />
       <Stack.Screen
         name="Login"

@@ -10,7 +10,7 @@ export const colors = {
     successSoft: '#F0FDF4',
     errorSoft: '#FEF2F2',
   },
-    border: {
+  border: {
     default: '#E3E6EB',
     focus: '#2563EB',
     error: '#DC2626',
@@ -33,13 +33,14 @@ export const colors = {
     center: '#EA580C',
     org: '#16A34A',
   },
-    icon: {
+  icon: {
     default: '#111827',
   },
-  // Напівпрозорі кольори для кнопок на градієнті (IconButton glass)
+  // Напівпрозорі кольори для елементів на градієнті
   glass: {
     bg: '#FFFFFF33', // білий 20%
     border: '#FFFFFF4D', // білий 30%
+    grid: '#FFFFFF0F', // білий 6%, лінії сітки-креслення
   },
 } as const;
 
