@@ -14,16 +14,19 @@ export type RootStackParamList = {
 };
 
 type AppNavigatorProps = {
-  hasActiveSession: boolean;
+  hasStoredAccessToken: boolean;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator({
-  hasActiveSession,
-  }: AppNavigatorProps) {
+  hasStoredAccessToken,
+}: AppNavigatorProps) {
+  // Token presence only selects the initial screen; it does not validate authentication
   return (
-    <Stack.Navigator initialRouteName={hasActiveSession ? 'Home' : 'Welcome'}>
+    <Stack.Navigator
+      initialRouteName={hasStoredAccessToken ? 'Home' : 'Welcome'}
+    >
       <Stack.Screen
         name="Welcome"
         component={WelcomeScreen}

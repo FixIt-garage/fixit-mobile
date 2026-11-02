@@ -1,47 +1,48 @@
-import { useEffect, useState  } from 'react';
+import { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
+
 import AppNavigator from './navigation/AppNavigator';
 import { ThemeProvider, useAppFonts } from './src/theme';
-import {hasStoredAccessToken} from './src/auth/session';
+import { hasStoredAccessToken } from './src/auth/session';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const [fontsLoaded, fontError] = useAppFonts();
-  const [sessionChecked, setSessionChecked] = useState(false);
-  const [hasActiveSession, setHasActiveSession] = useState(false);
+  const [tokenCheckCompleted, setTokenCheckCompleted] = useState(false);
+  const [accessTokenStored, setAccessTokenStored] = useState(false);
 
   useEffect(() => {
-    async function checkSession() {
+    async function checkStoredToken() {
       try {
         const hasToken = await hasStoredAccessToken();
-        setHasActiveSession(hasToken);
+        setAccessTokenStored(hasToken);
       } catch (error) {
-        console.error('Session check failed:', error);
-        setHasActiveSession(false);
+        console.error('Stored token lookup failed:', error);
+        setAccessTokenStored(false);
       } finally {
-        setSessionChecked(true);
+        setTokenCheckCompleted(true);
       }
     }
 
-    checkSession();
+    checkStoredToken();
   }, []);
 
   useEffect(() => {
-    if ((fontsLoaded || fontError) && sessionChecked) {
+    if ((fontsLoaded || fontError) && tokenCheckCompleted) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError, sessionChecked]);
+  }, [fontsLoaded, fontError, tokenCheckCompleted]);
 
-    if ((!fontsLoaded && !fontError) || !sessionChecked){
-     return null;
+  if ((!fontsLoaded && !fontError) || !tokenCheckCompleted) {
+    return null;
   }
 
   return (
     <ThemeProvider>
       <NavigationContainer>
-        <AppNavigator  hasActiveSession={hasActiveSession} />
+        <AppNavigator hasStoredAccessToken={accessTokenStored} />
       </NavigationContainer>
     </ThemeProvider>
   );
