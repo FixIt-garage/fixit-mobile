@@ -3,6 +3,7 @@ import {
   FlatList,
   StyleSheet,
   View,
+  useWindowDimensions,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
@@ -11,30 +12,27 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 import { useTheme } from '../src/theme';
 import { ROLES } from '../src/roles';
+import { CARD_GAP, SNAP, activeIndexForOffset, carouselEndPadding } from '../src/roleCarousel';
 import { Text } from '../components/Text';
 import { ProgressBar } from '../components/ProgressBar';
 import { RoleCard } from '../components/RoleCard';
-
-const CARD_WIDTH = 296;
-const CARD_GAP = 16;
-// Відстань між початками сусідніх карток — по ній «прилипає» карусель
-const SNAP = CARD_WIDTH + CARD_GAP;
 
 type Props = NativeStackScreenProps<RootStackParamList, 'WhoAreYou'>;
 
 export default function WhoAreYouScreen({ navigation }: Props) {
   const theme = useTheme();
+  const { width } = useWindowDimensions();
   const [activeIndex, setActiveIndex] = useState(0);
   const activeRole = ROLES[activeIndex].role;
+  const sidePadding = theme.layout.screenPadding;
 
   const onScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const index = Math.round(event.nativeEvent.contentOffset.x / SNAP);
-    setActiveIndex(Math.min(Math.max(index, 0), ROLES.length - 1));
+    setActiveIndex(activeIndexForOffset(event.nativeEvent.contentOffset.x, ROLES.length));
   };
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.bg.screen }]}>
-      <View style={{ paddingHorizontal: theme.layout.screenPadding, paddingTop: theme.spacing.md }}>
+      <View style={{ paddingHorizontal: sidePadding, paddingTop: theme.spacing.md }}>
         <View style={[styles.stepRow, { gap: theme.spacing.sm }]}>
           <Text variant="labelMonoBold" color="brand">
             Крок 1 / 2
@@ -59,7 +57,9 @@ export default function WhoAreYouScreen({ navigation }: Props) {
         onMomentumScrollEnd={onScrollEnd}
         style={styles.carousel}
         contentContainerStyle={{
-          paddingHorizontal: theme.layout.screenPadding,
+          paddingLeft: sidePadding,
+          // Щоб остання картка могла стати на місце першої навіть на iPad
+          paddingRight: carouselEndPadding(width, sidePadding),
           gap: CARD_GAP,
           paddingVertical: theme.spacing.xxl,
           alignItems: 'flex-start',

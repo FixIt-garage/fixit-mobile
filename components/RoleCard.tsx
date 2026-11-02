@@ -5,7 +5,8 @@ import { useTheme, type GradientName } from '../src/theme';
 import { Button } from './Button';
 import { Text } from './Text';
 
-const CARD_WIDTH = 296;
+export const ROLE_CARD_WIDTH = 296;
+const CARD_WIDTH = ROLE_CARD_WIDTH;
 const CARD_RADIUS = 28;
 const HERO_HEIGHT = 236;
 // Крок сітки-креслення у верхньому блоці
