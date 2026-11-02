@@ -7,6 +7,15 @@ import { setUpTests } from 'react-native-reanimated';
 
 setUpTests();
 
+// Тест-утиліти Storybook (storybook/test) розраховані на браузер і на кожному тесті
+// звертаються до navigator.clipboard. У React Native Jest на Node < 21 navigator немає,
+// тож додаємо порожній, щоб portable stories працювали однаково локально і в CI.
+const globalWithNavigator = globalThis as { navigator?: object; window?: { navigator?: object } };
+globalWithNavigator.navigator ??= {};
+if (globalWithNavigator.window) {
+  globalWithNavigator.window.navigator ??= globalWithNavigator.navigator;
+}
+
 // Жести в Jest: справжній gesture-handler хоче UI-потік телефона, якого тут немає.
 // GestureDetector і GestureHandlerRootView просто показують вміст.
 // (SlideButton.test.tsx має свій mock, який ще й запамʼятовує обробники жесту.)
