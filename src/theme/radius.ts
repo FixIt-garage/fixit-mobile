@@ -1,4 +1,6 @@
 export const radius = {
+  sm: 8,
+  md: 12,
   input: 14,
   avatar: 16,
   card: 24,
