@@ -28,4 +28,11 @@ export const shadows = {
     shadowOpacity: 0.06,
     shadowRadius: 8, // Blur 16 у Figma
   },
+    // Кружечок SlideButton: X 0, Y 2, Blur 6, #121726 25%
+  slideKnob: {
+    shadowColor: '#121726',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3, // Blur 6 у Figma
+  },
 } satisfies Record<string, ViewStyle>;

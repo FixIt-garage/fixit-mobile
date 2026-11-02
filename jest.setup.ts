@@ -1,11 +1,11 @@
 // Runs before every test file.
 // Shared mocks and settings for all tests will live here.
 
-// Підробні жести й анімації для тестів: нативних модулів у Jest немає
+// Підробні жести для тестів; Reanimated у Jest працює через веб-версію (resolver у конфігу)
 import 'react-native-gesture-handler/jestSetup';
+import { setUpTests } from 'react-native-reanimated';
 
-jest.mock('react-native-worklets', () => require('react-native-worklets/src/mock'));
-jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
+setUpTests();
 
 jest.setTimeout(10000);
 
