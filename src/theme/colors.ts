@@ -10,8 +10,10 @@ export const colors = {
     successSoft: '#F0FDF4',
     errorSoft: '#FEF2F2',
   },
-  border: {
+    border: {
     default: '#E3E6EB',
+    focus: '#2563EB',
+    error: '#DC2626',
   },
   text: {
     primary: '#111827',
@@ -21,6 +23,8 @@ export const colors = {
     onInverseMuted: '#9CA3AF',
     success: '#16A34A',
     error: '#DC2626',
+    brand: '#2563EB',
+    onBrand: '#FFFFFF',
   },
   rating: '#F59E0B',
   role: {
@@ -28,6 +32,14 @@ export const colors = {
     master: '#7C3AED',
     center: '#EA580C',
     org: '#16A34A',
+  },
+    icon: {
+    default: '#111827',
+  },
+  // Напівпрозорі кольори для кнопок на градієнті (IconButton glass)
+  glass: {
+    bg: '#FFFFFF33', // білий 20%
+    border: '#FFFFFF4D', // білий 30%
   },
 } as const;
 
