@@ -7,6 +7,19 @@ import { setUpTests } from 'react-native-reanimated';
 
 setUpTests();
 
+// Жести в Jest: справжній gesture-handler хоче UI-потік телефона, якого тут немає.
+// GestureDetector і GestureHandlerRootView просто показують вміст.
+// (SlideButton.test.tsx має свій mock, який ще й запамʼятовує обробники жесту.)
+jest.mock('react-native-gesture-handler', () => {
+  const chain: Record<string, unknown> = new Proxy({}, { get: () => () => chain });
+  const passThrough = ({ children }: { children: import('react').ReactNode }) => children;
+  return {
+    GestureDetector: passThrough,
+    GestureHandlerRootView: passThrough,
+    Gesture: { Pan: () => chain },
+  };
+});
+
 jest.setTimeout(10000);
 
 // Підробне сховище замість справжнього async storage
