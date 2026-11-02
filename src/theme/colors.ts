@@ -33,6 +33,14 @@ export const colors = {
     center: '#EA580C',
     org: '#16A34A',
   },
+    icon: {
+    default: '#111827',
+  },
+  // Напівпрозорі кольори для кнопок на градієнті (IconButton glass)
+  glass: {
+    bg: '#FFFFFF33', // білий 20%
+    border: '#FFFFFF4D', // білий 30%
+  },
 } as const;
 
 export type Colors = typeof colors;

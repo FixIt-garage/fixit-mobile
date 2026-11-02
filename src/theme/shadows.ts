@@ -21,4 +21,11 @@ export const shadows = {
     shadowOpacity: 0.08,
     shadowRadius: 1.5, // Blur 3 у Figma
   },
+    // Shadow/Card: X 0, Y 4, Blur 16, #121726 6% (IconButton white, картки)
+  card: {
+    shadowColor: '#121726',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8, // Blur 16 у Figma
+  },
 } satisfies Record<string, ViewStyle>;
