@@ -1,3 +1,4 @@
+import { action } from 'storybook/actions';
 import type { Meta, StoryObj } from '@storybook/react-native';
 import { ROLES } from '../src/roles';
 import { RoleCard } from './RoleCard';
@@ -13,11 +14,10 @@ const meta = {
     description: client.description,
     buttonLabel: client.buttonLabel,
     gradient: client.role,
-    onPress: () => {},
+    onPress: action('pressed'),
   },
   argTypes: {
     gradient: { control: { type: 'select' }, options: ['client', 'master', 'center', 'org'] },
-    onPress: { action: 'pressed' },
   },
 } satisfies Meta<typeof RoleCard>;
 

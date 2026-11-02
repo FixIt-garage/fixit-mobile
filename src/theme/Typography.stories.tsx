@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import type { Meta, StoryObj } from '@storybook/react-native';
 import { Text } from '../../components/Text';
 import { theme, type TypographyVariant } from '.';
@@ -9,7 +9,7 @@ export default meta;
 
 export const All: StoryObj<typeof meta> = {
   render: () => (
-    <View style={styles.list}>
+    <ScrollView contentContainerStyle={styles.list}>
       {(Object.keys(theme.typography) as TypographyVariant[]).map((variant) => (
         <View key={variant} style={styles.item}>
           <Text variant="labelMono" color="secondary">
@@ -18,7 +18,7 @@ export const All: StoryObj<typeof meta> = {
           <Text variant={variant}>Зламалося? Полагодимо.</Text>
         </View>
       ))}
-    </View>
+    </ScrollView>
   ),
 };
 

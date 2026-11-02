@@ -1,26 +1,29 @@
 import { useState } from 'react';
+import { action } from 'storybook/actions';
 import type { Meta, StoryObj } from '@storybook/react-native';
-import { Toggle } from './Toggle';
+import { Toggle, type ToggleProps } from './Toggle';
+
+// Тримає стан, щоб перемикач можна було клацати на телефоні
+function ToggleWithState(props: ToggleProps) {
+  const [value, setValue] = useState(props.value);
+  return (
+    <Toggle
+      {...props}
+      value={value}
+      onValueChange={(next) => {
+        setValue(next);
+        props.onValueChange(next);
+      }}
+    />
+  );
+}
 
 const meta = {
   title: 'Controls/Toggle',
   component: Toggle,
-  args: { value: false, onValueChange: () => {} },
-  argTypes: { onValueChange: { action: 'changed' } },
-  // Тримаємо стан усередині story, щоб перемикач можна було клацати
-  render: function Render(args) {
-    const [value, setValue] = useState(args.value);
-    return (
-      <Toggle
-        {...args}
-        value={value}
-        onValueChange={(next) => {
-          setValue(next);
-          args.onValueChange(next);
-        }}
-      />
-    );
-  },
+  args: { value: false, onValueChange: action('changed') },
+  // key: коли value змінюють у Controls, компонент перестворюється з новим значенням
+  render: (args) => <ToggleWithState key={String(args.value)} {...args} />,
 } satisfies Meta<typeof Toggle>;
 
 export default meta;

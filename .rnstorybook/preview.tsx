@@ -39,7 +39,11 @@ const preview: Preview = {
 
 const styles = StyleSheet.create({
   canvas: {
-    width: CANVAS_WIDTH,
+    // Займає всю висоту, щоб довгі stories з ScrollView могли прокручуватись
+    flex: 1,
+    // 360 як у Figma, але не ширше за екран (iPhone SE — 320)
+    width: '100%',
+    maxWidth: CANVAS_WIDTH,
     alignSelf: 'center',
     padding: theme.layout.screenPadding,
   },
