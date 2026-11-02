@@ -1,8 +1,16 @@
+import type { ComponentType } from 'react';
 import { render } from '@testing-library/react-native';
 import { composeStories, setProjectAnnotations } from '@storybook/react';
 import * as preview from './.rnstorybook/preview';
 
 import * as ButtonStories from './components/Button.stories';
+import * as IconButtonStories from './components/IconButton.stories';
+import * as InputStories from './components/Input.stories';
+import * as ProgressBarStories from './components/ProgressBar.stories';
+import * as SegmentedControlStories from './components/SegmentedControl.stories';
+import * as SlideButtonStories from './components/SlideButton.stories';
+import * as TextAreaStories from './components/TextArea.stories';
+import * as ToggleStories from './components/Toggle.stories';
 
 // Ті самі декоратори, що й у Storybook: тема і полотно 360
 setProjectAnnotations(preview);
@@ -10,11 +18,18 @@ setProjectAnnotations(preview);
 // Нову *.stories.tsx додавай сюди — кожна її story стане smoke-тестом
 const storyFiles = {
   Button: ButtonStories,
+  IconButton: IconButtonStories,
+  Input: InputStories,
+  ProgressBar: ProgressBarStories,
+  SegmentedControl: SegmentedControlStories,
+  SlideButton: SlideButtonStories,
+  TextArea: TextAreaStories,
+  Toggle: ToggleStories,
 };
 
 describe.each(Object.entries(storyFiles))('%s stories', (_name, storiesModule) => {
-  const stories = Object.entries(composeStories(storiesModule));
-
+  // Усі stories після composeStories — звичайні компоненти без обовʼязкових пропсів
+  const stories = Object.entries(composeStories(storiesModule)) as [string, ComponentType][];
   it.each(stories)('%s renders', async (_storyName, Story) => {
     await render(<Story />);
   });
