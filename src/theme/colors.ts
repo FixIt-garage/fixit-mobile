@@ -21,6 +21,8 @@ export const colors = {
     onInverseMuted: '#9CA3AF',
     success: '#16A34A',
     error: '#DC2626',
+    brand: '#2563EB',
+    onBrand: '#FFFFFF',
   },
   rating: '#F59E0B',
   role: {
