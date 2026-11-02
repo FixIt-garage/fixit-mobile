@@ -52,6 +52,7 @@
   "devDependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
     "@storybook/addon-ondevice-backgrounds": "^10.7.1",
+    "@storybook/react": "^10.6.5",
     "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react-native": "^14.1.0",
     "@types/jest": "30.0.0",
@@ -70,6 +71,9 @@
     "resolver": "react-native-reanimated/jest/resolver",
     "setupFilesAfterEnv": [
       "<rootDir>/jest.setup.ts"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|@storybook/.*|storybook)"
     ]
   }
 }

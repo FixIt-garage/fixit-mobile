@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+import { withBackgrounds } from '@storybook/addon-ondevice-backgrounds';
 import type { Preview } from '@storybook/react-native';
 import { ThemeProvider, theme } from '../src/theme';
 
@@ -6,8 +7,8 @@ import { ThemeProvider, theme } from '../src/theme';
 const CANVAS_WIDTH = 360;
 
 const preview: Preview = {
-  // Кожна story загортається в тему і показується на полотні шириною 360, як у Figma
   decorators: [
+    // Кожна story загортається в тему і показується на полотні шириною 360, як у Figma
     (Story) => (
       <ThemeProvider>
         <View style={styles.canvas}>
@@ -15,6 +16,8 @@ const preview: Preview = {
         </View>
       </ThemeProvider>
     ),
+    // Застосовує фон, вибраний у вкладці Backgrounds
+    withBackgrounds,
   ],
   parameters: {
     backgrounds: {
