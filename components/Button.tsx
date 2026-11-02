@@ -9,12 +9,14 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTheme } from '../src/theme';
+import { useTheme, type GradientName } from '../src/theme';
 import { Text } from './Text';
 
 export type ButtonProps = Omit<PressableProps, 'style' | 'children' | 'disabled'> & {
   label: string;
   variant?: 'primary' | 'secondary';
+  /** Градієнт primary-кнопки, за замовчуванням client */
+  gradient?: GradientName;
   disabled?: boolean;
   loading?: boolean;
   /** Необовʼязкова іконка зліва від тексту */
@@ -25,6 +27,7 @@ export type ButtonProps = Omit<PressableProps, 'style' | 'children' | 'disabled'
 export function Button({
   label,
   variant = 'primary',
+  gradient = 'client',
   disabled = false,
   loading = false,
   icon,
@@ -62,7 +65,7 @@ export function Button({
     >
       {showGradient && (
         <LinearGradient
-          colors={theme.gradients.client}
+          colors={theme.gradients[gradient]}
           start={theme.gradientDirection.start}
           end={theme.gradientDirection.end}
           style={StyleSheet.absoluteFill}
