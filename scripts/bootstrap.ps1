@@ -86,6 +86,7 @@ try {
     Write-Host ''
     Write-Host 'FixIt mobile is ready.' -ForegroundColor Green
     Write-Host '  Start the app:  npm start   (then scan the QR code with Expo Go, or press "a" for Android)'
+    Write-Host '  If PowerShell says "running scripts is disabled", use npm.cmd start instead.'
     Write-Host '  The backend must be running (fixit-backend: scripts\bootstrap.ps1) and reachable at the'
     Write-Host '  address in .env (EXPO_PUBLIC_API_URL).'
 } finally {
