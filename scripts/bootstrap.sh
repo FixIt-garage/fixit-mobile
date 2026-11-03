@@ -34,14 +34,22 @@ fail() {
   exit 1
 }
 
-# IPv4 address of this computer on the local network (what a phone or emulator can reach).
+# IPv4 address of this computer on the local network (what a phone or emulator can reach):
+# the address of the interface behind the default route, not e.g. a Docker bridge.
 lan_ip() {
-  local ip=""
-  if command -v ipconfig >/dev/null 2>&1; then # macOS
-    ip="$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || true)"
+  local ip="" iface=""
+  if [ "$(uname -s)" = "Darwin" ]; then # macOS
+    iface="$(route -n get default 2>/dev/null | awk '/interface:/ { print $2 }' || true)"
+    if [ -n "$iface" ]; then
+      ip="$(ipconfig getifaddr "$iface" 2>/dev/null || true)"
+    fi
   fi
-  if [ -z "$ip" ] && command -v hostname >/dev/null 2>&1; then # Linux
-    ip="$(hostname -I 2>/dev/null | awk '{print $1}' || true)"
+  if [ -z "$ip" ] && command -v ip >/dev/null 2>&1; then # Linux (no traffic is sent)
+    ip="$(ip -4 route get 1.1.1.1 2>/dev/null |
+      awk '{ for (i = 1; i < NF; i++) if ($i == "src") { print $(i + 1); exit } }' || true)"
+  fi
+  if [ -z "$ip" ] && command -v hostname >/dev/null 2>&1; then
+    ip="$(hostname -I 2>/dev/null | awk '{ print $1 }' || true)"
   fi
   printf '%s' "$ip"
 }

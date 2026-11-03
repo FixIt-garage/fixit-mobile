@@ -32,7 +32,8 @@ Use the `develop` branch in both repos: it is where the bootstrap scripts live u
 
 - **The app shows a backend error**: open `EXPO_PUBLIC_API_URL` from `.env` plus `/health` in the phone's
   browser. If it does not load, the phone and computer must be on the same Wi-Fi, and the firewall must
-  allow incoming connections to port 8000. After changing `.env`, restart with `npx expo start -c`.
+  allow incoming connections to port 8000. After changing `.env`, restart with `npx expo start -c`
+  (`npx.cmd expo start -c` in Windows PowerShell).
 - **`running scripts is disabled on this system`**: Windows blocks PowerShell scripts by default, and
   on recent Node versions `npm` itself is one. Start the bootstrap with
   `powershell -ExecutionPolicy Bypass -File ...` as shown above, and run npm as `npm.cmd start`.
