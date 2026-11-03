@@ -2,9 +2,43 @@
 
 A mobile application built with React Native, Expo, and TypeScript.
 
+## Quick start
+
+Requires [Git](https://git-scm.com/) and [Node.js](https://nodejs.org/) 22.13+ (see `.nvmrc`; with nvm: `nvm install && nvm use`).
+
+```bash
+git clone https://github.com/FixIt-garage/fixit-mobile.git
+cd fixit-mobile
+
+# Windows (PowerShell)
+powershell -ExecutionPolicy Bypass -File scripts\bootstrap.ps1
+
+# macOS / Linux
+./scripts/bootstrap.sh
+
+npm start
+```
+
+The script checks the Node version, installs dependencies (`npm ci`) and creates `.env` with
+`EXPO_PUBLIC_API_URL` set to this computer's local IP and port 8000, so Expo Go on a phone and the
+Android emulator can reach the backend. Pass `-ApiUrl` (PowerShell) or `--api-url` (bash) to use another
+address. It is safe to run again: an existing `.env` is kept.
+
+The backend must be running: see the Quick start in
+[fixit-backend](https://github.com/FixIt-garage/fixit-backend#quick-start).
+
+### Troubleshooting
+
+- **The app shows a backend error**: open `EXPO_PUBLIC_API_URL` from `.env` plus `/health` in the phone's
+  browser. If it does not load, the phone and computer must be on the same Wi-Fi, and the firewall must
+  allow incoming connections to port 8000. After changing `.env`, restart with `npx expo start -c`.
+- **`running scripts is disabled on this system`**: start the script with
+  `powershell -ExecutionPolicy Bypass -File ...` as shown above.
+- **`EBADENGINE` warnings or Metro errors**: switch to the Node version from `.nvmrc`.
+
 ## Requirements
 
-- Node.js and npm
+- Node.js 22.13+ and npm (version pinned in `.nvmrc`)
 - Expo Go for testing on a compatible physical device
 - An Android emulator or a physical Android device for Android testing
 - macOS and Xcode for running the iOS Simulator
