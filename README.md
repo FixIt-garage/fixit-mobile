@@ -7,7 +7,7 @@ A mobile application built with React Native, Expo, and TypeScript.
 Requires [Git](https://git-scm.com/) and [Node.js](https://nodejs.org/) 22.13+ (see `.nvmrc`; with nvm: `nvm install && nvm use`).
 
 ```bash
-git clone https://github.com/FixIt-garage/fixit-mobile.git
+git clone --branch develop https://github.com/FixIt-garage/fixit-mobile.git
 cd fixit-mobile
 
 # Windows (PowerShell)
@@ -25,7 +25,8 @@ Android emulator can reach the backend. Pass `-ApiUrl` (PowerShell) or `--api-ur
 address. It is safe to run again: an existing `.env` is kept.
 
 The backend must be running: see the Quick start in
-[fixit-backend](https://github.com/FixIt-garage/fixit-backend#quick-start).
+[fixit-backend](https://github.com/FixIt-garage/fixit-backend/tree/develop#quick-start).
+Use the `develop` branch in both repos: it is where the bootstrap scripts live until they reach `main`.
 
 ### Troubleshooting
 
