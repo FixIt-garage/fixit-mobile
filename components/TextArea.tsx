@@ -16,8 +16,10 @@ export type TextAreaProps = Omit<TextInputProps, 'style' | 'multiline'> & {
   label?: string;
   helper?: string;
   error?: string;
-  /** Якщо задано — під полем показується лічильник символів */
+  /** Максимальна довжина тексту (поле не дасть ввести більше) */
   maxLength?: number;
+  /** Показати лічильник «0 / 500» під полем (потрібен maxLength) */
+  showCounter?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -26,6 +28,7 @@ export function TextArea({
   helper,
   error,
   maxLength,
+  showCounter = false,
   value,
   defaultValue,
   onChangeText,
@@ -48,6 +51,8 @@ export function TextArea({
       : theme.colors.border.default;
   const borderWidth = error || focused ? 2 : 1;
   const message = error ?? helper;
+  // Лічильник за Figma: вимкнений за замовчуванням, вмикається пропом
+  const counterVisible = showCounter && maxLength !== undefined;
 
   return (
     <View style={[{ gap: theme.spacing.xs }, style]}>
@@ -97,18 +102,18 @@ export function TextArea({
         />
       </View>
 
-      {message || maxLength !== undefined ? (
+      {message || counterVisible ? (
         <View style={[styles.footer, { gap: theme.spacing.sm }]}>
           <Text variant="caption" color={error ? 'error' : 'secondary'} style={styles.message}>
             {message ?? ''}
           </Text>
-          {maxLength !== undefined ? (
+          {counterVisible ? (
             <Text
               variant="caption"
               color="secondary"
               accessibilityLabel={`${length} з ${maxLength} символів`}
             >
-              {`${length}/${maxLength}`}
+              {`${length} / ${maxLength}`}
             </Text>
           ) : null}
         </View>

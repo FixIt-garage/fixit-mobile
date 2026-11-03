@@ -2,17 +2,24 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import { TextArea } from './TextArea';
 
 describe('TextArea', () => {
-  it('counts typed characters', async () => {
-    await render(<TextArea label="Що зламалося?" maxLength={500} />);
+  it('counts typed characters when the counter is on', async () => {
+    await render(<TextArea label="Що зламалося?" maxLength={500} showCounter />);
 
-    expect(screen.getByText('0/500')).toBeTruthy();
+    expect(screen.getByText('0 / 500')).toBeTruthy();
     await fireEvent.changeText(screen.getByLabelText('Що зламалося?'), 'привіт');
-    expect(screen.getByText('6/500')).toBeTruthy();
+    expect(screen.getByText('6 / 500')).toBeTruthy();
   });
 
   it('counts a controlled value', async () => {
-    await render(<TextArea label="Опис" value="abc" maxLength={10} onChangeText={jest.fn()} />);
-    expect(screen.getByText('3/10')).toBeTruthy();
+    await render(
+      <TextArea label="Опис" value="abc" maxLength={10} showCounter onChangeText={jest.fn()} />,
+    );
+    expect(screen.getByText('3 / 10')).toBeTruthy();
+  });
+
+  it('hides the counter by default', async () => {
+    await render(<TextArea label="Опис" maxLength={500} />);
+    expect(screen.queryByText('0 / 500')).toBeNull();
   });
 
   it('limits input length and still calls onChangeText', async () => {
