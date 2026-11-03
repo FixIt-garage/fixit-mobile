@@ -17,6 +17,8 @@ import * as ColorsStories from './src/theme/Colors.stories';
 import * as GradientsStories from './src/theme/Gradients.stories';
 import * as TypographyStories from './src/theme/Typography.stories';
 import * as SpacingAndRadiusStories from './src/theme/SpacingAndRadius.stories';
+import * as BackBarStories from './components/BackBar.stories';
+import * as AppBarStories from './components/AppBar.stories';
 // Ті самі декоратори, що й у Storybook: тема і полотно 360
 setProjectAnnotations(preview);
 
@@ -36,6 +38,8 @@ const storyFiles = {
   Gradients: GradientsStories,
   Typography: TypographyStories,
   SpacingAndRadius: SpacingAndRadiusStories,
+  BackBar: BackBarStories,
+  AppBar: AppBarStories,
 };
 
 describe.each(Object.entries(storyFiles))('%s stories', (_name, storiesModule) => {

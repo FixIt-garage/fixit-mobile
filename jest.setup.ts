@@ -29,6 +29,11 @@ jest.mock('react-native-gesture-handler', () => {
   };
 });
 
+// Safe area у Jest: відступи вирізу й статус-бару завжди нульові
+jest.mock('react-native-safe-area-context', () =>
+  require('react-native-safe-area-context/jest/mock').default,
+);
+
 jest.setTimeout(10000);
 
 // Підробне сховище замість справжнього async storage
