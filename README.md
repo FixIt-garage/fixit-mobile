@@ -2,9 +2,57 @@
 
 A mobile application built with React Native, Expo, and TypeScript.
 
+## Quick start
+
+Requires [Git](https://git-scm.com/) and [Node.js](https://nodejs.org/) 22.13+ (see `.nvmrc`; with nvm: `nvm install && nvm use`).
+
+```bash
+git clone --branch develop https://github.com/FixIt-garage/fixit-mobile.git
+cd fixit-mobile
+
+# Windows (PowerShell)
+powershell -ExecutionPolicy Bypass -File scripts\bootstrap.ps1
+
+# macOS / Linux
+./scripts/bootstrap.sh
+
+npm start
+```
+
+The script checks the Node version, installs dependencies (`npm ci`) and creates `.env` with
+`EXPO_PUBLIC_API_URL` set to this computer's local IP and port 8000, so Expo Go on a phone and the
+Android emulator can reach the backend. Pass `-ApiUrl` (PowerShell) or `--api-url` (bash) to use another
+address. It is safe to run again: an existing `.env` is kept.
+
+The backend must be running: see the Quick start in
+[fixit-backend](https://github.com/FixIt-garage/fixit-backend/tree/develop#quick-start).
+Use the `develop` branch in both repos: it is where the bootstrap scripts live until they reach `main`.
+
+### Troubleshooting
+
+- **The app shows a backend error**: open `EXPO_PUBLIC_API_URL` from `.env` plus `/health` in the phone's
+  browser. If it does not load, the phone and computer must be on the same Wi-Fi, and the firewall must
+  allow incoming connections to port 8000. After changing `.env`, restart with `npx expo start -c`
+  (`npx.cmd expo start -c` in Windows PowerShell).
+- **`running scripts is disabled on this system`**: Windows blocks PowerShell scripts by default, and
+  on recent Node versions `npm` itself is one. Start the bootstrap with
+  `powershell -ExecutionPolicy Bypass -File ...` as shown above, and run npm as `npm.cmd start`.
+  To allow local scripts for your Windows user once:
+  `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
+- **`EBADENGINE` warnings or Metro errors**: switch to the Node version from `.nvmrc`.
+- **Expo Go says you must be signed in to Expo CLI**: sign in on the computer with the same account
+  as in Expo Go: `npx expo login` (on Windows PowerShell: `npx.cmd expo login`). If the login crashes
+  while opening the browser, create a token at https://expo.dev/settings/access-tokens and set it
+  in the same terminal before starting: `$env:EXPO_TOKEN = "<token>"` (PowerShell) or
+  `export EXPO_TOKEN=<token>` (bash). Never commit or share the token.
+- **The QR code is cut off**: maximize the terminal or zoom out, then press `r` to redraw it. On
+  iPhone you can also open `exp://<your-local-ip>:8081` in Safari.
+- **"Could not connect to development server" on the first launch**: the first build can take
+  longer than the phone waits. Tap **Try again** once the terminal shows `Bundled`.
+
 ## Requirements
 
-- Node.js and npm
+- Node.js 22.13+ and npm (version pinned in `.nvmrc`)
 - Expo Go for testing on a compatible physical device
 - An Android emulator or a physical Android device for Android testing
 - macOS and Xcode for running the iOS Simulator
