@@ -38,6 +38,15 @@ The backend must be running: see the Quick start in
   To allow local scripts for your Windows user once:
   `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
 - **`EBADENGINE` warnings or Metro errors**: switch to the Node version from `.nvmrc`.
+- **Expo Go says you must be signed in to Expo CLI**: sign in on the computer with the same account
+  as in Expo Go: `npx expo login` (on Windows PowerShell: `npx.cmd expo login`). If the login crashes
+  while opening the browser, create a token at https://expo.dev/settings/access-tokens and set it
+  in the same terminal before starting: `$env:EXPO_TOKEN = "<token>"` (PowerShell) or
+  `export EXPO_TOKEN=<token>` (bash). Never commit or share the token.
+- **The QR code is cut off**: maximize the terminal or zoom out, then press `r` to redraw it. On
+  iPhone you can also open `exp://<your-local-ip>:8081` in Safari.
+- **"Could not connect to development server" on the first launch**: the first build can take
+  longer than the phone waits. Tap **Try again** once the terminal shows `Bundled`.
 
 ## Requirements
 
