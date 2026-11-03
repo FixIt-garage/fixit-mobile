@@ -23,3 +23,4 @@ export const Primary: Story = {};
 export const Secondary: Story = { args: { variant: 'secondary' } };
 export const Disabled: Story = { args: { disabled: true } };
 export const Loading: Story = { args: { loading: true } };
+export const SecondaryLoading: Story = { args: { variant: 'secondary', loading: true } };
