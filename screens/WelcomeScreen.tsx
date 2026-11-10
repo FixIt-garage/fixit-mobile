@@ -82,7 +82,9 @@ export default function WelcomeScreen({ navigation }: Props) {
           },
         ]}
       >
-        <Logo variant="wordmark" size={24} />
+        <View testID="welcome-logo" style={styles.logoRow}>
+          <Logo variant="wordmark" size={24} />
+        </View>
 
         {/* Illustration */}
         <View
@@ -243,6 +245,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  logoRow: {
+    alignSelf: 'center',
   },
   orbitArea: {
     flex: 1,
