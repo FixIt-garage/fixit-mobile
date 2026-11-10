@@ -11,6 +11,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Logo } from '../components/Logo';
 import { Text } from '../components/Text';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 import { useTheme } from '../src/theme';
@@ -81,14 +82,8 @@ export default function WelcomeScreen({ navigation }: Props) {
           },
         ]}
       >
-        {/* Logo: слово й крапка — окремі елементи з проміжком 1.68 */}
-        <View style={styles.logoRow}>
-          <Text variant="display" style={styles.logo}>
-            FIXIT
-          </Text>
-          <Text variant="display" style={[styles.logo, { color: brandColor }]}>
-            .
-          </Text>
+        <View testID="welcome-logo" style={styles.logoRow}>
+          <Logo variant="wordmark" size={24} />
         </View>
 
         {/* Illustration */}
@@ -252,14 +247,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   logoRow: {
-    flexDirection: 'row',
     alignSelf: 'center',
-    gap: 1.68,
-  },
-  logo: {
-    fontSize: 24,
-    lineHeight: 26,
-    letterSpacing: -0.48, // -2%
   },
   orbitArea: {
     flex: 1,

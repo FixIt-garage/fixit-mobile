@@ -4,7 +4,7 @@
     "slug": "tempo-expo",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/app-icon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true
@@ -24,7 +24,15 @@
     "plugins": [
       "expo-status-bar",
       "expo-font",
-      "expo-splash-screen",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/app-icon.png",
+          "imageWidth": 180,
+          "resizeMode": "contain",
+          "backgroundColor": "#111827"
+        }
+      ],
       "expo-asset",
       "expo-secure-store",
       "@react-native-community/datetimepicker"
