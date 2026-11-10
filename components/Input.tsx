@@ -10,15 +10,14 @@ import {
 } from 'react-native';
 import { useTheme } from '../src/theme';
 import { Text } from './Text';
+import { Icon } from './Icon/Icon';
 
 const HEIGHT = 52;
 
 export type InputProps = Omit<TextInputProps, 'style' | 'secureTextEntry'> & {
   label?: string;
   helper?: string;
-  /** Текст помилки: показується замість helper і фарбує рамку в червоний */
   error?: string;
-  /** Режим пароля: текст прихований, є кнопка «показати» */
   password?: boolean;
   style?: StyleProp<ViewStyle>;
 };
@@ -94,10 +93,12 @@ export function Input({
             onPress={() => setHidden((value) => !value)}
             hitSlop={12}
           >
-            {/* TODO: замінити на Icon eye / eye-off з FIX-16 */}
-            <Text variant="caption" color="brand">
-              {hidden ? 'Показати' : 'Сховати'}
-            </Text>
+            <Icon
+              name={hidden ? 'eye-off' : 'eye'}
+              size={20}
+              color="text/secondary"
+              testID={hidden ? 'password-icon-eye-off' : 'password-icon-eye'}
+            />
           </Pressable>
         ) : null}
       </View>

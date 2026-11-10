@@ -9,6 +9,7 @@ import {
   CirclePlus,
   ClipboardList,
   Clock,
+  Eye,
   EyeOff,
   Flag,
   HeartHandshake,
@@ -55,6 +56,7 @@ const iconMap = {
   flag: Flag,
   store: Store,
   'eye-off': EyeOff,
+  eye: Eye,
   mail: Mail,
   'log-out': LogOut,
   pencil: Pencil,
@@ -73,6 +75,7 @@ export type IconColor =
   | 'text/brand'
   | 'text/onBrand'
   | 'text/onInverse'
+  | 'text/onInverseMuted'
   | 'text/success'
   | 'text/error';
 
@@ -92,6 +95,8 @@ function resolveColor(colors: Theme['colors'], token: IconColor): string {
       return colors.text.onBrand;
     case 'text/onInverse':
       return colors.text.onInverse;
+    case 'text/onInverseMuted':
+      return colors.text.onInverseMuted;
     case 'text/success':
       return colors.text.success;
     case 'text/error':
@@ -103,9 +108,10 @@ export type IconProps = {
   name: IconName;
   size?: number;
   color?: IconColor;
+  testID?: string;
 };
 
-export function Icon({ name, size = 24, color = 'text/primary' }: IconProps) {
+export function Icon({ name, size = 24, color = 'text/primary', testID }: IconProps) {
   const theme = useTheme();
   const LucideIcon = iconMap[name];
 
@@ -113,6 +119,7 @@ export function Icon({ name, size = 24, color = 'text/primary' }: IconProps) {
     <LucideIcon
       size={size}
       color={resolveColor(theme.colors, color)}
+      testID={testID}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     />
