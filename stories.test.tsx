@@ -21,7 +21,8 @@ import * as TypographyStories from './src/theme/Typography.stories';
 import * as SpacingAndRadiusStories from './src/theme/SpacingAndRadius.stories';
 import * as BackBarStories from './components/BackBar.stories';
 import * as AppBarStories from './components/AppBar.stories';
-
+import * as TabItemStories from './components/TabItem.stories';
+import * as TabBarStories from './components/TabBar.stories';
 setProjectAnnotations(preview);
 
 const storyFiles = {
@@ -43,6 +44,8 @@ const storyFiles = {
   SpacingAndRadius: SpacingAndRadiusStories,
   BackBar: BackBarStories,
   AppBar: AppBarStories,
+  TabItem: TabItemStories,
+  TabBar: TabBarStories,
 };
 
 describe.each(Object.entries(storyFiles))('%s stories', (_name, storiesModule) => {

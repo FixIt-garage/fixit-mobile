@@ -73,6 +73,7 @@ export type IconColor =
   | 'text/brand'
   | 'text/onBrand'
   | 'text/onInverse'
+  | 'text/onInverseMuted'
   | 'text/success'
   | 'text/error';
 
@@ -92,6 +93,8 @@ function resolveColor(colors: Theme['colors'], token: IconColor): string {
       return colors.text.onBrand;
     case 'text/onInverse':
       return colors.text.onInverse;
+    case 'text/onInverseMuted':
+      return colors.text.onInverseMuted;
     case 'text/success':
       return colors.text.success;
     case 'text/error':
