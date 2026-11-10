@@ -1,3 +1,4 @@
+import { StyleSheet } from 'react-native';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { PropsWithChildren } from 'react';
@@ -60,5 +61,20 @@ describe('WelcomeScreen', () => {
 
     expect(mockNavigate).toHaveBeenCalledWith('Login');
     expect(mockNavigate).toHaveBeenCalledTimes(1);
+  });
+
+  it('centers the logo horizontally', async () => {
+    await render(
+      <WelcomeScreen navigation={mockNavigation} route={mockRoute} />,
+      { wrapper: Wrapper },
+    );
+
+    const logo = screen.getByTestId('welcome-logo');
+
+    expect(StyleSheet.flatten(logo.props.style)).toEqual(
+      expect.objectContaining({
+        alignSelf: 'center',
+      }),
+    );
   });
 });
