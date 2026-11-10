@@ -17,9 +17,7 @@ const HEIGHT = 52;
 export type InputProps = Omit<TextInputProps, 'style' | 'secureTextEntry'> & {
   label?: string;
   helper?: string;
-  /** Текст помилки: показується замість helper і фарбує рамку в червоний */
   error?: string;
-  /** Режим пароля: текст прихований, є кнопка «показати» */
   password?: boolean;
   style?: StyleProp<ViewStyle>;
 };
@@ -95,7 +93,12 @@ export function Input({
             onPress={() => setHidden((value) => !value)}
             hitSlop={12}
           >
-            <Icon name="eye-off" size={20} color="text/secondary" />
+            <Icon
+              name={hidden ? 'eye-off' : 'eye'}
+              size={20}
+              color="text/secondary"
+              testID={hidden ? 'password-icon-eye-off' : 'password-icon-eye'}
+            />
           </Pressable>
         ) : null}
       </View>

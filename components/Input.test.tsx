@@ -20,12 +20,19 @@ describe('Input', () => {
     expect(screen.queryByText('Формат +380')).toBeNull();
   });
 
-  it('hides the password and reveals it on toggle', async () => {
+  it('toggles password visibility, icon and label on each press', async () => {
     await render(<Input label="Пароль" password />);
 
     expect(screen.getByLabelText('Пароль').props.secureTextEntry).toBe(true);
+    expect(screen.getByTestId('password-icon-eye-off')).toBeTruthy();
+
     await fireEvent.press(screen.getByRole('button', { name: 'Показати пароль' }));
     expect(screen.getByLabelText('Пароль').props.secureTextEntry).toBe(false);
+    expect(screen.getByTestId('password-icon-eye')).toBeTruthy();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Сховати пароль' }));
+    expect(screen.getByLabelText('Пароль').props.secureTextEntry).toBe(true);
+    expect(screen.getByTestId('password-icon-eye-off')).toBeTruthy();
   });
 
   it('still calls the parent onFocus and onBlur', async () => {
