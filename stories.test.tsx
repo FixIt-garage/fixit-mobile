@@ -22,46 +22,6 @@ import * as SpacingAndRadiusStories from './src/theme/SpacingAndRadius.stories';
 import * as BackBarStories from './components/BackBar.stories';
 import * as AppBarStories from './components/AppBar.stories';
 
-jest.mock('lucide-react-native', () => {
-  const React = jest.requireActual<typeof import('react')>('react');
-  const { View } = jest.requireActual<typeof import('react-native')>('react-native');
-
-  const MockLucideIcon = () =>
-    React.createElement(View, { testID: 'mock-lucide-icon' });
-
-  return {
-    __esModule: true,
-    Bell: MockLucideIcon,
-    Calendar: MockLucideIcon,
-    Camera: MockLucideIcon,
-    Check: MockLucideIcon,
-    ChevronLeft: MockLucideIcon,
-    ChevronRight: MockLucideIcon,
-    CircleAlert: MockLucideIcon,
-    CirclePlus: MockLucideIcon,
-    ClipboardList: MockLucideIcon,
-    Clock: MockLucideIcon,
-    EyeOff: MockLucideIcon,
-    Flag: MockLucideIcon,
-    HeartHandshake: MockLucideIcon,
-    House: MockLucideIcon,
-    LogOut: MockLucideIcon,
-    Mail: MockLucideIcon,
-    MapPin: MockLucideIcon,
-    MessageCircle: MockLucideIcon,
-    MessageSquareText: MockLucideIcon,
-    Pencil: MockLucideIcon,
-    Phone: MockLucideIcon,
-    Search: MockLucideIcon,
-    Send: MockLucideIcon,
-    Star: MockLucideIcon,
-    Store: MockLucideIcon,
-    User: MockLucideIcon,
-    Wrench: MockLucideIcon,
-    X: MockLucideIcon,
-  };
-});
-
 setProjectAnnotations(preview);
 
 const storyFiles = {

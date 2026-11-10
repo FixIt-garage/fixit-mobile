@@ -33,7 +33,17 @@ jest.mock('react-native-gesture-handler', () => {
 jest.mock('react-native-safe-area-context', () =>
   require('react-native-safe-area-context/jest/mock').default,
 );
+jest.mock('lucide-react-native', () => {
+  const React = jest.requireActual<typeof import('react')>('react');
+  const { View } = jest.requireActual<typeof import('react-native')>('react-native');
 
+  const MockLucideIcon = () => React.createElement(View, { testID: 'mock-lucide-icon' });
+
+  return new Proxy<Record<string | symbol, unknown>>(
+    { __esModule: true },
+    { get: (target, name) => (name in target ? target[name] : MockLucideIcon) },
+  );
+});
 jest.setTimeout(10000);
 
 // Підробне сховище замість справжнього async storage

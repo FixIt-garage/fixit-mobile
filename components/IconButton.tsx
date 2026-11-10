@@ -1,22 +1,20 @@
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
 import { useTheme } from '../src/theme';
+import type { IconColor } from './Icon/Icon';
 
 const SIZE = 44;
 
 export type IconButtonProps = Omit<PressableProps, 'style' | 'children'> & {
-  /** Обовʼязково: у кнопки немає тексту, тож VoiceOver читає саме це */
   accessibilityLabel: string;
-  /** glass — на градієнті, white — на світлому фоні */
   variant?: 'glass' | 'white';
-  /** Отримує правильний колір іконки для цього варіанту */
-  icon: (color: string) => ReactNode;
+  icon: (color: IconColor) => ReactNode;
   style?: StyleProp<ViewStyle>;
 };
 
 export function IconButton({ variant = 'white', icon, style, ...rest }: IconButtonProps) {
   const theme = useTheme();
-  const iconColor = variant === 'glass' ? theme.colors.text.onBrand : theme.colors.icon.default;
+  const iconColor: IconColor = variant === 'glass' ? 'text/onBrand' : 'icon/default';
 
   return (
     <Pressable

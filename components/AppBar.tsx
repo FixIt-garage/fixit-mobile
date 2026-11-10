@@ -1,14 +1,14 @@
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../src/theme';
+import { Icon } from './Icon/Icon';
 import { Text } from './Text';
 
-// Зона натискання пошуку з Figma
 const SEARCH_HIT = 48;
+const SEARCH_ICON = 16;
 
 export type AppBarProps = {
   title: string;
-  /** На глибоких екранах пошук вимикають */
   showSearch?: boolean;
   onSearchPress?: () => void;
   style?: StyleProp<ViewStyle>;
@@ -17,7 +17,6 @@ export type AppBarProps = {
 export function AppBar({ title, showSearch = true, onSearchPress, style }: AppBarProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const iconColor = theme.colors.icon.default;
 
   return (
     <View style={[{ paddingTop: insets.top, backgroundColor: theme.colors.bg.surface }, style]}>
@@ -42,11 +41,7 @@ export function AppBar({ title, showSearch = true, onSearchPress, style }: AppBa
             onPress={onSearchPress}
             style={styles.search}
           >
-            {/* TODO: замінити на Icon search з FIX-16 */}
-            <View style={styles.magnifier}>
-              <View style={[styles.lens, { borderColor: iconColor }]} />
-              <View style={[styles.handle, { backgroundColor: iconColor }]} />
-            </View>
+            <Icon name="search" size={SEARCH_ICON} color="icon/default" />
           </Pressable>
         ) : null}
       </View>
@@ -68,25 +63,5 @@ const styles = StyleSheet.create({
     height: SEARCH_HIT,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  // Тимчасова лупа: коло + ручка під кутом
-  magnifier: {
-    width: 18,
-    height: 18,
-  },
-  lens: {
-    width: 13,
-    height: 13,
-    borderRadius: 6.5,
-    borderWidth: 2,
-  },
-  handle: {
-    position: 'absolute',
-    right: 1,
-    bottom: 0,
-    width: 2,
-    height: 6,
-    borderRadius: 1,
-    transform: [{ rotate: '-45deg' }],
   },
 });

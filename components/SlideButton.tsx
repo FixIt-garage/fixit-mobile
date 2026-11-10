@@ -12,6 +12,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme, type GradientName } from '../src/theme';
 import { Text } from './Text';
+import { Icon, type IconColor } from './Icon/Icon';
 
 const HEIGHT = 64;
 const KNOB = 52;
@@ -40,8 +41,7 @@ export function SlideButton({
   const confirmed = useSharedValue(false);
 
   const textColor = disabled ? 'disabled' : 'onBrand';
-  const iconColor = disabled ? theme.colors.text.disabled : theme.colors.bg.brand;
-
+  const iconColor: IconColor = disabled ? 'text/disabled' : 'text/brand';
   const handleConfirmed = () => {
     setDone(true);
     onConfirm();
@@ -126,11 +126,10 @@ export function SlideButton({
             knobStyle,
           ]}
         >
-          {/* TODO: замінити на Icon chevron-right / check з FIX-16 */}
           {done ? (
-            <View style={[styles.check, { borderColor: iconColor }]} />
+            <Icon name="check" color={iconColor} />
           ) : (
-            <View style={[styles.chevron, { borderColor: iconColor }]} />
+            <Icon name="chevron-right" color={iconColor} />
           )}
         </Animated.View>
       </View>
@@ -174,21 +173,5 @@ const styles = StyleSheet.create({
     borderRadius: KNOB / 2,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  chevron: {
-    width: 9,
-    height: 9,
-    marginLeft: -3,
-    borderTopWidth: 2,
-    borderRightWidth: 2,
-    transform: [{ rotate: '45deg' }],
-  },
-  check: {
-    width: 14,
-    height: 8,
-    marginTop: -4,
-    borderLeftWidth: 2,
-    borderBottomWidth: 2,
-    transform: [{ rotate: '-45deg' }],
   },
 });

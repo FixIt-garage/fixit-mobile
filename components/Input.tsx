@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../src/theme';
 import { Text } from './Text';
+import { Icon } from './Icon/Icon';
 
 const HEIGHT = 52;
 
@@ -94,10 +95,7 @@ export function Input({
             onPress={() => setHidden((value) => !value)}
             hitSlop={12}
           >
-            {/* TODO: замінити на Icon eye / eye-off з FIX-16 */}
-            <Text variant="caption" color="brand">
-              {hidden ? 'Показати' : 'Сховати'}
-            </Text>
+            <Icon name="eye-off" size={20} color="text/secondary" />
           </Pressable>
         ) : null}
       </View>
