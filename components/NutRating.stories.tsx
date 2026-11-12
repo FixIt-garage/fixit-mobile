@@ -31,5 +31,10 @@ function InteractiveInput() {
 }
 
 export const Input: Story = {
+  args: {
+    mode: 'input',
+    value: 0,
+    onChange: () => {},
+  },
   render: () => <InteractiveInput />,
 };

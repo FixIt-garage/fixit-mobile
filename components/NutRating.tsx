@@ -33,7 +33,7 @@ function Nut({ active }: { active: boolean }) {
         cx="32"
         cy="32"
         r="12"
-        fill={active ? '#F3F4F6' : theme.colors.bg.surface}
+        fill={active ? theme.colors.bg.subtle : theme.colors.bg.surface}
       />
     </Svg>
   );
