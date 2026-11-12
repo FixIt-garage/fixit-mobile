@@ -128,4 +128,61 @@ describe('session safety', () => {
     expect(onExpired).toHaveBeenCalledTimes(1);
     expect(await getAccessToken()).toBeNull();
   });
+  it('does not refresh for a request that got 401 after logout started', async () => {
+    let resolveRequest: (response: Response) => void = () => {};
+    const requestResponse = new Promise<Response>((resolve) => {
+      resolveRequest = resolve;
+    });
+    let resolveLogout: (response: Response) => void = () => {};
+    const logoutResponse = new Promise<Response>((resolve) => {
+      resolveLogout = resolve;
+    });
+    let resolveRefresh: (response: Response) => void = () => {};
+    const refreshResponse = new Promise<Response>((resolve) => {
+      resolveRefresh = resolve;
+    });
+
+    fetchMock.mockImplementation((url: string) => {
+      if (url.endsWith('/auth/refresh')) {
+        return refreshResponse;
+      }
+      if (url.endsWith('/auth/logout')) {
+        return logoutResponse;
+      }
+      return requestResponse;
+    });
+
+    const request = apiRequest('/requests').catch((caught: unknown) => caught);
+
+    await waitFor(() =>
+      expect(fetchMock.mock.calls.some(([url]) => url.endsWith('/requests'))).toBe(true),
+    );
+
+    const logoutDone = logout();
+
+    await waitFor(() =>
+      expect(fetchMock.mock.calls.some(([url]) => url.endsWith('/auth/logout'))).toBe(true),
+    );
+
+    resolveRequest(jsonResponse(401, null));
+    resolveLogout(jsonResponse(204, null));
+    await logoutDone;
+
+    resolveRefresh(
+      jsonResponse(200, {
+        access_token: 'new-access',
+        refresh_token: 'new-refresh',
+        token_type: 'bearer',
+      }),
+    );
+
+    const error = await request;
+
+    expect(error).toBeInstanceOf(ApiError);
+    expect((error as ApiError).status).toBe(401);
+    expect(fetchMock.mock.calls.some(([url]) => url.endsWith('/auth/refresh'))).toBe(false);
+    expect(await getAccessToken()).toBeNull();
+    expect(await getRefreshToken()).toBeNull();
+    expect(onExpired).not.toHaveBeenCalled();
+  });
 });

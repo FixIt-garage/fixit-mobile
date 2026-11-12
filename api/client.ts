@@ -100,12 +100,16 @@ async function requestNewTokens(baseUrl: string, generation: number): Promise<st
   }
 }
 
-function refreshAccessToken(baseUrl: string): Promise<string | null> {
+function refreshAccessToken(baseUrl: string, generation: number): Promise<string | null> {
+  if (generation !== sessionGeneration) {
+    return Promise.resolve(null);
+  }
+
   if (refreshInFlight) {
     return refreshInFlight;
   }
 
-  const refresh = requestNewTokens(baseUrl, sessionGeneration).finally(() => {
+  const refresh = requestNewTokens(baseUrl, generation).finally(() => {
     if (refreshInFlight === refresh) {
       refreshInFlight = null;
     }
@@ -145,8 +149,12 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
 
   let response = await send(baseUrl, path, options, accessToken);
 
-  if (auth && response.status === 401) {
-    const newAccessToken = await refreshAccessToken(baseUrl);
+    if (auth && response.status === 401) {
+    if (generation !== sessionGeneration) {
+      throw new ApiError(401, null);
+    }
+
+    const newAccessToken = await refreshAccessToken(baseUrl, generation);
 
     if (generation !== sessionGeneration) {
       throw new ApiError(401, null);
