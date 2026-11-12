@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { setOnSessionExpired } from '../../api/client';
+import { queryClient } from '../api/queryClient';
 import { fetchCurrentUser, login, logout, register, type RegisterInput, type User } from './api';
 import { hasStoredAccessToken } from './session';
 
@@ -21,7 +22,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ status: 'loading' });
 
   useEffect(() => {
-    setOnSessionExpired(() => setState({ status: 'signedOut' }));
+    setOnSessionExpired(() => {
+      queryClient.clear();
+      setState({ status: 'signedOut' });
+    });
     return () => setOnSessionExpired(null);
   }, []);
 
@@ -59,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     signOut: async () => {
       await logout();
+      queryClient.clear();
       setState({ status: 'signedOut' });
     },
   };

@@ -15,7 +15,8 @@
     "format:check": "prettier --check .",
     "storybook": "cross-env EXPO_PUBLIC_STORYBOOK_ENABLED=true expo start",
     "storybook:ios": "cross-env EXPO_PUBLIC_STORYBOOK_ENABLED=true expo start --ios",
-    "storybook:android": "cross-env EXPO_PUBLIC_STORYBOOK_ENABLED=true expo start --android"
+    "storybook:android": "cross-env EXPO_PUBLIC_STORYBOOK_ENABLED=true expo start --android",
+        "start:mock": "cross-env EXPO_PUBLIC_USE_MOCKS=true expo start"
   },
   "dependencies": {
     "@expo-google-fonts/jetbrains-mono": "^0.4.1",
@@ -31,6 +32,7 @@
     "@storybook/addon-ondevice-controls": "latest",
     "@storybook/react-native": "latest",
     "@storybook/react-native-ui-lite": "latest",
+    "@tanstack/react-query": "^5.107.1",
     "cross-env": "latest",
     "expo": "~58.0.22",
     "expo-asset": "~58.0.19",

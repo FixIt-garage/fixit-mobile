@@ -4,7 +4,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
-
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './src/api/queryClient';
 import AppNavigator from './navigation/AppNavigator';
 import { AuthProvider, useAuth } from './src/auth/AuthProvider';
 import { ThemeProvider, useAppFonts } from './src/theme';
@@ -43,9 +44,11 @@ export default function App() {
     <GestureHandlerRootView style={styles.root}>
       <SafeAreaProvider>
         <ThemeProvider>
+           <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <Root />
           </AuthProvider>
+           </QueryClientProvider>
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
