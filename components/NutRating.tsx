@@ -73,16 +73,36 @@ export function NutRating(props: NutRatingProps) {
   return (
     <View
       style={styles.input}
-      accessibilityRole="radiogroup"
+      accessible
+      accessibilityRole="adjustable"
       accessibilityLabel="Оцініть роботу"
+      accessibilityHint="Збільшуйте або зменшуйте оцінку від 1 до 5"
+      accessibilityValue={{
+        min: 1,
+        max: 5,
+        ...(props.value > 0 ? { now: props.value } : {}),
+        text: props.value === 0 ? 'Не оцінено' : `${props.value} з 5`,
+      }}
+      accessibilityActions={[
+        { name: 'increment', label: 'Збільшити оцінку' },
+        { name: 'decrement', label: 'Зменшити оцінку' },
+      ]}
+      onAccessibilityAction={(event) => {
+        const action = event.nativeEvent.actionName;
+
+        if (action === 'increment' && props.value < 5) {
+          props.onChange(Math.max(1, props.value + 1));
+        } else if (action === 'decrement' && props.value > 1) {
+          props.onChange(props.value - 1);
+        }
+      }}
     >
       {[1, 2, 3, 4, 5].map((rating) => (
         <Pressable
           key={rating}
+          testID={`nut-rating-${rating}`}
+          accessible={false}
           onPress={() => props.onChange(rating)}
-          accessibilityRole="radio"
-          accessibilityState={{ selected: props.value === rating }}
-          accessibilityLabel={`${rating} з 5`}
         >
           <Nut active={rating <= props.value} />
         </Pressable>

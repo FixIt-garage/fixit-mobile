@@ -22,31 +22,77 @@ describe('NutRating', () => {
         <NutRating mode="input" value={3} onChange={() => {}} />,
       );
 
-      expect(screen.getAllByRole('radio')).toHaveLength(5);
+      for (let rating = 1; rating <= 5; rating++) {
+        expect(screen.getByTestId(`nut-rating-${rating}`)).toBeTruthy();
+      }
     });
 
-    it('marks the selected rating', async () => {
+    it('has adjustable accessibility role and current value', async () => {
       await render(
         <NutRating mode="input" value={3} onChange={() => {}} />,
       );
 
-      expect(screen.getByLabelText('3 з 5').props.accessibilityState).toEqual({
-        selected: true,
+      const rating = screen.getByRole('adjustable');
+
+      expect(rating.props.accessibilityLabel).toBe('Оцініть роботу');
+      expect(rating.props.accessibilityValue).toEqual({
+        min: 1,
+        max: 5,
+        now: 3,
+        text: '3 з 5',
       });
     });
 
-    it.each([1, 2, 3, 4, 5])(
-      'calls onChange with rating %i when the corresponding nut is pressed',
-      async (rating) => {
+    it('calls onChange when a rating nut is pressed', async () => {
+      const onChange = jest.fn();
+
+      await render(
+        <NutRating mode="input" value={2} onChange={onChange} />,
+      );
+
+      fireEvent.press(screen.getByTestId('nut-rating-4'));
+
+      expect(onChange).toHaveBeenCalledWith(4);
+    });
+
+    it.each([
+      ['increment', 2, 3],
+      ['decrement', 3, 2],
+      ['increment', 0, 1],
+    ] as const)(
+      'handles accessibility action "%s" from %i to %i',
+      async (actionName, value, expected) => {
         const onChange = jest.fn();
 
         await render(
-          <NutRating mode="input" value={0} onChange={onChange} />,
+          <NutRating mode="input" value={value} onChange={onChange} />,
         );
 
-        fireEvent.press(screen.getByLabelText(`${rating} з 5`));
+        fireEvent(screen.getByRole('adjustable'), 'accessibilityAction', {
+          nativeEvent: { actionName },
+        });
 
-        expect(onChange).toHaveBeenCalledWith(rating);
+        expect(onChange).toHaveBeenCalledWith(expected);
+      },
+    );
+
+    it.each([
+      ['increment', 5],
+      ['decrement', 1],
+    ] as const)(
+      'does not exceed rating boundaries for "%s" at %i',
+      async (actionName, value) => {
+        const onChange = jest.fn();
+
+        await render(
+          <NutRating mode="input" value={value} onChange={onChange} />,
+        );
+
+        fireEvent(screen.getByRole('adjustable'), 'accessibilityAction', {
+          nativeEvent: { actionName },
+        });
+
+        expect(onChange).not.toHaveBeenCalled();
       },
     );
   });
