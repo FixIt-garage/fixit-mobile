@@ -1,4 +1,3 @@
-
 import { StyleSheet, View } from 'react-native';
 import { useTheme } from '../src/theme';
 import { Text } from './Text';
@@ -9,6 +8,26 @@ export type Status =
   | 'inProgress'
   | 'done'
   | 'declined';
+
+export type BackendIssueStatus =
+  | 'sent'
+  | 'accepted'
+  | 'in_progress'
+  | 'done'
+  | 'declined'
+  | 'cancelled';
+
+export const issueStatusToChipStatus: Record<
+  BackendIssueStatus,
+  Status | null
+> = {
+  sent: 'sent',
+  accepted: 'accepted',
+  in_progress: 'inProgress',
+  done: 'done',
+  declined: 'declined',
+  cancelled: null,
+};
 
 type StatusConfig = {
   label: string;

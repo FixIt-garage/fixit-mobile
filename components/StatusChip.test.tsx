@@ -1,6 +1,8 @@
-
 import { render, screen } from '@testing-library/react-native';
-import { StatusChip } from './StatusChip';
+import {
+  StatusChip,
+  issueStatusToChipStatus,
+} from './StatusChip';
 
 describe('StatusChip', () => {
   it.each([
@@ -22,4 +24,20 @@ describe('StatusChip', () => {
       screen.getByLabelText('ПРИЙНЯТА'),
     ).toBeTruthy();
   });
+});
+
+describe('issueStatusToChipStatus', () => {
+  it.each([
+    ['sent', 'sent'],
+    ['accepted', 'accepted'],
+    ['in_progress', 'inProgress'],
+    ['done', 'done'],
+    ['declined', 'declined'],
+    ['cancelled', null],
+  ] as const)(
+    'maps backend status "%s" to chip status "%s"',
+    (backendStatus, chipStatus) => {
+      expect(issueStatusToChipStatus[backendStatus]).toBe(chipStatus);
+    },
+  );
 });
