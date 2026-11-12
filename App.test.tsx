@@ -1,5 +1,6 @@
-import { render, screen, waitFor } from '@testing-library/react-native';
-import * as SecureStore from 'expo-secure-store';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import * as api from './src/auth/api';
+import * as session from './src/auth/session';
 import App from './App';
 
 jest.mock('expo-font', () => ({
@@ -11,82 +12,109 @@ jest.mock('expo-splash-screen', () => ({
   hideAsync: jest.fn(),
 }));
 
-jest.mock('expo-secure-store', () => ({
-  getItemAsync: jest.fn(),
+jest.mock('./src/auth/session', () => ({ hasStoredAccessToken: jest.fn() }));
+
+jest.mock('./src/auth/api', () => ({
+  login: jest.fn(),
+  register: jest.fn(),
+  fetchCurrentUser: jest.fn(),
+  logout: jest.fn(),
 }));
 
-jest.mock('./screens/HomeScreen', () => {
-  const { Text } =
-    jest.requireActual<typeof import('react-native')>('react-native');
-
-  return function MockHomeScreen() {
-    return <Text>Home test screen</Text>;
-  };
-});
-
 jest.mock('./screens/WelcomeScreen', () => {
-  const { Text } =
-    jest.requireActual<typeof import('react-native')>('react-native');
+  const { Text } = jest.requireActual<typeof import('react-native')>('react-native');
 
   return function MockWelcomeScreen() {
     return <Text>Welcome test screen</Text>;
   };
 });
 
-const mockGetItemAsync = jest.mocked(SecureStore.getItemAsync);
+const mockedSession = jest.mocked(session);
+const mockedApi = jest.mocked(api);
 
-describe('App stored token initialization', () => {
-  beforeEach(() => {
-    mockGetItemAsync.mockReset();
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-  });
+function userWithRole(role: api.User['role']): api.User {
+  return {
+    id: 1,
+    email: 'a@b.ua',
+    firstName: 'Анна',
+    lastName: 'Шеремета',
+    phone: null,
+    address: null,
+    role,
+    isActive: true,
+  };
+}
 
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
-  it('opens Home when an access token exists', async () => {
-    mockGetItemAsync.mockResolvedValue('test-access-token');
-
-    await render(<App />);
-
-    expect(await screen.findByText('Home test screen')).toBeTruthy();
-  });
+describe('App navigation by session', () => {
+  beforeEach(() => jest.clearAllMocks());
 
   it('opens Welcome when no access token exists', async () => {
-    mockGetItemAsync.mockResolvedValue(null);
+    mockedSession.hasStoredAccessToken.mockResolvedValue(false);
 
     await render(<App />);
+    expect(await screen.findByText('Welcome test screen')).toBeTruthy();
+  });
+
+  it('opens Welcome when the token check fails', async () => {
+    mockedSession.hasStoredAccessToken.mockRejectedValue(new Error('SecureStore error'));
+
+    await render(<App />);
+    expect(await screen.findByText('Welcome test screen')).toBeTruthy();
+  });
+
+  it('opens the client home with the tab bar for a client', async () => {
+    mockedSession.hasStoredAccessToken.mockResolvedValue(true);
+    mockedApi.fetchCurrentUser.mockResolvedValue(userWithRole('client'));
+
+    await render(<App />);
+    expect(await screen.findByText('Головна клієнта')).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Заявки' })).toBeTruthy();
+  });
+
+  it('opens the master home for a master', async () => {
+    mockedSession.hasStoredAccessToken.mockResolvedValue(true);
+    mockedApi.fetchCurrentUser.mockResolvedValue(userWithRole('master'));
+
+    await render(<App />);
+    expect(await screen.findByText('Головна майстра')).toBeTruthy();
+  });
+
+  it('switches tabs from the tab bar', async () => {
+    mockedSession.hasStoredAccessToken.mockResolvedValue(true);
+    mockedApi.fetchCurrentUser.mockResolvedValue(userWithRole('client'));
+
+    await render(<App />);
+    await screen.findByText('Головна клієнта');
+    await fireEvent.press(screen.getByRole('tab', { name: 'Заявки' }));
+
+    expect(await screen.findByText('Мої заявки')).toBeTruthy();
+  });
+
+  it('returns to Welcome after signing out', async () => {
+    mockedSession.hasStoredAccessToken.mockResolvedValue(true);
+    mockedApi.fetchCurrentUser.mockResolvedValue(userWithRole('client'));
+    mockedApi.logout.mockResolvedValue();
+
+    await render(<App />);
+    await screen.findByText('Головна клієнта');
+    await fireEvent.press(screen.getByRole('tab', { name: 'Профіль' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Вийти' }));
 
     expect(await screen.findByText('Welcome test screen')).toBeTruthy();
   });
 
-  it('opens Welcome when SecureStore throws an error', async () => {
-    mockGetItemAsync.mockRejectedValue(new Error('SecureStore error'));
-
-    await render(<App />);
-
-    expect(await screen.findByText('Welcome test screen')).toBeTruthy();
-  });
-
-  it('does not render navigation before token check finishes', async () => {
-    let resolveToken!: (value: string | null) => void;
-
-    mockGetItemAsync.mockReturnValue(
+  it('does not render navigation before the session check finishes', async () => {
+    let resolveToken!: (value: boolean) => void;
+    mockedSession.hasStoredAccessToken.mockReturnValue(
       new Promise((resolve) => {
         resolveToken = resolve;
       }),
     );
 
     await render(<App />);
-
-    expect(screen.queryByText('Home test screen')).toBeNull();
     expect(screen.queryByText('Welcome test screen')).toBeNull();
 
-    resolveToken(null);
-
-    await waitFor(() => {
-      expect(screen.getByText('Welcome test screen')).toBeTruthy();
-    });
+    resolveToken(false);
+    await waitFor(() => expect(screen.getByText('Welcome test screen')).toBeTruthy());
   });
 });
