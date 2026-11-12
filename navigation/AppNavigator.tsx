@@ -1,67 +1,64 @@
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import HomeScreen from '../screens/HomeScreen';
 import PlaceholderScreen from '../screens/PlaceholderScreen';
-import ProfileScreen from '../screens/ProfileScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import WhoAreYouScreen from '../screens/WhoAreYouScreen';
+import {
+  ChatsTabScreen,
+  HomeTabScreen,
+  ProfileTabScreen,
+  RequestsTabScreen,
+} from '../screens/MainTabScreens';
+import { useAuth } from '../src/auth/AuthProvider';
+import type { MainTabKey } from '../src/mainTabs';
 import type { Role } from '../src/roles';
+import { NavigationTabBar } from './NavigationTabBar';
 
 export type RootStackParamList = {
-  Home: undefined;
-  Profile: undefined;
   Welcome: undefined;
   WhoAreYou: undefined;
-  // Обрана на екрані 02 роль: від неї залежить акцентний колір реєстрації
   SignUp: { role: Role };
   Login: undefined;
 };
 
-type AppNavigatorProps = {
-  hasStoredAccessToken: boolean;
-};
+export type MainTabParamList = Record<MainTabKey, undefined>;
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<MainTabParamList>();
 
-export default function AppNavigator({
-  hasStoredAccessToken,
-}: AppNavigatorProps) {
-  // Token presence only selects the initial screen; it does not validate authentication
+function AuthStack() {
   return (
-    <Stack.Navigator
-      initialRouteName={hasStoredAccessToken ? 'Home' : 'Welcome'}
-    >
-      <Stack.Screen
-        name="Welcome"
-        component={WelcomeScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="WhoAreYou"
-        component={WhoAreYouScreen}
-        options={{ headerShown: false }}
-      />
-      {/* Тимчасові заглушки: замінити на реальні екрани, коли вони з'являться */}
-      <Stack.Screen
-        name="SignUp"
-        component={PlaceholderScreen}
-        options={{ title: 'Реєстрація' }}
-      />
-      <Stack.Screen
-        name="Login"
-        component={PlaceholderScreen}
-        options={{ title: 'Вхід' }}
-      />
-      <Stack.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{ title: 'Головна' }}
-      />
-      <Stack.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{ title: 'Профіль' }}
-      />
+    <Stack.Navigator initialRouteName="Welcome">
+      <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="WhoAreYou" component={WhoAreYouScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="SignUp" component={PlaceholderScreen} options={{ title: 'Реєстрація' }} />
+      <Stack.Screen name="Login" component={PlaceholderScreen} options={{ title: 'Вхід' }} />
     </Stack.Navigator>
   );
+}
+
+function MainTabs() {
+  return (
+    <Tab.Navigator
+      initialRouteName="home"
+      screenOptions={{ headerShown: false }}
+      tabBar={(props) => <NavigationTabBar {...props} />}
+    >
+      <Tab.Screen name="home" component={HomeTabScreen} />
+      <Tab.Screen name="requests" component={RequestsTabScreen} />
+      <Tab.Screen name="chats" component={ChatsTabScreen} />
+      <Tab.Screen name="profile" component={ProfileTabScreen} />
+    </Tab.Navigator>
+  );
+}
+
+export default function AppNavigator() {
+  const { state } = useAuth();
+
+  if (state.status === 'loading') {
+    return null;
+  }
+
+  return state.status === 'signedIn' ? <MainTabs /> : <AuthStack />;
 }

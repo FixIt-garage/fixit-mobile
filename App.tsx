@@ -1,56 +1,56 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
-
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './src/api/queryClient';
 import AppNavigator from './navigation/AppNavigator';
+import { AuthProvider, useAuth } from './src/auth/AuthProvider';
 import { ThemeProvider, useAppFonts } from './src/theme';
-import { hasStoredAccessToken } from './src/auth/session';
 
-// Тримаємо splash screen, поки не завантажаться шрифти і не перевіриться токен.
-// Викликається один раз, ще до першого рендеру.
 SplashScreen.preventAutoHideAsync();
+
+function Root() {
+  const { state } = useAuth();
+  const ready = state.status !== 'loading';
+
+  useEffect(() => {
+    if (ready) {
+      void SplashScreen.hideAsync();
+    }
+  }, [ready]);
+
+  if (!ready) {
+    return null;
+  }
+
+  return (
+    <NavigationContainer>
+      <AppNavigator />
+    </NavigationContainer>
+  );
+}
 
 export default function App() {
   const [fontsLoaded, fontError] = useAppFonts();
-  const [tokenCheckCompleted, setTokenCheckCompleted] = useState(false);
-  const [accessTokenStored, setAccessTokenStored] = useState(false);
 
-  useEffect(() => {
-    async function checkStoredToken() {
-      try {
-        const hasToken = await hasStoredAccessToken();
-        setAccessTokenStored(hasToken);
-      } catch (error) {
-        console.error('Stored token lookup failed:', error);
-        setAccessTokenStored(false);
-      } finally {
-        setTokenCheckCompleted(true);
-      }
-    }
-
-    checkStoredToken();
-  }, []);
-
-  useEffect(() => {
-    if ((fontsLoaded || fontError) && tokenCheckCompleted) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded, fontError, tokenCheckCompleted]);
-
-  // Поки вантажаться шрифти або перевіряється токен — користувач бачить splash.
-  if ((!fontsLoaded && !fontError) || !tokenCheckCompleted) {
+  if (!fontsLoaded && !fontError) {
     return null;
   }
 
   return (
     <GestureHandlerRootView style={styles.root}>
-      <ThemeProvider>
-        <NavigationContainer>
-          <AppNavigator hasStoredAccessToken={accessTokenStored} />
-        </NavigationContainer>
-      </ThemeProvider>
+      <SafeAreaProvider>
+        <ThemeProvider>
+           <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <Root />
+          </AuthProvider>
+           </QueryClientProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

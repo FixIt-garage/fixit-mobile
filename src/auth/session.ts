@@ -1,9 +1,9 @@
-import * as SecureStore from 'expo-secure-store';
+import { getAccessToken } from './tokens';
 
-export const ACCESS_TOKEN_KEY = 'access_token';
+export { ACCESS_TOKEN_KEY } from './tokens';
 
 export async function hasStoredAccessToken(): Promise<boolean> {
-  const token = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
+  const token = await getAccessToken();
 
   return token !== null;
 }
