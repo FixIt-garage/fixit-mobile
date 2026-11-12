@@ -35,14 +35,19 @@ describe('NutRating', () => {
       });
     });
 
-    it('calls onChange when a rating is pressed', async () => {
-      const onChange = jest.fn();
+    it.each([1, 2, 3, 4, 5])(
+      'calls onChange with rating %i when the corresponding nut is pressed',
+      async (rating) => {
+        const onChange = jest.fn();
 
-      await render(<NutRating mode="input" value={2} onChange={onChange} />);
+        await render(
+          <NutRating mode="input" value={0} onChange={onChange} />,
+        );
 
-      fireEvent.press(screen.getByLabelText('4 з 5'));
+        fireEvent.press(screen.getByLabelText(`${rating} з 5`));
 
-      expect(onChange).toHaveBeenCalledWith(4);
-    });
+        expect(onChange).toHaveBeenCalledWith(rating);
+      },
+    );
   });
 });
