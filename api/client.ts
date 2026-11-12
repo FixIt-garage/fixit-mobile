@@ -63,34 +63,55 @@ function send(
 }
 
 let refreshInFlight: Promise<string | null> | null = null;
+let sessionGeneration = 0;
 
-function refreshAccessToken(baseUrl: string): Promise<string | null> {
-  if (!refreshInFlight) {
-    refreshInFlight = (async () => {
-      const refreshToken = await getRefreshToken();
-      if (!refreshToken) {
-        return null;
-      }
+export function invalidateAuthSession(): void {
+  sessionGeneration += 1;
+  refreshInFlight = null;
+}
 
-      const response = await send(
-        baseUrl,
-        '/auth/refresh',
-        { method: 'POST', body: { refresh_token: refreshToken } },
-        null,
-      );
-      if (!response.ok) {
-        return null;
-      }
-
-      const tokens = (await response.json()) as TokenResponse;
-      await saveTokens({ accessToken: tokens.access_token, refreshToken: tokens.refresh_token });
-      return tokens.access_token;
-    })().finally(() => {
-      refreshInFlight = null;
-    });
+async function requestNewTokens(baseUrl: string, generation: number): Promise<string | null> {
+  const refreshToken = await getRefreshToken();
+  if (!refreshToken) {
+    return null;
   }
 
-  return refreshInFlight;
+  try {
+    const response = await fetch(`${baseUrl}/auth/refresh`, {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const tokens = (await response.json()) as TokenResponse;
+
+    if (generation !== sessionGeneration) {
+      return null;
+    }
+
+    await saveTokens({ accessToken: tokens.access_token, refreshToken: tokens.refresh_token });
+    return tokens.access_token;
+  } catch {
+    return null;
+  }
+}
+
+function refreshAccessToken(baseUrl: string): Promise<string | null> {
+  if (refreshInFlight) {
+    return refreshInFlight;
+  }
+
+  const refresh = requestNewTokens(baseUrl, sessionGeneration).finally(() => {
+    if (refreshInFlight === refresh) {
+      refreshInFlight = null;
+    }
+  });
+  refreshInFlight = refresh;
+  return refresh;
 }
 
 async function endSession(): Promise<void> {
@@ -117,14 +138,19 @@ async function parse<T>(response: Response): Promise<T> {
 }
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const { auth = true } = options;
   const baseUrl = getBaseUrl();
-  const auth = options.auth ?? true;
-
+  const generation = sessionGeneration;
   const accessToken = auth ? await getAccessToken() : null;
+
   let response = await send(baseUrl, path, options, accessToken);
 
   if (auth && response.status === 401) {
     const newAccessToken = await refreshAccessToken(baseUrl);
+
+    if (generation !== sessionGeneration) {
+      throw new ApiError(401, null);
+    }
 
     if (!newAccessToken) {
       await endSession();
@@ -132,10 +158,6 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     }
 
     response = await send(baseUrl, path, options, newAccessToken);
-
-    if (response.status === 401) {
-      await endSession();
-    }
   }
 
   return parse<T>(response);

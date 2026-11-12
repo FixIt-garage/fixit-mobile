@@ -2,7 +2,7 @@ import * as client from '../../api/client';
 import * as tokens from './tokens';
 import { fetchCurrentUser, logout, register } from './api';
 
-jest.mock('../../api/client', () => ({ apiRequest: jest.fn() }));
+jest.mock('../../api/client', () => ({ apiRequest: jest.fn(), invalidateAuthSession: jest.fn() }));
 jest.mock('./tokens', () => ({
   saveTokens: jest.fn(),
   clearTokens: jest.fn(),
