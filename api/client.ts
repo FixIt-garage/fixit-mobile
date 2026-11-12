@@ -8,7 +8,7 @@ export type RequestOptions = {
   auth?: boolean;
 };
 
-type TokenResponse = {
+export type TokenResponse = {
   access_token: string;
   refresh_token: string;
   token_type: string;
