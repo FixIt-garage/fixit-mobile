@@ -73,6 +73,7 @@ npm run ios
 | Command                   | Description                                    |
 | ------------------------- | ---------------------------------------------- |
 | `npm start`               | Starts the Expo development server             |
+| `npm run start:mock`      | Starts the app with mocked API responses       |
 | `npm run android`         | Starts the application on Android              |
 | `npm run ios`             | Starts the application on the iOS Simulator    |
 | `npm run web`             | Starts the web version                         |
@@ -94,6 +95,8 @@ fixit-mobile/
 ├── navigation/       # Navigation configuration
 ├── screens/          # Application screens
 ├── src/theme/        # Design tokens, ThemeProvider and useTheme()
+├── src/auth/         # Tokens, auth API, AuthProvider and useAuth()
+├── src/api/          # TanStack Query client, mock mode, API hooks
 ├── App.tsx           # Root component and navigation container
 ├── app.json          # Expo application configuration
 ├── metro.config.js   # Metro bundler config (Storybook toggle)
@@ -112,6 +115,47 @@ The home screen displays the backend connection status by calling the `/health` 
 - The user can retry the health check using the button on the home screen.
 
 The backend must be running and reachable from the device or emulator for a successful connection.
+
+## App Shell
+
+### Navigation
+
+- Signed out: `Welcome → WhoAreYou → SignUp / Login` (native stack).
+- Signed in: bottom tabs with the custom `TabBar` — Головна, Заявки, Чати, Профіль.
+- The home tab depends on the user role: client home (08) for clients, master home (15) for masters. Service centers and volunteer organizations get a generic placeholder until their home screens are designed.
+
+The switch between the two happens automatically when the session state changes.
+
+### Auth session
+
+`AuthProvider` keeps the session state (`loading` / `signedOut` / `signedIn` with the user and role) and restores it on app start via `GET /auth/me`. Screens use it through `useAuth()`:
+
+```tsx
+const { state, signIn, signUp, signOut } = useAuth();
+```
+
+Backend roles are mapped to app roles in `src/auth/api.ts` (`service_center` → `center`, `volunteer_organization` → `org`).
+
+### API client
+
+`apiRequest` / `apiGet` in `api/client.ts`:
+
+- read the base URL from `EXPO_PUBLIC_API_URL`;
+- attach `Authorization: Bearer <access token>` (tokens live in `expo-secure-store`);
+- on `401` refresh the token once via `/auth/refresh` (parallel requests share one refresh) and retry; if refresh fails, clear tokens and sign out;
+- throw `ApiError` with the status and response body.
+
+Pass `auth: false` for public endpoints such as login and register.
+
+### Data fetching and mocks
+
+Screens fetch data with TanStack Query hooks (see `useCategories` in `src/api/categories.ts`). Each request is wrapped in `withMock(real, mock)`, so screens can be built before the backend endpoint exists:
+
+```bash
+npm run start:mock
+```
+
+or set `EXPO_PUBLIC_USE_MOCKS=true` in `.env`. Mock data must have the same shape as the real DTO.
 
 ## Design Tokens
 
