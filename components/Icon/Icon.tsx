@@ -1,4 +1,3 @@
-
 import {
   Bell,
   Calendar,
@@ -78,7 +77,11 @@ export type IconColor =
   | 'text/onInverse'
   | 'text/onInverseMuted'
   | 'text/success'
-  | 'text/error';
+  | 'text/error'
+  | 'role/client'
+  | 'role/master'
+  | 'role/center'
+  | 'role/org';
 
 function resolveColor(colors: Theme['colors'], token: IconColor): string {
   switch (token) {
@@ -102,6 +105,14 @@ function resolveColor(colors: Theme['colors'], token: IconColor): string {
       return colors.text.success;
     case 'text/error':
       return colors.text.error;
+    case 'role/client':
+      return colors.role.client;
+    case 'role/master':
+      return colors.role.master;
+    case 'role/center':
+      return colors.role.center;
+    case 'role/org':
+      return colors.role.org;
   }
 }
 

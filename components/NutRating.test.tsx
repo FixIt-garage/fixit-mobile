@@ -6,13 +6,13 @@ describe('NutRating', () => {
     it('renders the rating value', async () => {
       await render(<NutRating mode="display" rating={4.8} />);
 
-      expect(screen.getByText('4.8')).toBeTruthy();
+      expect(screen.getByText('4,8')).toBeTruthy();
     });
 
     it('has an accessible rating label', async () => {
       await render(<NutRating mode="display" rating={4.8} />);
 
-      expect(screen.getByLabelText('Рейтинг 4.8')).toBeTruthy();
+      expect(screen.getByLabelText('Рейтинг 4,8')).toBeTruthy();
     });
   });
 

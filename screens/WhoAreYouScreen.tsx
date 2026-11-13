@@ -26,7 +26,7 @@ export default function WhoAreYouScreen({ navigation }: Props) {
   const activeRole = ROLES[activeIndex].role;
   const sidePadding = theme.layout.screenPadding;
 
-  const onScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+  const updateActiveIndex = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     setActiveIndex(activeIndexForOffset(event.nativeEvent.contentOffset.x, ROLES.length));
   };
 
@@ -54,7 +54,9 @@ export default function WhoAreYouScreen({ navigation }: Props) {
         showsHorizontalScrollIndicator={false}
         snapToInterval={SNAP}
         decelerationRate="fast"
-        onMomentumScrollEnd={onScrollEnd}
+        onScroll={updateActiveIndex}
+        scrollEventThrottle={16}
+        onMomentumScrollEnd={updateActiveIndex}
         style={styles.carousel}
         contentContainerStyle={{
           paddingLeft: sidePadding,

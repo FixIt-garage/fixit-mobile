@@ -32,6 +32,13 @@ import * as BackBarStories from './components/BackBar.stories';
 import * as AppBarStories from './components/AppBar.stories';
 import * as TabItemStories from './components/TabItem.stories';
 import * as TabBarStories from './components/TabBar.stories';
+import * as CardStories from './components/Card.stories';
+import * as MasterCardStories from './components/MasterCard.stories';
+import * as ServiceCardStories from './components/ServiceCard.stories';
+import * as RequestCardStories from './components/RequestCard.stories';
+import * as VolunteerRequestCardStories from './components/VolunteerRequestCard.stories';
+import * as ReviewCardStories from './components/ReviewCard.stories';
+
 setProjectAnnotations(preview);
 
 const storyFiles = {
@@ -64,6 +71,12 @@ const storyFiles = {
   Stat: StatStories,
   StatusChip: StatusChipStories,
   VolunteerBadge: VolunteerBadgeStories,
+  Card: CardStories,
+  MasterCard: MasterCardStories,
+  ServiceCard: ServiceCardStories,
+  RequestCard: RequestCardStories,
+  VolunteerRequestCard: VolunteerRequestCardStories,
+  ReviewCard: ReviewCardStories,
 };
 
 describe.each(Object.entries(storyFiles))('%s stories', (_name, storiesModule) => {
