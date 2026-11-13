@@ -35,32 +35,12 @@ type StatusConfig = {
   foregroundColor: string;
 };
 
-const statusConfig: Record<Status, StatusConfig> = {
-  sent: {
-    label: 'НАДІСЛАНА',
-    backgroundColor: '#EEF0F3',
-    foregroundColor: '#6B7280',
-  },
-  accepted: {
-    label: 'ПРИЙНЯТА',
-    backgroundColor: '#EFF4FF',
-    foregroundColor: '#2563EB',
-  },
-  inProgress: {
-    label: 'В РОБОТІ',
-    backgroundColor: '#FFFBEB',
-    foregroundColor: '#F59E0B',
-  },
-  done: {
-    label: 'ВИКОНАНА',
-    backgroundColor: '#F0FDF4',
-    foregroundColor: '#16A34A',
-  },
-  declined: {
-    label: 'ВІДХИЛЕНА',
-    backgroundColor: '#FEF2F2',
-    foregroundColor: '#DC2626',
-  },
+const statusLabels: Record<Status, string> = {
+  sent: 'НАДІСЛАНА',
+  accepted: 'ПРИЙНЯТА',
+  inProgress: 'В РОБОТІ',
+  done: 'ВИКОНАНА',
+  declined: 'ВІДХИЛЕНА',
 };
 
 export type StatusChipProps = {
@@ -69,7 +49,37 @@ export type StatusChipProps = {
 
 export function StatusChip({ status }: StatusChipProps) {
   const theme = useTheme();
-  const config = statusConfig[status];
+
+  const statusColors: Record<
+    Status,
+    Omit<StatusConfig, 'label'>
+  > = {
+    sent: {
+      backgroundColor: theme.colors.bg.subtle,
+      foregroundColor: theme.colors.text.secondary,
+    },
+    accepted: {
+      backgroundColor: theme.colors.bg.brandSoft,
+      foregroundColor: theme.colors.text.brand,
+    },
+    inProgress: {
+      backgroundColor: theme.colors.bg.warningSoft,
+      foregroundColor: theme.colors.text.warning,
+    },
+    done: {
+      backgroundColor: theme.colors.bg.successSoft,
+      foregroundColor: theme.colors.text.success,
+    },
+    declined: {
+      backgroundColor: theme.colors.bg.errorSoft,
+      foregroundColor: theme.colors.text.error,
+    },
+  };
+
+  const config: StatusConfig = {
+    label: statusLabels[status],
+    ...statusColors[status],
+  };
 
   return (
     <View
