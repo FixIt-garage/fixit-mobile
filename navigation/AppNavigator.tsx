@@ -1,7 +1,8 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import PlaceholderScreen from '../screens/PlaceholderScreen';
+import LoginScreen from '../screens/LoginScreen';
+import SignUpScreen from '../screens/SignUpScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import WhoAreYouScreen from '../screens/WhoAreYouScreen';
 import {
@@ -14,7 +15,6 @@ import { useAuth } from '../src/auth/AuthProvider';
 import type { MainTabKey } from '../src/mainTabs';
 import type { Role } from '../src/roles';
 import { NavigationTabBar } from './NavigationTabBar';
-import LoginScreen from '../screens/LoginScreen';
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -33,12 +33,8 @@ function AuthStack() {
     <Stack.Navigator initialRouteName="Welcome">
       <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
       <Stack.Screen name="WhoAreYou" component={WhoAreYouScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="SignUp" component={PlaceholderScreen} options={{ title: 'Реєстрація' }} />
-      <Stack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
