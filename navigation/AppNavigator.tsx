@@ -1,8 +1,8 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
-import PlaceholderScreen from '../screens/PlaceholderScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import WhoAreYouScreen from '../screens/WhoAreYouScreen';
 import {
@@ -34,7 +34,7 @@ function AuthStack() {
       <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
       <Stack.Screen name="WhoAreYou" component={WhoAreYouScreen} options={{ headerShown: false }} />
       <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Login" component={PlaceholderScreen} options={{ title: 'Вхід' }} />
+      <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
