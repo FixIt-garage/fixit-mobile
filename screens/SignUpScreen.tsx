@@ -9,6 +9,7 @@ import { useAuth } from '../src/auth/AuthProvider';
 import {
   conflictField,
   formatPhone,
+  invalidFields,
   phoneDigits,
   signUpSchema,
   toApiPhone,
@@ -90,11 +91,19 @@ export default function SignUpScreen({ navigation, route }: Props) {
       const field = conflictField(error);
       if (field === 'email') {
         setError('email', { message: 'Ця пошта вже зареєстрована' });
-      } else if (field === 'phone') {
-        setError('phone', { message: 'Цей номер уже зареєстрований' });
-      } else {
-        setFormError('Не вдалося зареєструватися. Перевірте інтернет і спробуйте ще раз.');
+        return;
       }
+      if (field === 'phone') {
+        setError('phone', { message: 'Цей номер уже зареєстрований' });
+        return;
+      }
+      const invalid = invalidFields(error);
+      if (invalid) {
+        invalid.forEach((name) => setError(name, { message: 'Перевірте це поле' }));
+        setFormError('Перевірте дані у формі.');
+        return;
+      }
+      setFormError('Не вдалося зареєструватися. Перевірте інтернет і спробуйте ще раз.');
     }
   });
 
