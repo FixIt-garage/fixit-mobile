@@ -2,12 +2,14 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { useTheme } from '../src/theme';
 import { fonts } from '../src/theme/fonts';
+import { formatRating } from '../src/format';
 import { Text } from './Text';
 
 export type NutRatingProps =
   | {
       mode: 'display';
       rating: number;
+      size?: number;
     }
   | {
       mode: 'input';
@@ -43,15 +45,18 @@ export function NutRating(props: NutRatingProps) {
   const theme = useTheme();
 
   if (props.mode === 'display') {
+    const size = props.size ?? SIZE;
+    const label = formatRating(props.rating);
+
     return (
       <View
-        style={styles.display}
+        style={[styles.display, { width: size, height: size }]}
         accessibilityRole="image"
-        accessibilityLabel={`Рейтинг ${props.rating}`}
+        accessibilityLabel={`Рейтинг ${label}`}
       >
         <Svg
-          width={SIZE}
-          height={SIZE}
+          width={size}
+          height={size}
           viewBox="0 0 64 64"
           style={StyleSheet.absoluteFill}
         >
@@ -61,10 +66,11 @@ export function NutRating(props: NutRatingProps) {
         <Text
           style={[
             styles.ratingText,
+            size < SIZE && (size < 44 ? styles.ratingTextSmall : styles.ratingTextMedium),
             { color: theme.colors.bg.inverse },
           ]}
         >
-          {props.rating.toFixed(1)}
+          {label}
         </Text>
       </View>
     );
@@ -113,8 +119,6 @@ export function NutRating(props: NutRatingProps) {
 
 const styles = StyleSheet.create({
   display: {
-    width: SIZE,
-    height: SIZE,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -125,6 +129,16 @@ const styles = StyleSheet.create({
     letterSpacing: 0.64,
     textAlign: 'center',
     includeFontPadding: false,
+  },
+    ratingTextMedium: {
+    fontSize: 12,
+    lineHeight: 14,
+    letterSpacing: 0.48,
+  },
+  ratingTextSmall: {
+    fontSize: 9,
+    lineHeight: 14,
+    letterSpacing: 0.36,
   },
   input: {
     flexDirection: 'row',

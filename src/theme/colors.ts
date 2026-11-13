@@ -35,6 +35,9 @@ export const colors = {
     center: '#EA580C',
     org: '#16A34A',
   },
+    roleSoft: {
+    center: '#FFF7ED',
+  },
   icon: {
     default: '#111827',
   },
