@@ -11,6 +11,8 @@ import type { ComponentType } from 'react';
 import { render } from '@testing-library/react-native';
 import { composeStories, setProjectAnnotations } from '@storybook/react';
 import * as preview from './.rnstorybook/preview';
+import * as HeroHeaderStories from './components/HeroHeader.stories';
+import * as BottomSheetStories from './components/BottomSheet.stories';
 
 import * as ButtonStories from './components/Button.stories';
 import * as IconButtonStories from './components/IconButton.stories';
@@ -77,6 +79,8 @@ const storyFiles = {
   RequestCard: RequestCardStories,
   VolunteerRequestCard: VolunteerRequestCardStories,
   ReviewCard: ReviewCardStories,
+  HeroHeader: HeroHeaderStories,
+  BottomSheet: BottomSheetStories,
 };
 
 describe.each(Object.entries(storyFiles))('%s stories', (_name, storiesModule) => {
