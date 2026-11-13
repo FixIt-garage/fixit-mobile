@@ -1,3 +1,12 @@
+import * as AvatarStories from './components/Avatar.stories';
+import * as CategoryChipStories from './components/CategoryChip.stories';
+import * as ChipGroupStories from './components/ChipGroup.stories';
+import * as InfoRowStories from './components/InfoRow.stories';
+import * as MonoTagStories from './components/MonoTag.stories';
+import * as NutRatingStories from './components/NutRating.stories';
+import * as StatStories from './components/Stat.stories';
+import * as StatusChipStories from './components/StatusChip.stories';
+import * as VolunteerBadgeStories from './components/VolunteerBadge.stories';
 import type { ComponentType } from 'react';
 import { render } from '@testing-library/react-native';
 import { composeStories, setProjectAnnotations } from '@storybook/react';
@@ -46,6 +55,15 @@ const storyFiles = {
   AppBar: AppBarStories,
   TabItem: TabItemStories,
   TabBar: TabBarStories,
+  Avatar: AvatarStories,
+  CategoryChip: CategoryChipStories,
+  ChipGroup: ChipGroupStories,
+  InfoRow: InfoRowStories,
+  MonoTag: MonoTagStories,
+  NutRating: NutRatingStories,
+  Stat: StatStories,
+  StatusChip: StatusChipStories,
+  VolunteerBadge: VolunteerBadgeStories,
 };
 
 describe.each(Object.entries(storyFiles))('%s stories', (_name, storiesModule) => {

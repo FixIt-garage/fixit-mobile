@@ -1,3 +1,4 @@
+
 import {
   Bell,
   Calendar,
@@ -108,10 +109,17 @@ export type IconProps = {
   name: IconName;
   size?: number;
   color?: IconColor;
+  strokeWidth?: number;
   testID?: string;
 };
 
-export function Icon({ name, size = 24, color = 'text/primary', testID }: IconProps) {
+export function Icon({
+  name,
+  size = 24,
+  color = 'text/primary',
+  strokeWidth = 2,
+  testID,
+}: IconProps) {
   const theme = useTheme();
   const LucideIcon = iconMap[name];
 
@@ -119,6 +127,7 @@ export function Icon({ name, size = 24, color = 'text/primary', testID }: IconPr
     <LucideIcon
       size={size}
       color={resolveColor(theme.colors, color)}
+      strokeWidth={strokeWidth}
       testID={testID}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
