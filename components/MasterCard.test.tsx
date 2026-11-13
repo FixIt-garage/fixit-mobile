@@ -40,6 +40,24 @@ describe('MasterCard', () => {
 
     expect(onPress).toHaveBeenCalledTimes(1);
   });
+  it('mentions volunteer in the accessible name of a pressable card', async () => {
+    const onPress = jest.fn();
+    const { rerender } = await render(<MasterCard {...master} onPress={onPress} />);
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Андрій Мельник, Побутова техніка · Сихів, рейтинг 4,8, 32 відгуки',
+      }),
+    ).toBeTruthy();
+
+    await rerender(<MasterCard {...master} volunteer onPress={onPress} />);
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Андрій Мельник, волонтер, Побутова техніка · Сихів, рейтинг 4,8, 32 відгуки',
+      }),
+    ).toBeTruthy();
+  });
 });
 
 describe('getInitials', () => {
