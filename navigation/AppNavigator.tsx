@@ -14,6 +14,7 @@ import { useAuth } from '../src/auth/AuthProvider';
 import type { MainTabKey } from '../src/mainTabs';
 import type { Role } from '../src/roles';
 import { NavigationTabBar } from './NavigationTabBar';
+import LoginScreen from '../screens/LoginScreen';
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -33,7 +34,11 @@ function AuthStack() {
       <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
       <Stack.Screen name="WhoAreYou" component={WhoAreYouScreen} options={{ headerShown: false }} />
       <Stack.Screen name="SignUp" component={PlaceholderScreen} options={{ title: 'Реєстрація' }} />
-      <Stack.Screen name="Login" component={PlaceholderScreen} options={{ title: 'Вхід' }} />
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }
