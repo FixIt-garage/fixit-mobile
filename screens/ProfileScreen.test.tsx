@@ -7,7 +7,13 @@ const mockSignOut = jest.fn();
 const mockRefetch = jest.fn();
 const mockSetVolunteer = jest.fn();
 
-type MockQuery = { data?: unknown; isPending: boolean; isError: boolean; refetch: jest.Mock };
+type MockQuery = {
+  data?: unknown;
+  isPending: boolean;
+  isError: boolean;
+  isSuccess?: boolean;
+  refetch: jest.Mock;
+};
 let mockProfileQuery: MockQuery;
 let mockMasterQuery: MockQuery;
 
@@ -53,6 +59,7 @@ describe('ProfileScreen', () => {
       data: MOCK_MASTER_PROFILE,
       isPending: false,
       isError: false,
+      isSuccess: true,
       refetch: jest.fn(),
     };
     await render(<ProfileScreen />);

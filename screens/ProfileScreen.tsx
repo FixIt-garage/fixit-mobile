@@ -52,6 +52,14 @@ function masterStats(master: MasterProfile): ProfileStat[] {
   ];
 }
 
+function masterStatsWithoutDetails(profile: Profile): ProfileStat[] {
+  return [
+    { label: 'Рейтинг', value: EMPTY_VALUE },
+    { label: 'Відгуки', value: String(profile.stats.reviewsCount) },
+    { label: 'Досвід', value: EMPTY_VALUE },
+  ];
+}
+
 export type ProfileViewProps = {
   profile: Profile;
   master?: MasterProfile | null;
@@ -71,8 +79,8 @@ export function ProfileView({
 }: ProfileViewProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const isMaster = profile.role === 'master' && Boolean(master);
-  const accent = profile.role === 'master' ? 'master' : 'client';
+  const isMaster = profile.role === 'master';
+  const accent = isMaster ? 'master' : 'client';
   const completion = profileCompletion(profile, master);
 
   return (
@@ -93,7 +101,13 @@ export function ProfileView({
         name={`${profile.firstName} ${profile.lastName}`}
         meta={profileMeta(profile)}
         avatarUri={profile.avatarUrl ?? undefined}
-        stats={isMaster && master ? masterStats(master) : clientStats(profile)}
+        stats={
+          isMaster
+            ? master
+              ? masterStats(master)
+              : masterStatsWithoutDetails(profile)
+            : clientStats(profile)
+        }
         onEdit={onEdit}
         onLogout={onLogout}
         style={{ marginHorizontal: HERO_SIDE_PADDING }}
@@ -138,7 +152,8 @@ export default function ProfileScreen() {
   const notReadyYet = () => undefined;
 
   const isPending = profileQuery.isPending || (isMaster && masterQuery.isPending);
-  const isError = profileQuery.isError || (isMaster && masterQuery.isError);
+  const isError = profileQuery.isError;
+  const master = isMaster && masterQuery.isSuccess ? masterQuery.data : null;
 
   if (isError) {
     return (
@@ -155,15 +170,7 @@ export default function ProfileScreen() {
         <Text variant="h2" style={styles.centerText}>
           Не вдалося завантажити профіль
         </Text>
-        <Button
-          label="Спробувати ще раз"
-          onPress={() => {
-            void profileQuery.refetch();
-            if (isMaster) {
-              void masterQuery.refetch();
-            }
-          }}
-        />
+        <Button label="Спробувати ще раз" onPress={() => void profileQuery.refetch()} />
         <Button label="Вийти" variant="secondary" onPress={logout} />
       </View>
     );
@@ -180,11 +187,11 @@ export default function ProfileScreen() {
   return (
     <ProfileView
       profile={profile}
-      master={isMaster ? masterQuery.data : null}
       onVolunteerChange={(value) => setVolunteer.mutate(value)}
       onLogout={logout}
       onEdit={notReadyYet}
       onFill={notReadyYet}
+      master={master}
     />
   );
 }

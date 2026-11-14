@@ -88,8 +88,8 @@ export function profileCompletion(
   profile: Profile,
   master?: MasterProfile | null,
 ): ProfileCompletion | null {
-  if (profile.role === 'master' && master) {
-    return completion(MASTER_STEPS, master);
+    if (profile.role === 'master') {
+    return master ? completion(MASTER_STEPS, master) : null;
   }
   return completion(CLIENT_STEPS, profile);
 }
