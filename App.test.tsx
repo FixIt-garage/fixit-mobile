@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import * as api from './src/auth/api';
 import * as session from './src/auth/session';
+import { queryClient } from './src/api/queryClient';
 import App from './App';
 
 jest.mock('expo-font', () => ({
@@ -41,6 +42,16 @@ jest.mock('./src/api/profile', () => {
     }),
   };
 });
+jest.mock('./src/api/masterProfile', () => ({
+  ...jest.requireActual('./src/api/masterProfile'),
+  useMyMasterProfile: () => ({
+    data: undefined,
+    isPending: false,
+    isError: false,
+    refetch: jest.fn(),
+  }),
+  useSetVolunteer: () => ({ mutate: jest.fn() }),
+}));
 
 const mockedSession = jest.mocked(session);
 const mockedApi = jest.mocked(api);
@@ -60,7 +71,9 @@ function userWithRole(role: api.User['role']): api.User {
 
 describe('App navigation by session', () => {
   beforeEach(() => jest.clearAllMocks());
-
+  afterEach(() => {
+    queryClient.clear();
+  });
   it('opens Welcome when no access token exists', async () => {
     mockedSession.hasStoredAccessToken.mockResolvedValue(false);
 

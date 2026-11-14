@@ -1,4 +1,5 @@
 import type { Profile } from './api/profile';
+import type { MasterProfile } from './api/masterProfile';
 import { formatPhone, phoneDigits } from './auth/signUpForm';
 import type { Role } from './roles';
 
@@ -24,12 +25,12 @@ export function displayPhone(phone: string): string {
   return digits.length === 9 ? formatPhone(digits) : phone;
 }
 
-type CompletionStep = {
-  done: (profile: Profile) => boolean;
+type CompletionStep<T> = {
+  done: (data: T) => boolean;
   hint: string;
 };
 
-const CLIENT_STEPS: CompletionStep[] = [
+const CLIENT_STEPS: CompletionStep<Profile>[] = [
   {
     done: (profile) => Boolean(profile.avatarUrl),
     hint: 'Додайте фото — майстрам буде простіше вас впізнати.',
@@ -48,18 +49,47 @@ const CLIENT_STEPS: CompletionStep[] = [
   },
 ];
 
+const SERVICES_AND_CITY_HINT = 'Додайте послуги й місто — і клієнти знайдуть вас у пошуку.';
+
+const MASTER_STEPS: CompletionStep<MasterProfile>[] = [
+  { done: (master) => master.categoriesCount > 0, hint: SERVICES_AND_CITY_HINT },
+  { done: (master) => Boolean(master.city), hint: SERVICES_AND_CITY_HINT },
+  {
+    done: (master) => master.yearsOfExperience !== null,
+    hint: 'Вкажіть досвід — клієнтам буде простіше обрати вас.',
+  },
+  {
+    done: (master) => master.priceFrom !== null,
+    hint: 'Вкажіть ціну виклику, щоб клієнти знали, чого чекати.',
+  },
+  {
+    done: (master) => Boolean(master.schedule),
+    hint: 'Додайте графік роботи, щоб клієнти знали, коли до вас звертатися.',
+  },
+];
+
 export type ProfileCompletion = {
   progress: number;
   hint: string;
 };
 
-export function profileCompletion(profile: Profile): ProfileCompletion | null {
-  const missing = CLIENT_STEPS.filter((step) => !step.done(profile));
+function completion<T>(steps: CompletionStep<T>[], data: T): ProfileCompletion | null {
+  const missing = steps.filter((step) => !step.done(data));
   if (missing.length === 0) {
     return null;
   }
   return {
-    progress: (CLIENT_STEPS.length - missing.length) / CLIENT_STEPS.length,
+    progress: (steps.length - missing.length) / steps.length,
     hint: missing[0].hint,
   };
+}
+
+export function profileCompletion(
+  profile: Profile,
+  master?: MasterProfile | null,
+): ProfileCompletion | null {
+  if (profile.role === 'master' && master) {
+    return completion(MASTER_STEPS, master);
+  }
+  return completion(CLIENT_STEPS, profile);
 }

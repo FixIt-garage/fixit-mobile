@@ -2,6 +2,7 @@ import { action } from 'storybook/actions';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { Meta, StoryObj } from '@storybook/react-native';
 import { MOCK_PROFILE } from '../src/api/profile';
+import { MOCK_MASTER_PROFILE } from '../src/api/masterProfile';
 import { ProfileView } from './ProfileScreen';
 
 const meta = {
@@ -34,4 +35,11 @@ export const FullyFilled: Story = {
 
 export const EmptyContacts: Story = {
   args: { profile: { ...MOCK_PROFILE, phone: null, address: null, city: null } },
+};
+export const Master: Story = {
+  args: {
+    profile: { ...MOCK_PROFILE, role: 'master', publicId: 247 },
+    master: MOCK_MASTER_PROFILE,
+    onVolunteerChange: action('volunteer'),
+  },
 };

@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import type { GradientName } from '../src/theme';
+import { useTheme } from '../src/theme';
 import { Card } from './Card';
 import { Icon } from './Icon';
 import { ProgressBar } from './ProgressBar';
@@ -10,7 +10,7 @@ export type ProfileCompletionCardProps = {
   hint: string;
   actionLabel?: string;
   onAction: () => void;
-  gradient?: GradientName;
+  accent?: 'client' | 'master';
   style?: StyleProp<ViewStyle>;
 };
 
@@ -19,11 +19,13 @@ export function ProfileCompletionCard({
   hint,
   actionLabel = 'Заповнити зараз',
   onAction,
-  gradient = 'client',
+  accent = 'client',
   style,
 }: ProfileCompletionCardProps) {
+  const theme = useTheme();
   const clamped = Math.min(Math.max(progress, 0), 1);
   const percent = Math.round(clamped * 100);
+  const accentColor = theme.colors.role[accent];
 
   return (
     <Card style={[styles.card, style]}>
@@ -31,12 +33,12 @@ export function ProfileCompletionCard({
         <Text variant="labelMono" color="secondary">
           Профіль заповнено
         </Text>
-        <Text variant="labelMonoBold" color="brand">
+        <Text variant="labelMonoBold" style={{ color: accentColor }}>
           {`${percent}%`}
         </Text>
       </View>
 
-      <ProgressBar value={clamped} gradient={gradient} />
+      <ProgressBar value={clamped} gradient={accent} />
 
       <Text variant="bodySmall" color="secondary">
         {hint}
@@ -49,10 +51,15 @@ export function ProfileCompletionCard({
         hitSlop={8}
         style={({ pressed }) => [styles.link, pressed && styles.pressed]}
       >
-        <Text variant="bodyBold" color="brand">
+        <Text variant="bodyBold" style={{ color: accentColor }}>
           {actionLabel}
         </Text>
-        <Icon name="chevron-right" size={16} color="text/brand" strokeWidth={1.5} />
+        <Icon
+          name="chevron-right"
+          size={16}
+          color={accent === 'master' ? 'role/master' : 'role/client'}
+          strokeWidth={1.5}
+        />
       </Pressable>
     </Card>
   );

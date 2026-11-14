@@ -21,3 +21,9 @@ export const Client: Story = {};
 export const AlmostDone: Story = {
   args: { progress: 0.9 },
 };
+export const Master: Story = {
+  args: {
+    accent: 'master',
+    hint: 'Додайте послуги й місто — і клієнти знайдуть вас у пошуку.',
+  },
+};

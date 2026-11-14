@@ -1,4 +1,5 @@
 import { MOCK_PROFILE } from './api/profile';
+import { MOCK_MASTER_PROFILE } from './api/masterProfile';
 import { displayPhone, formatPublicId, profileCompletion, profileMeta } from './profileView';
 
 describe('profileView', () => {
@@ -24,5 +25,14 @@ describe('profileView', () => {
 
   it('hides completion when everything is filled', () => {
     expect(profileCompletion({ ...MOCK_PROFILE, avatarUrl: 'https://x.ua/a.png' })).toBeNull();
+  });
+});
+describe('master completion', () => {
+  it('starts with services and city for a new master', () => {
+    const master = { ...MOCK_PROFILE, role: 'master' as const };
+    expect(profileCompletion(master, MOCK_MASTER_PROFILE)).toEqual({
+      progress: 0.4,
+      hint: 'Додайте послуги й місто — і клієнти знайдуть вас у пошуку.',
+    });
   });
 });
