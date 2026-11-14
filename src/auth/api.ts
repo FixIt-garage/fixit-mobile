@@ -4,7 +4,7 @@ import { clearTokens, getRefreshToken, saveTokens } from './tokens';
 
 export type ApiUserRole = 'client' | 'master' | 'service_center' | 'volunteer_organization';
 
-const fromApiRole: Record<ApiUserRole, Role> = {
+export const fromApiRole: Record<ApiUserRole, Role> = {
     client: 'client',
     master: 'master',
     service_center: 'center',

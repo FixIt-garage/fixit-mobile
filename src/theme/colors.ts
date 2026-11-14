@@ -46,6 +46,9 @@ export const colors = {
     bg: '#FFFFFF33', // білий 20%
     border: '#FFFFFF4D', // білий 30%
     grid: '#FFFFFF0F', // білий 6%, лінії сітки-креслення
+    button: '#FFFFFF1A',
+    buttonBorder: '#FFFFFF26',
+    divider: '#FFFFFF1F',
   },
 } as const;
 

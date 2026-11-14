@@ -43,3 +43,6 @@ export function formatShortDateTime(date: Date): string {
   const minutes = String(date.getMinutes()).padStart(2, '0');
   return `${formatShortDate(date)}, ${hours}:${minutes}`;
 }
+export function formatYears(years: number): string {
+  return `${years} р.`;
+}
