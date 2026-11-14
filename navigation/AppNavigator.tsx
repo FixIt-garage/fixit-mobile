@@ -1,6 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import ProfileScreen from '../screens/ProfileScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
@@ -8,7 +9,6 @@ import WhoAreYouScreen from '../screens/WhoAreYouScreen';
 import {
   ChatsTabScreen,
   HomeTabScreen,
-  ProfileTabScreen,
   RequestsTabScreen,
 } from '../screens/MainTabScreens';
 import { useAuth } from '../src/auth/AuthProvider';
@@ -49,7 +49,7 @@ function MainTabs() {
       <Tab.Screen name="home" component={HomeTabScreen} />
       <Tab.Screen name="requests" component={RequestsTabScreen} />
       <Tab.Screen name="chats" component={ChatsTabScreen} />
-      <Tab.Screen name="profile" component={ProfileTabScreen} />
+      <Tab.Screen name="profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }

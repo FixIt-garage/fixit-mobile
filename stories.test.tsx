@@ -11,9 +11,14 @@ import type { ComponentType } from 'react';
 import { render } from '@testing-library/react-native';
 import { composeStories, setProjectAnnotations } from '@storybook/react';
 import * as preview from './.rnstorybook/preview';
+
+import * as ProfileScreenStories from './screens/ProfileScreen.stories';
+import * as ContactsCardStories from './components/ContactsCard.stories';
+import * as ProfileCompletionCardStories from './components/ProfileCompletionCard.stories';
 import * as HeroHeaderStories from './components/HeroHeader.stories';
 import * as BottomSheetStories from './components/BottomSheet.stories';
-
+import * as HeroCardStories from './components/HeroCard.stories';
+import * as ProfileHeroStories from './components/ProfileHero.stories';
 import * as ButtonStories from './components/Button.stories';
 import * as IconButtonStories from './components/IconButton.stories';
 import * as IconStories from './components/Icon/Icon.stories';
@@ -81,6 +86,11 @@ const storyFiles = {
   ReviewCard: ReviewCardStories,
   HeroHeader: HeroHeaderStories,
   BottomSheet: BottomSheetStories,
+  HeroCard: HeroCardStories,
+  ProfileHero: ProfileHeroStories,
+  ProfileCompletionCard: ProfileCompletionCardStories,
+  ContactsCard: ContactsCardStories,
+  ProfileScreen: ProfileScreenStories,
 };
 
 describe.each(Object.entries(storyFiles))('%s stories', (_name, storiesModule) => {

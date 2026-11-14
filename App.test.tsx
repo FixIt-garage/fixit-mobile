@@ -29,6 +29,19 @@ jest.mock('./screens/WelcomeScreen', () => {
   };
 });
 
+jest.mock('./src/api/profile', () => {
+  const actual = jest.requireActual('./src/api/profile');
+  return {
+    ...actual,
+    useMyProfile: () => ({
+      data: actual.MOCK_PROFILE,
+      isPending: false,
+      isError: false,
+      refetch: jest.fn(),
+    }),
+  };
+});
+
 const mockedSession = jest.mocked(session);
 const mockedApi = jest.mocked(api);
 

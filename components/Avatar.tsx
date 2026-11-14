@@ -8,6 +8,7 @@ export type AvatarProps = {
   gradient: GradientName;
   uri?: string;
   size?: number;
+  radius?: number;
 };
 
 export function Avatar({
@@ -15,6 +16,7 @@ export function Avatar({
   gradient,
   uri,
   size = 72,
+  radius = 16,
 }: AvatarProps) {
   const theme = useTheme();
 
@@ -25,7 +27,7 @@ export function Avatar({
         {
           width: size,
           height: size,
-          borderRadius: 16,
+          borderRadius: radius,
         },
       ]}
       accessibilityRole="image"
