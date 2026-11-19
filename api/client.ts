@@ -70,6 +70,10 @@ export function invalidateAuthSession(): void {
   refreshInFlight = null;
 }
 
+export function getAuthSessionGeneration(): number {
+  return sessionGeneration;
+}
+
 async function requestNewTokens(baseUrl: string, generation: number): Promise<string | null> {
   const refreshToken = await getRefreshToken();
   if (!refreshToken) {
@@ -119,6 +123,7 @@ function refreshAccessToken(baseUrl: string, generation: number): Promise<string
 }
 
 async function endSession(): Promise<void> {
+  invalidateAuthSession();
   await clearTokens();
   onSessionExpired?.();
 }

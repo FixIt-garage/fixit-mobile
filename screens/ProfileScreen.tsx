@@ -47,7 +47,7 @@ function masterStats(master: MasterProfile): ProfileStat[] {
     { label: 'Відгуки', value: String(master.reviewsCount) },
     {
       label: 'Досвід',
-      value: master.yearsOfExperience !== null ? formatYears(master.yearsOfExperience) : EMPTY_VALUE,
+        value: master.experienceYears !== null ? formatYears(master.experienceYears) : EMPTY_VALUE,
     },
   ];
 }

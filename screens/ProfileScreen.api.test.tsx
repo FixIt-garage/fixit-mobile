@@ -58,7 +58,7 @@ describe('ProfileScreen with the real API hooks', () => {
     expect(screen.getByText('oleksandr.koval@gmail.com')).toBeTruthy();
     expect(screen.queryByText('Не вдалося завантажити профіль')).toBeNull();
     expect(screen.queryByText('Я волонтер')).toBeNull();
-    expect(apiGet).toHaveBeenCalledWith('/masters/1');
+    expect(apiGet).toHaveBeenCalledWith('/masters/me');
   });
 
   it('shows the error state when /users/me fails', async () => {
@@ -67,5 +67,33 @@ describe('ProfileScreen with the real API hooks', () => {
     await renderWithQuery(<ProfileScreen />);
 
     expect(await screen.findByText('Не вдалося завантажити профіль')).toBeTruthy();
+  });
+  it('shows an empty master profile as 0% without errors', async () => {
+    apiGet.mockImplementation((async (path: string) => {
+      if (path === '/users/me') {
+        return MASTER_ME;
+      }
+      return {
+        id: null,
+        city: null,
+        district: null,
+        experience_years: null,
+        call_out_price: null,
+        schedule: null,
+        is_volunteer: false,
+        rating: null,
+        reviews_count: 0,
+        categories: [],
+        completeness: { filled: 0, total: 5, percent: 0, next_field: 'categories' },
+      };
+    }) as typeof client.apiGet);
+
+    await renderWithQuery(<ProfileScreen />);
+
+    expect(await screen.findByText('0%')).toBeTruthy();
+    expect(screen.getAllByText('—')).toHaveLength(2);
+    expect(screen.queryByText(/undefined/)).toBeNull();
+    expect(screen.getByText('Я волонтер')).toBeTruthy();
+    expect(screen.queryByText('Не вдалося завантажити профіль')).toBeNull();
   });
 });

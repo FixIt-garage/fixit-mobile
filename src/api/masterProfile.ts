@@ -1,97 +1,134 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiGet, apiRequest } from '../../api/client';
+import { apiGet, apiRequest, getAuthSessionGeneration } from '../../api/client';
 import { withMock } from './mock';
 
 type MasterProfileResponse = {
+  id: number | null;
+  city: string | null;
+  district: string | null;
+  experience_years: number | null;
+  call_out_price: number | null;
+  schedule: string | null;
+  is_volunteer: boolean;
   rating: number | null;
   reviews_count: number;
-  years_of_experience: number | null;
-  is_volunteer: boolean;
   categories: { id: number }[];
-  city: string | null;
-  price_from: number | null;
-  schedule: string | null;
+  completeness: {
+    filled: number;
+    total: number;
+    percent: number;
+    next_field: string | null;
+  };
+};
+
+export type MasterCompleteness = {
+  filled: number;
+  total: number;
+  percent: number;
+  nextField: string | null;
 };
 
 export type MasterProfile = {
+  id: number | null;
+  city: string | null;
+  district: string | null;
+  experienceYears: number | null;
+  callOutPrice: number | null;
+  schedule: string | null;
+  isVolunteer: boolean;
   rating: number | null;
   reviewsCount: number;
-  yearsOfExperience: number | null;
-  isVolunteer: boolean;
   categoriesCount: number;
-  city: string | null;
-  priceFrom: number | null;
-  schedule: string | null;
+  completeness: MasterCompleteness;
 };
 
 export function toMasterProfile(response: MasterProfileResponse): MasterProfile {
   return {
+    id: response.id,
+    city: response.city,
+    district: response.district,
+    experienceYears: response.experience_years,
+    callOutPrice: response.call_out_price,
+    schedule: response.schedule,
+    isVolunteer: response.is_volunteer,
     rating: response.rating,
     reviewsCount: response.reviews_count,
-    yearsOfExperience: response.years_of_experience,
-    isVolunteer: response.is_volunteer,
     categoriesCount: response.categories.length,
-    city: response.city,
-    priceFrom: response.price_from,
-    schedule: response.schedule,
+    completeness: {
+      filled: response.completeness.filled,
+      total: response.completeness.total,
+      percent: response.completeness.percent,
+      nextField: response.completeness.next_field,
+    },
   };
 }
 
 export const MOCK_MASTER_PROFILE: MasterProfile = {
+  id: 12,
+  city: 'Львів',
+  district: null,
+  experienceYears: 7,
+  callOutPrice: 300,
+  schedule: null,
+  isVolunteer: true,
   rating: 4.8,
   reviewsCount: 32,
-  yearsOfExperience: 7,
-  isVolunteer: true,
   categoriesCount: 0,
-  city: null,
-  priceFrom: 300,
-  schedule: null,
+  completeness: { filled: 2, total: 5, percent: 40, nextField: 'categories' },
 };
 
-export function masterProfileKey(userId: number | undefined) {
-  return ['masters', userId] as const;
+export function myMasterProfileKey(userId: number | undefined) {
+  return ['masters', 'me', userId] as const;
 }
 
-export function fetchMasterProfile(userId: number): Promise<MasterProfile> {
+export function fetchMyMasterProfile(): Promise<MasterProfile> {
   return withMock(
-    async () => toMasterProfile(await apiGet<MasterProfileResponse>(`/masters/${userId}`)),
+    async () => toMasterProfile(await apiGet<MasterProfileResponse>('/masters/me')),
     () => MOCK_MASTER_PROFILE,
   );
 }
 
 export function useMyMasterProfile(userId: number | undefined, enabled: boolean) {
   return useQuery({
-    queryKey: masterProfileKey(userId),
-    queryFn: () => fetchMasterProfile(userId as number),
+    queryKey: myMasterProfileKey(userId),
+    queryFn: fetchMyMasterProfile,
     enabled: enabled && userId !== undefined,
   });
 }
 
 export function useSetVolunteer(userId: number | undefined) {
   const queryClient = useQueryClient();
-  const key = masterProfileKey(userId);
 
   return useMutation({
     mutationFn: (isVolunteer: boolean) =>
-      withMock(
-        () =>
-          apiRequest<unknown>('/masters/me/volunteer', {
-            method: 'PATCH',
-            body: { is_volunteer: isVolunteer },
-          }),
+      withMock<MasterProfile | undefined>(
+        async () =>
+          toMasterProfile(
+            await apiRequest<MasterProfileResponse>('/masters/me/volunteer', {
+              method: 'PATCH',
+              body: { is_volunteer: isVolunteer },
+            }),
+          ),
         () => undefined,
       ),
     onMutate: async (isVolunteer: boolean) => {
+      const key = myMasterProfileKey(userId);
+      const generation = getAuthSessionGeneration();
       await queryClient.cancelQueries({ queryKey: key });
       const previous = queryClient.getQueryData<MasterProfile>(key);
       if (previous) {
         queryClient.setQueryData<MasterProfile>(key, { ...previous, isVolunteer });
       }
-      return { previous };
+      return { key, generation, previous };
+    },
+    onSuccess: (data, _value, context) => {
+      if (data && context && context.generation === getAuthSessionGeneration()) {
+        queryClient.setQueryData(context.key, data);
+      }
     },
     onError: (_error, _value, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(key, context.previous);
+      if (context?.previous && context.generation === getAuthSessionGeneration()) {
+        queryClient.setQueryData(context.key, context.previous);
       }
     },
   });
