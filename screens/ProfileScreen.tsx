@@ -47,7 +47,7 @@ function masterStats(master: MasterProfile): ProfileStat[] {
     { label: 'Відгуки', value: String(master.reviewsCount) },
     {
       label: 'Досвід',
-      value: master.yearsOfExperience !== null ? formatYears(master.yearsOfExperience) : EMPTY_VALUE,
+        value: master.experienceYears !== null ? formatYears(master.experienceYears) : EMPTY_VALUE,
     },
   ];
 }
@@ -143,8 +143,8 @@ export default function ProfileScreen() {
   const profileQuery = useMyProfile();
   const profile = profileQuery.data;
   const isMaster = profile?.role === 'master';
-  const masterQuery = useMyMasterProfile(profile?.id, isMaster);
-  const setVolunteer = useSetVolunteer(profile?.id);
+  const masterQuery = useMyMasterProfile(isMaster);
+  const setVolunteer = useSetVolunteer();
 
   const logout = () => {
     void signOut();

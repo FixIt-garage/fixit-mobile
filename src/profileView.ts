@@ -25,12 +25,17 @@ export function displayPhone(phone: string): string {
   return digits.length === 9 ? formatPhone(digits) : phone;
 }
 
-type CompletionStep<T> = {
-  done: (data: T) => boolean;
+export type ProfileCompletion = {
+  progress: number;
   hint: string;
 };
 
-const CLIENT_STEPS: CompletionStep<Profile>[] = [
+type CompletionStep = {
+  done: (profile: Profile) => boolean;
+  hint: string;
+};
+
+const CLIENT_STEPS: CompletionStep[] = [
   {
     done: (profile) => Boolean(profile.avatarUrl),
     hint: 'Додайте фото — майстрам буде простіше вас впізнати.',
@@ -49,38 +54,38 @@ const CLIENT_STEPS: CompletionStep<Profile>[] = [
   },
 ];
 
-const SERVICES_AND_CITY_HINT = 'Додайте послуги й місто — і клієнти знайдуть вас у пошуку.';
-
-const MASTER_STEPS: CompletionStep<MasterProfile>[] = [
-  { done: (master) => master.categoriesCount > 0, hint: SERVICES_AND_CITY_HINT },
-  { done: (master) => Boolean(master.city), hint: SERVICES_AND_CITY_HINT },
-  {
-    done: (master) => master.yearsOfExperience !== null,
-    hint: 'Вкажіть досвід — клієнтам буде простіше обрати вас.',
-  },
-  {
-    done: (master) => master.priceFrom !== null,
-    hint: 'Вкажіть ціну виклику, щоб клієнти знали, чого чекати.',
-  },
-  {
-    done: (master) => Boolean(master.schedule),
-    hint: 'Додайте графік роботи, щоб клієнти знали, коли до вас звертатися.',
-  },
-];
-
-export type ProfileCompletion = {
-  progress: number;
-  hint: string;
-};
-
-function completion<T>(steps: CompletionStep<T>[], data: T): ProfileCompletion | null {
-  const missing = steps.filter((step) => !step.done(data));
+function clientCompletion(profile: Profile): ProfileCompletion | null {
+  const missing = CLIENT_STEPS.filter((step) => !step.done(profile));
   if (missing.length === 0) {
     return null;
   }
   return {
-    progress: (steps.length - missing.length) / steps.length,
+    progress: (CLIENT_STEPS.length - missing.length) / CLIENT_STEPS.length,
     hint: missing[0].hint,
+  };
+}
+
+const SERVICES_AND_CITY_HINT = 'Додайте послуги й місто — і клієнти знайдуть вас у пошуку.';
+
+const MASTER_HINTS: Record<string, string> = {
+  categories: SERVICES_AND_CITY_HINT,
+  category_ids: SERVICES_AND_CITY_HINT,
+  city: SERVICES_AND_CITY_HINT,
+  experience_years: 'Вкажіть досвід — клієнтам буде простіше обрати вас.',
+  call_out_price: 'Вкажіть ціну виклику, щоб клієнти знали, чого чекати.',
+  schedule: 'Додайте графік роботи, щоб клієнти знали, коли до вас звертатися.',
+};
+
+export const MASTER_FALLBACK_HINT = 'Заповніть профіль, щоб клієнти знайшли вас у пошуку.';
+
+function masterCompletion(master: MasterProfile): ProfileCompletion | null {
+  const { percent, nextField } = master.completeness;
+  if (percent >= 100 || nextField === null) {
+    return null;
+  }
+  return {
+    progress: percent / 100,
+    hint: MASTER_HINTS[nextField] ?? MASTER_FALLBACK_HINT,
   };
 }
 
@@ -88,8 +93,8 @@ export function profileCompletion(
   profile: Profile,
   master?: MasterProfile | null,
 ): ProfileCompletion | null {
-    if (profile.role === 'master') {
-    return master ? completion(MASTER_STEPS, master) : null;
+  if (profile.role === 'master') {
+    return master ? masterCompletion(master) : null;
   }
-  return completion(CLIENT_STEPS, profile);
+  return clientCompletion(profile);
 }

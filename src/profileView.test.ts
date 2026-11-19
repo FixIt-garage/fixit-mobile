@@ -1,6 +1,12 @@
 import { MOCK_PROFILE } from './api/profile';
 import { MOCK_MASTER_PROFILE } from './api/masterProfile';
-import { displayPhone, formatPublicId, profileCompletion, profileMeta } from './profileView';
+import {
+  MASTER_FALLBACK_HINT,
+  displayPhone,
+  formatPublicId,
+  profileCompletion,
+  profileMeta,
+} from './profileView';
 
 describe('profileView', () => {
   it('builds the meta line', () => {
@@ -28,11 +34,28 @@ describe('profileView', () => {
   });
 });
 describe('master completion', () => {
-  it('starts with services and city for a new master', () => {
-    const master = { ...MOCK_PROFILE, role: 'master' as const };
+  const master = { ...MOCK_PROFILE, role: 'master' as const };
+
+  it('uses the server completeness and the hint for next_field', () => {
     expect(profileCompletion(master, MOCK_MASTER_PROFILE)).toEqual({
       progress: 0.4,
       hint: 'Додайте послуги й місто — і клієнти знайдуть вас у пошуку.',
     });
+  });
+
+  it('hides completion when everything is filled', () => {
+    const full = {
+      ...MOCK_MASTER_PROFILE,
+      completeness: { filled: 5, total: 5, percent: 100, nextField: null },
+    };
+    expect(profileCompletion(master, full)).toBeNull();
+  });
+
+  it('falls back to a general hint for an unknown next_field', () => {
+    const unknown = {
+      ...MOCK_MASTER_PROFILE,
+      completeness: { filled: 1, total: 5, percent: 20, nextField: 'something_new' },
+    };
+    expect(profileCompletion(master, unknown)?.hint).toBe(MASTER_FALLBACK_HINT);
   });
 });
