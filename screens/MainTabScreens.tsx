@@ -1,13 +1,14 @@
 import { Button } from '../components/Button';
 import { useAuth } from '../src/auth/AuthProvider';
 import TabPlaceholderScreen from './TabPlaceholderScreen';
+import ClientHomeScreen from './ClientHomeScreen';
 
 export function HomeTabScreen() {
   const { state } = useAuth();
   const role = state.status === 'signedIn' ? state.user.role : null;
 
   if (role === 'client') {
-    return <TabPlaceholderScreen title="Головна клієнта" />;
+    return <ClientHomeScreen />;
   }
   if (role === 'master') {
     return <TabPlaceholderScreen title="Головна майстра" />;

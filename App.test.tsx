@@ -22,6 +22,19 @@ jest.mock('./src/auth/api', () => ({
   logout: jest.fn(),
 }));
 
+jest.mock('./src/api/categories', () => {
+  const actual = jest.requireActual('./src/api/categories');
+  return {
+    ...actual,
+    useCategories: () => ({
+      data: actual.MOCK_CATEGORIES,
+      isPending: false,
+      isError: false,
+      refetch: jest.fn(),
+    }),
+  };
+});
+
 jest.mock('./screens/WelcomeScreen', () => {
   const { Text } = jest.requireActual<typeof import('react-native')>('react-native');
 
@@ -93,7 +106,7 @@ describe('App navigation by session', () => {
     mockedApi.fetchCurrentUser.mockResolvedValue(userWithRole('client'));
 
     await render(<App />);
-    expect(await screen.findByText('Головна клієнта')).toBeTruthy();
+    expect(await screen.findByRole('header', { name: 'Що зламалося?' })).toBeTruthy();
     expect(screen.getByRole('tab', { name: 'Заявки' })).toBeTruthy();
   });
 
@@ -110,7 +123,7 @@ describe('App navigation by session', () => {
     mockedApi.fetchCurrentUser.mockResolvedValue(userWithRole('client'));
 
     await render(<App />);
-    await screen.findByText('Головна клієнта');
+    await screen.findByRole('header', { name: 'Що зламалося?' });
     await fireEvent.press(screen.getByRole('tab', { name: 'Заявки' }));
 
     expect(await screen.findByText('Мої заявки')).toBeTruthy();
@@ -122,7 +135,7 @@ describe('App navigation by session', () => {
     mockedApi.logout.mockResolvedValue();
 
     await render(<App />);
-    await screen.findByText('Головна клієнта');
+    await screen.findByRole('header', { name: 'Що зламалося?' });
     await fireEvent.press(screen.getByRole('tab', { name: 'Профіль' }));
     await fireEvent.press(await screen.findByRole('button', { name: 'Вийти' }));
 
