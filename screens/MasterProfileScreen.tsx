@@ -29,6 +29,8 @@ const HERO_SIDE_PADDING = 16;
 const ACTION_BAR_BOTTOM = 20;
 const EMPTY_VALUE = '—';
 
+export type ReviewsState = 'loading' | 'error' | 'ready';
+
 function heroStats(master: MasterPublic): ProfileStat[] {
   return [
     {
@@ -67,15 +69,73 @@ export type MasterProfileViewProps = {
   master: MasterPublic;
   reviews: Review[];
   reviewsTotal: number;
+  reviewsState: ReviewsState;
+  onRetryReviews: () => void;
   onBack: () => void;
-  onSendRequest: () => void;
-  onAllReviews: () => void;
+  onSendRequest?: () => void;
+  onAllReviews?: () => void;
 };
+
+function ReviewsBlock({
+  reviews,
+  reviewsState,
+  onRetryReviews,
+}: Pick<MasterProfileViewProps, 'reviews' | 'reviewsState' | 'onRetryReviews'>) {
+  const theme = useTheme();
+
+  if (reviewsState === 'loading') {
+    return (
+      <Card style={styles.reviewsState}>
+        <ActivityIndicator accessibilityLabel="Завантаження відгуків" color={theme.colors.bg.brand} />
+      </Card>
+    );
+  }
+
+  if (reviewsState === 'error') {
+    return (
+      <Card style={styles.reviewsError}>
+        <Text variant="bodySmall" color="secondary">
+          Не вдалося завантажити відгуки
+        </Text>
+        <Pressable accessibilityRole="button" onPress={onRetryReviews} hitSlop={8}>
+          <Text variant="bodyBold" style={{ color: theme.colors.role.master }}>
+            Спробувати ще раз
+          </Text>
+        </Pressable>
+      </Card>
+    );
+  }
+
+  if (reviews.length === 0) {
+    return (
+      <Card>
+        <Text variant="bodySmall" color="secondary">
+          Поки що відгуків немає
+        </Text>
+      </Card>
+    );
+  }
+
+  return (
+    <>
+      {reviews.map((review) => (
+        <ReviewCard
+          key={review.id}
+          name={review.authorFirstName}
+          rating={review.rating}
+          text={review.comment ?? undefined}
+        />
+      ))}
+    </>
+  );
+}
 
 export function MasterProfileView({
   master,
   reviews,
   reviewsTotal,
+  reviewsState,
+  onRetryReviews,
   onBack,
   onSendRequest,
   onAllReviews,
@@ -83,6 +143,8 @@ export function MasterProfileView({
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const rows = infoRows(master);
+  const showAllReviews =
+    onAllReviews !== undefined && reviewsState === 'ready' && reviewsTotal > reviews.length;
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.colors.bg.screen }]}>
@@ -90,7 +152,7 @@ export function MasterProfileView({
       <ScrollView
         contentContainerStyle={{
           paddingTop: insets.top,
-          paddingBottom: theme.spacing.lg,
+          paddingBottom: onSendRequest ? theme.spacing.lg : Math.max(insets.bottom, ACTION_BAR_BOTTOM),
           gap: theme.spacing.md,
         }}
         showsVerticalScrollIndicator={false}
@@ -119,7 +181,7 @@ export function MasterProfileView({
             <Text variant="labelMono" color="secondary">
               {`Відгуки · ${reviewsTotal}`}
             </Text>
-            {reviewsTotal > reviews.length ? (
+            {showAllReviews ? (
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Усі відгуки"
@@ -133,35 +195,26 @@ export function MasterProfileView({
             ) : null}
           </View>
 
-          {reviews.length > 0 ? (
-            reviews.map((review) => (
-              <ReviewCard
-                key={review.id}
-                name={review.authorFirstName}
-                rating={review.rating}
-                text={review.comment ?? undefined}
-              />
-            ))
-          ) : (
-            <Card>
-              <Text variant="bodySmall" color="secondary">
-                Поки що відгуків немає
-              </Text>
-            </Card>
-          )}
+          <ReviewsBlock
+            reviews={reviews}
+            reviewsState={reviewsState}
+            onRetryReviews={onRetryReviews}
+          />
         </View>
       </ScrollView>
 
-      <View
-        style={{
-          backgroundColor: theme.colors.bg.screen,
-          paddingTop: theme.spacing.md,
-          paddingHorizontal: theme.layout.screenPadding,
-          paddingBottom: Math.max(insets.bottom, ACTION_BAR_BOTTOM),
-        }}
-      >
-        <Button label="Надіслати заявку" onPress={onSendRequest} />
-      </View>
+      {onSendRequest ? (
+        <View
+          style={{
+            backgroundColor: theme.colors.bg.screen,
+            paddingTop: theme.spacing.md,
+            paddingHorizontal: theme.layout.screenPadding,
+            paddingBottom: Math.max(insets.bottom, ACTION_BAR_BOTTOM),
+          }}
+        >
+          <Button label="Надіслати заявку" onPress={onSendRequest} />
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -172,7 +225,6 @@ export default function MasterProfileScreen({ navigation, route }: Props) {
   const masterQuery = useMasterPublic(masterId);
   const reviewsQuery = useMasterReviews(masterId);
   const goBack = () => navigation.goBack();
-  const notReadyYet = () => undefined;
 
   if (masterQuery.isError) {
     const notFound = masterQuery.error instanceof ApiError && masterQuery.error.status === 404;
@@ -206,14 +258,20 @@ export default function MasterProfileScreen({ navigation, route }: Props) {
     );
   }
 
+  const reviewsState: ReviewsState = reviewsQuery.isError
+    ? 'error'
+    : reviewsQuery.isPending
+      ? 'loading'
+      : 'ready';
+
   return (
     <MasterProfileView
       master={masterQuery.data}
       reviews={reviewsQuery.data?.items ?? []}
       reviewsTotal={reviewsQuery.data?.total ?? masterQuery.data.reviewsCount}
+      reviewsState={reviewsState}
+      onRetryReviews={() => void reviewsQuery.refetch()}
       onBack={goBack}
-      onSendRequest={notReadyYet}
-      onAllReviews={notReadyYet}
     />
   );
 }
@@ -238,5 +296,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 4,
+  },
+  reviewsState: {
+    alignItems: 'center',
+  },
+  reviewsError: {
+    gap: 8,
   },
 });

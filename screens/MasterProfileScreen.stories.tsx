@@ -11,9 +11,11 @@ const meta = {
     master: MOCK_MASTER_PUBLIC,
     reviews: MOCK_REVIEWS.items,
     reviewsTotal: MOCK_REVIEWS.total,
+    reviewsState: 'ready',
     onBack: action('back'),
     onSendRequest: action('send request'),
     onAllReviews: action('all reviews'),
+    onRetryReviews: action('retry reviews'),
   },
   decorators: [
     (Story) => (
@@ -50,4 +52,11 @@ export const EmptyProfile: Story = {
     reviews: [],
     reviewsTotal: 0,
   },
+};
+export const ReviewsLoading: Story = {
+  args: { reviews: [], reviewsState: 'loading' },
+};
+
+export const ReviewsError: Story = {
+  args: { reviews: [], reviewsState: 'error' },
 };

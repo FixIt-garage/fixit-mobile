@@ -4,9 +4,16 @@ import { ApiError } from '../api/client';
 import { MOCK_MASTER_PUBLIC, MOCK_REVIEWS } from '../src/api/masterPublic';
 import MasterProfileScreen, { MasterProfileView } from './MasterProfileScreen';
 
-type MockQuery = { data?: unknown; isPending: boolean; isError: boolean; error?: unknown; refetch: jest.Mock };
+type MockQuery = {
+  data?: unknown;
+  isPending: boolean;
+  isError: boolean;
+  error?: unknown;
+  refetch: jest.Mock;
+};
 let mockMasterQuery: MockQuery;
 let mockReviewsQuery: MockQuery;
+const mockReviewsRefetch = jest.fn();
 
 jest.mock('../src/api/masterPublic', () => ({
   ...jest.requireActual('../src/api/masterPublic'),
@@ -18,15 +25,19 @@ type Props = ComponentProps<typeof MasterProfileScreen>;
 const navigation = { goBack: jest.fn() } as unknown as Props['navigation'];
 const route = { key: 'MasterProfile', name: 'MasterProfile', params: { masterId: 12 } } as Props['route'];
 
+async function renderScreen() {
+  await render(<MasterProfileScreen navigation={navigation} route={route} />);
+}
+
 describe('MasterProfileScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockMasterQuery = { data: MOCK_MASTER_PUBLIC, isPending: false, isError: false, refetch: jest.fn() };
-    mockReviewsQuery = { data: MOCK_REVIEWS, isPending: false, isError: false, refetch: jest.fn() };
+    mockReviewsQuery = { data: MOCK_REVIEWS, isPending: false, isError: false, refetch: mockReviewsRefetch };
   });
 
   it('renders the master profile', async () => {
-    await render(<MasterProfileScreen navigation={navigation} route={route} />);
+    await renderScreen();
 
     expect(screen.getByRole('header', { name: 'Андрій Мельник' })).toBeTruthy();
     expect(screen.getByText('Майстер · ID 0247')).toBeTruthy();
@@ -39,15 +50,42 @@ describe('MasterProfileScreen', () => {
     expect(screen.getByText('Виклик — від 300 ₴')).toBeTruthy();
     expect(screen.getByText('Відгуки · 32')).toBeTruthy();
     expect(screen.getByText('Ірина')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Усі відгуки' })).toBeTruthy();
+  });
+
+  it('hides actions that are not wired yet', async () => {
+    await renderScreen();
+
+    expect(screen.queryByText('Надіслати заявку')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Усі відгуки' })).toBeNull();
+  });
+
+  it('shows a loader while reviews load, not the empty state', async () => {
+    mockReviewsQuery = { isPending: true, isError: false, refetch: mockReviewsRefetch };
+    await renderScreen();
+
+    expect(screen.getByLabelText('Завантаження відгуків')).toBeTruthy();
+    expect(screen.queryByText('Поки що відгуків немає')).toBeNull();
+    expect(screen.getByText('Андрій Мельник')).toBeTruthy();
+  });
+
+  it('shows a reviews error with retry and keeps the profile', async () => {
+    mockReviewsQuery = { isPending: false, isError: true, refetch: mockReviewsRefetch };
+    await renderScreen();
+
+    expect(screen.getByText('Не вдалося завантажити відгуки')).toBeTruthy();
+    expect(screen.queryByText('Поки що відгуків немає')).toBeNull();
+    expect(screen.getByText('Андрій Мельник')).toBeTruthy();
+
+    await fireEvent.press(screen.getByText('Спробувати ще раз'));
+
+    expect(mockReviewsRefetch).toHaveBeenCalledTimes(1);
   });
 
   it('shows the empty reviews state', async () => {
-    mockReviewsQuery = { data: { items: [], total: 0 }, isPending: false, isError: false, refetch: jest.fn() };
-    await render(<MasterProfileScreen navigation={navigation} route={route} />);
+    mockReviewsQuery = { data: { items: [], total: 0 }, isPending: false, isError: false, refetch: mockReviewsRefetch };
+    await renderScreen();
 
     expect(screen.getByText('Поки що відгуків немає')).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Усі відгуки' })).toBeNull();
   });
 
   it('shows not found for 404', async () => {
@@ -57,14 +95,14 @@ describe('MasterProfileScreen', () => {
       error: new ApiError(404, { detail: 'Master not found' }),
       refetch: jest.fn(),
     };
-    await render(<MasterProfileScreen navigation={navigation} route={route} />);
+    await renderScreen();
 
     expect(screen.getByText('Майстра не знайдено')).toBeTruthy();
     expect(screen.queryByText('Спробувати ще раз')).toBeNull();
   });
 
   it('goes back', async () => {
-    await render(<MasterProfileScreen navigation={navigation} route={route} />);
+    await renderScreen();
 
     await fireEvent.press(screen.getByRole('button', { name: 'Назад' }));
 
@@ -73,21 +111,26 @@ describe('MasterProfileScreen', () => {
 });
 
 describe('MasterProfileView', () => {
-  it('calls the send request action', async () => {
+  it('shows and calls the actions when they are provided', async () => {
     const onSendRequest = jest.fn();
+    const onAllReviews = jest.fn();
     await render(
       <MasterProfileView
         master={MOCK_MASTER_PUBLIC}
         reviews={MOCK_REVIEWS.items}
         reviewsTotal={32}
+        reviewsState="ready"
+        onRetryReviews={jest.fn()}
         onBack={jest.fn()}
         onSendRequest={onSendRequest}
-        onAllReviews={jest.fn()}
+        onAllReviews={onAllReviews}
       />,
     );
 
     await fireEvent.press(screen.getByText('Надіслати заявку'));
+    await fireEvent.press(screen.getByRole('button', { name: 'Усі відгуки' }));
 
     expect(onSendRequest).toHaveBeenCalledTimes(1);
+    expect(onAllReviews).toHaveBeenCalledTimes(1);
   });
 });
