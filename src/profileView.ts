@@ -41,16 +41,16 @@ const CLIENT_STEPS: CompletionStep[] = [
     hint: 'Додайте фото — майстрам буде простіше вас впізнати.',
   },
   {
-    done: (profile) => Boolean(profile.city),
-    hint: 'Вкажіть місто — так ми покажемо майстрів поруч.',
-  },
-  {
     done: (profile) => Boolean(profile.phone),
     hint: 'Додайте телефон, щоб майстер міг з вами звʼязатися.',
   },
   {
     done: (profile) => Boolean(profile.address),
     hint: 'Додайте адресу — майстру буде простіше вас знайти.',
+  },
+  {
+    done: (profile) => Boolean(profile.city),
+    hint: 'Вкажіть місто — так ми покажемо майстрів поруч.',
   },
 ];
 
