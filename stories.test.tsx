@@ -12,6 +12,7 @@ import { render } from '@testing-library/react-native';
 import { composeStories, setProjectAnnotations } from '@storybook/react';
 import * as preview from './.rnstorybook/preview';
 
+import * as MasterProfileSetupScreenStories from './screens/MasterProfileSetupScreen.stories';
 import * as ClientHomeScreenStories from './screens/ClientHomeScreen.stories';
 import * as MasterProfileScreenStories from './screens/MasterProfileScreen.stories';
 import * as VolunteerCardStories from './components/VolunteerCard.stories';
@@ -97,6 +98,7 @@ const storyFiles = {
   VolunteerCard: VolunteerCardStories,
   MasterProfileScreen: MasterProfileScreenStories,
   ClientHomeScreen: ClientHomeScreenStories,
+  MasterProfileSetupScreen: MasterProfileSetupScreenStories,
 };
 
 describe.each(Object.entries(storyFiles))('%s stories', (_name, storiesModule) => {

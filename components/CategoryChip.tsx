@@ -5,11 +5,13 @@ import { Text } from './Text';
 export type CategoryChipProps = {
   label: string;
   selected: boolean;
+  accent?: 'brand' | 'master';
   onPress: () => void;
 };
 
-export function CategoryChip({ label, selected, onPress }: CategoryChipProps) {
+export function CategoryChip({ label, selected, accent = 'brand', onPress }: CategoryChipProps) {
   const theme = useTheme();
+  const selectedColor = accent === 'master' ? theme.colors.role.master : theme.colors.bg.brand;
 
   return (
     <Pressable
@@ -19,8 +21,8 @@ export function CategoryChip({ label, selected, onPress }: CategoryChipProps) {
       style={({ pressed }) => [
         styles.container,
         {
-          backgroundColor: selected ? theme.colors.bg.brand : theme.colors.bg.surface,
-          borderColor: selected ? theme.colors.bg.brand : theme.colors.border.default,
+          backgroundColor: selected ? selectedColor : theme.colors.bg.surface,
+          borderColor: selected ? selectedColor : theme.colors.border.default,
           borderRadius: theme.radius.pill,
           opacity: pressed ? 0.85 : 1,
         },

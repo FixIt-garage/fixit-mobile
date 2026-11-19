@@ -1,6 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import MasterProfileSetupScreen from '../screens/MasterProfileSetupScreen';
 import SearchResultsScreen from '../screens/SearchResultsScreen';
 import LoginScreen from '../screens/LoginScreen';
 import MasterProfileScreen from '../screens/MasterProfileScreen';
@@ -27,6 +28,7 @@ export type MainStackParamList = {
   Tabs: undefined;
   MasterProfile: { masterId: number };
   SearchResults: { city: string; categoryId: number; description: string };
+  MasterProfileSetup: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -65,6 +67,7 @@ function SignedInStack() {
       <MainStack.Screen name="Tabs" component={MainTabs} />
       <MainStack.Screen name="MasterProfile" component={MasterProfileScreen} />
       <MainStack.Screen name="SearchResults" component={SearchResultsScreen} />
+      <MainStack.Screen name="MasterProfileSetup" component={MasterProfileSetupScreen} />
     </MainStack.Navigator>
   );
 }
