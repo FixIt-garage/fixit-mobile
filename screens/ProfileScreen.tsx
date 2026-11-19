@@ -18,6 +18,9 @@ import { ProfileCompletionCard } from '../components/ProfileCompletionCard';
 import { ProfileHero, type ProfileStat } from '../components/ProfileHero';
 import { Text } from '../components/Text';
 import { VolunteerCard } from '../components/VolunteerCard';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { MainStackParamList } from '../navigation/AppNavigator';
 
 const TAB_BAR_HEIGHT = 64;
 const HERO_SIDE_PADDING = 16;
@@ -47,7 +50,7 @@ function masterStats(master: MasterProfile): ProfileStat[] {
     { label: 'Відгуки', value: String(master.reviewsCount) },
     {
       label: 'Досвід',
-        value: master.experienceYears !== null ? formatYears(master.experienceYears) : EMPTY_VALUE,
+      value: master.experienceYears !== null ? formatYears(master.experienceYears) : EMPTY_VALUE,
     },
   ];
 }
@@ -140,6 +143,7 @@ export function ProfileView({
 export default function ProfileScreen() {
   const theme = useTheme();
   const { signOut } = useAuth();
+  const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const profileQuery = useMyProfile();
   const profile = profileQuery.data;
   const isMaster = profile?.role === 'master';
@@ -190,7 +194,7 @@ export default function ProfileScreen() {
       onVolunteerChange={(value) => setVolunteer.mutate(value)}
       onLogout={logout}
       onEdit={notReadyYet}
-      onFill={notReadyYet}
+      onFill={isMaster ? () => navigation.navigate('MasterProfileSetup') : notReadyYet}
       master={master}
     />
   );

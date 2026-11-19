@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiGet, apiRequest, getAuthSessionGeneration } from '../../api/client';
 import { withMock } from './mock';
+import { MY_PROFILE_QUERY_KEY } from './profile';
 
 type MasterProfileResponse = {
   id: number | null;
@@ -39,6 +40,7 @@ export type MasterProfile = {
   rating: number | null;
   reviewsCount: number;
   categoriesCount: number;
+  categoryIds: number[];
   completeness: MasterCompleteness;
 };
 
@@ -54,6 +56,7 @@ export function toMasterProfile(response: MasterProfileResponse): MasterProfile 
     rating: response.rating,
     reviewsCount: response.reviews_count,
     categoriesCount: response.categories.length,
+    categoryIds: response.categories.map((category) => category.id),
     completeness: {
       filled: response.completeness.filled,
       total: response.completeness.total,
@@ -74,6 +77,7 @@ export const MOCK_MASTER_PROFILE: MasterProfile = {
   rating: 4.8,
   reviewsCount: 32,
   categoriesCount: 0,
+  categoryIds: [],
   completeness: { filled: 2, total: 5, percent: 40, nextField: 'categories' },
 };
 
@@ -130,6 +134,45 @@ export function useSetVolunteer(userId: number | undefined) {
       if (context?.previous && context.generation === getAuthSessionGeneration()) {
         queryClient.setQueryData(context.key, context.previous);
       }
+    },
+  });
+}
+export type MasterProfilePatch = {
+  category_ids?: number[];
+  city?: string | null;
+  district?: string | null;
+  experience_years?: number | null;
+  call_out_price?: number | null;
+  schedule?: string | null;
+};
+
+export function useUpdateMasterProfile(userId: number | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (patch: MasterProfilePatch) =>
+      withMock<MasterProfile | undefined>(
+        async () =>
+          toMasterProfile(
+            await apiRequest<MasterProfileResponse>('/masters/me', {
+              method: 'PATCH',
+              body: patch,
+            }),
+          ),
+        () => undefined,
+      ),
+    onMutate: () => ({
+      key: myMasterProfileKey(userId),
+      generation: getAuthSessionGeneration(),
+    }),
+    onSuccess: (data, _patch, context) => {
+      if (!context || context.generation !== getAuthSessionGeneration()) {
+        return;
+      }
+      if (data) {
+        queryClient.setQueryData(context.key, data);
+      }
+      void queryClient.invalidateQueries({ queryKey: MY_PROFILE_QUERY_KEY });
     },
   });
 }
