@@ -12,7 +12,13 @@ export function parseLocation(text: string): { city: string | null; district: st
 }
 
 export function formatLocation(city: string | null, district: string | null): string {
-  return [city, district].filter(Boolean).join(', ');
+  if (city && district) {
+    return `${city}, ${district}`;
+  }
+  if (district) {
+    return `, ${district}`;
+  }
+  return city ?? '';
 }
 
 function parseNumber(text: string): number | null {
