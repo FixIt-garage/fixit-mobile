@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiGet, apiRequest } from '../../api/client';
+import { apiGet, apiRequest, getAuthSessionGeneration } from '../../api/client';
 import { withMock } from './mock';
 
 type MasterProfileResponse = {
@@ -77,7 +77,9 @@ export const MOCK_MASTER_PROFILE: MasterProfile = {
   completeness: { filled: 2, total: 5, percent: 40, nextField: 'categories' },
 };
 
-export const MY_MASTER_PROFILE_QUERY_KEY = ['masters', 'me'] as const;
+export function myMasterProfileKey(userId: number | undefined) {
+  return ['masters', 'me', userId] as const;
+}
 
 export function fetchMyMasterProfile(): Promise<MasterProfile> {
   return withMock(
@@ -86,17 +88,16 @@ export function fetchMyMasterProfile(): Promise<MasterProfile> {
   );
 }
 
-export function useMyMasterProfile(enabled: boolean) {
+export function useMyMasterProfile(userId: number | undefined, enabled: boolean) {
   return useQuery({
-    queryKey: MY_MASTER_PROFILE_QUERY_KEY,
+    queryKey: myMasterProfileKey(userId),
     queryFn: fetchMyMasterProfile,
-    enabled,
+    enabled: enabled && userId !== undefined,
   });
 }
 
-export function useSetVolunteer() {
+export function useSetVolunteer(userId: number | undefined) {
   const queryClient = useQueryClient();
-  const key = MY_MASTER_PROFILE_QUERY_KEY;
 
   return useMutation({
     mutationFn: (isVolunteer: boolean) =>
@@ -111,21 +112,23 @@ export function useSetVolunteer() {
         () => undefined,
       ),
     onMutate: async (isVolunteer: boolean) => {
+      const key = myMasterProfileKey(userId);
+      const generation = getAuthSessionGeneration();
       await queryClient.cancelQueries({ queryKey: key });
       const previous = queryClient.getQueryData<MasterProfile>(key);
       if (previous) {
         queryClient.setQueryData<MasterProfile>(key, { ...previous, isVolunteer });
       }
-      return { previous };
+      return { key, generation, previous };
     },
-    onSuccess: (data) => {
-      if (data) {
-        queryClient.setQueryData(key, data);
+    onSuccess: (data, _value, context) => {
+      if (data && context && context.generation === getAuthSessionGeneration()) {
+        queryClient.setQueryData(context.key, data);
       }
     },
     onError: (_error, _value, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(key, context.previous);
+      if (context?.previous && context.generation === getAuthSessionGeneration()) {
+        queryClient.setQueryData(context.key, context.previous);
       }
     },
   });

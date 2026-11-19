@@ -143,8 +143,8 @@ export default function ProfileScreen() {
   const profileQuery = useMyProfile();
   const profile = profileQuery.data;
   const isMaster = profile?.role === 'master';
-  const masterQuery = useMyMasterProfile(isMaster);
-  const setVolunteer = useSetVolunteer();
+  const masterQuery = useMyMasterProfile(profile?.id, isMaster);
+  const setVolunteer = useSetVolunteer(profile?.id);
 
   const logout = () => {
     void signOut();
