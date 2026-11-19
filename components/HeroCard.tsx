@@ -50,7 +50,8 @@ export function HeroCard({ children, accent = 'client', style }: HeroCardProps) 
         <BlueprintGrid
           width={size.width}
           height={size.height}
-          offset={8}
+          step={22}
+          offset={22}
           color={theme.colors.glass.grid}
         />
       ) : null}

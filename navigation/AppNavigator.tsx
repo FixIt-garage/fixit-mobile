@@ -1,16 +1,13 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import ProfileScreen from '../screens/ProfileScreen';
 import LoginScreen from '../screens/LoginScreen';
+import MasterProfileScreen from '../screens/MasterProfileScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import WhoAreYouScreen from '../screens/WhoAreYouScreen';
-import {
-  ChatsTabScreen,
-  HomeTabScreen,
-  RequestsTabScreen,
-} from '../screens/MainTabScreens';
+import { ChatsTabScreen, HomeTabScreen, RequestsTabScreen } from '../screens/MainTabScreens';
 import { useAuth } from '../src/auth/AuthProvider';
 import type { MainTabKey } from '../src/mainTabs';
 import type { Role } from '../src/roles';
@@ -25,7 +22,13 @@ export type RootStackParamList = {
 
 export type MainTabParamList = Record<MainTabKey, undefined>;
 
+export type MainStackParamList = {
+  Tabs: undefined;
+  MasterProfile: { masterId: number };
+};
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
+const MainStack = createNativeStackNavigator<MainStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 function AuthStack() {
@@ -54,6 +57,15 @@ function MainTabs() {
   );
 }
 
+function SignedInStack() {
+  return (
+    <MainStack.Navigator screenOptions={{ headerShown: false }}>
+      <MainStack.Screen name="Tabs" component={MainTabs} />
+      <MainStack.Screen name="MasterProfile" component={MasterProfileScreen} />
+    </MainStack.Navigator>
+  );
+}
+
 export default function AppNavigator() {
   const { state } = useAuth();
 
@@ -61,5 +73,5 @@ export default function AppNavigator() {
     return null;
   }
 
-  return state.status === 'signedIn' ? <MainTabs /> : <AuthStack />;
+  return state.status === 'signedIn' ? <SignedInStack /> : <AuthStack />;
 }

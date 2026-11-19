@@ -1,4 +1,3 @@
-
 import { StyleSheet, View } from 'react-native';
 import { useTheme } from '../src/theme';
 import { Icon } from './Icon';
@@ -19,14 +18,7 @@ export function VolunteerBadge() {
       accessibilityRole="text"
       accessibilityLabel="Волонтер"
     >
-      <Icon
-        name="flag"
-        size={16}
-        color="text/success"
-        strokeWidth={1.5}
-        testID="volunteer-flag"
-      />
-
+      <Icon name="flag" size={14} color="text/success" strokeWidth={1.5} testID="volunteer-flag" />
       <Text variant="labelMonoBold" color="success">
         ВОЛОНТЕР
       </Text>
@@ -39,8 +31,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    height: 24,
-    paddingHorizontal: 8,
-    gap: 4,
+    paddingLeft: 10,
+    paddingRight: 12,
+    paddingVertical: 6,
+    gap: 6,
   },
 });

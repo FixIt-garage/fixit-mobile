@@ -8,16 +8,19 @@ import { Text } from './Text';
 export type ReviewCardProps = {
   name: string;
   rating: number;
-  text: string;
+  text?: string;
   style?: StyleProp<ViewStyle>;
 };
 
 export function ReviewCard({ name, rating, text, style }: ReviewCardProps) {
   const theme = useTheme();
+  const label = text
+    ? `Відгук від ${name}, рейтинг ${formatRating(rating)}: ${text}`
+    : `Відгук від ${name}, рейтинг ${formatRating(rating)}`;
 
   return (
     <Card
-      accessibilityLabel={`Відгук від ${name}, рейтинг ${formatRating(rating)}: ${text}`}
+      accessibilityLabel={label}
       style={[
         styles.card,
         { padding: theme.spacing.lg, gap: theme.spacing.sm },
@@ -31,9 +34,11 @@ export function ReviewCard({ name, rating, text, style }: ReviewCardProps) {
         <NutRating mode="display" rating={rating} size={32} />
       </View>
 
-      <Text variant="bodySmall" color="secondary">
-        {text}
-      </Text>
+      {text ? (
+        <Text variant="bodySmall" color="secondary">
+          {text}
+        </Text>
+      ) : null}
     </Card>
   );
 }

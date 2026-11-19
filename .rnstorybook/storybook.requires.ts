@@ -29,6 +29,17 @@ const normalizedStories = [
       true,
       /^\.(?:(?:^|[\\/]|(?:(?:(?!(?:^|[\\/])\.).)*?)[\\/])(?!\.)(?=.)[^\\/]*?\.stories\.(?:ts|tsx)?)$/
     ),
+  },
+  {
+    titlePrefix: "",
+    directory: "./screens",
+    files: "**/*.stories.?(ts|tsx)",
+    importPathMatcher: /^\.(?:(?:^|[\\/]|(?:(?:(?!(?:^|[\\/])\.).)*?)[\\/])(?!\.)(?=.)[^\\/]*?\.stories\.(?:ts|tsx)?)$/,
+    req: require.context(
+      '../screens',
+      true,
+      /^\.(?:(?:^|[\\/]|(?:(?:(?!(?:^|[\\/])\.).)*?)[\\/])(?!\.)(?=.)[^\\/]*?\.stories\.(?:ts|tsx)?)$/
+    ),
   }
 ];
 
