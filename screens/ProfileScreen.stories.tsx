@@ -30,7 +30,7 @@ type Story = StoryObj<typeof meta>;
 export const Client: Story = {};
 
 export const FullyFilled: Story = {
-  args: { profile: { ...MOCK_PROFILE, avatarUrl: 'https://i.pravatar.cc/200' } },
+  args: { profile: { ...MOCK_PROFILE, avatarUrl: 'https://picsum.photos/id/237/200' } },
 };
 
 export const EmptyContacts: Story = {

@@ -46,3 +46,6 @@ export function formatShortDateTime(date: Date): string {
 export function formatYears(years: number): string {
   return `${years} р.`;
 }
+export function formatPrice(value: number): string {
+  return Number.isInteger(value) ? String(value) : value.toFixed(2).replace('.', ',');
+}
