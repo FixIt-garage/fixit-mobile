@@ -1,7 +1,13 @@
 import { waitFor } from '@testing-library/react-native';
 import { clearTokens, getAccessToken, getRefreshToken, saveTokens } from '../src/auth/tokens';
 import { logout } from '../src/auth/api';
-import { ApiError, apiRequest, invalidateAuthSession, setOnSessionExpired } from './client';
+import {
+  ApiError,
+  apiRequest,
+  getAuthSessionGeneration,
+  invalidateAuthSession,
+  setOnSessionExpired,
+} from './client';
 
 jest.mock('expo-secure-store', () => {
   const store = new Map<string, string>();
@@ -50,7 +56,7 @@ afterEach(() => {
 
 describe('session safety', () => {
   it('keeps tokens empty when logout finishes while refresh is pending', async () => {
-    let resolveRefresh: (response: Response) => void = () => {};
+    let resolveRefresh: (response: Response) => void = () => { };
     const refreshResponse = new Promise<Response>((resolve) => {
       resolveRefresh = resolve;
     });
@@ -90,7 +96,7 @@ describe('session safety', () => {
     expect(onExpired).not.toHaveBeenCalled();
   });
 
-    it('ends the session when refresh fails with a network error', async () => {
+  it('ends the session when refresh fails with a network error', async () => {
     fetchMock.mockImplementation((url: string) => {
       if (url.endsWith('/auth/refresh')) {
         return Promise.reject(new TypeError('Network request failed'));
@@ -129,15 +135,15 @@ describe('session safety', () => {
     expect(await getAccessToken()).toBeNull();
   });
   it('does not refresh for a request that got 401 after logout started', async () => {
-    let resolveRequest: (response: Response) => void = () => {};
+    let resolveRequest: (response: Response) => void = () => { };
     const requestResponse = new Promise<Response>((resolve) => {
       resolveRequest = resolve;
     });
-    let resolveLogout: (response: Response) => void = () => {};
+    let resolveLogout: (response: Response) => void = () => { };
     const logoutResponse = new Promise<Response>((resolve) => {
       resolveLogout = resolve;
     });
-    let resolveRefresh: (response: Response) => void = () => {};
+    let resolveRefresh: (response: Response) => void = () => { };
     const refreshResponse = new Promise<Response>((resolve) => {
       resolveRefresh = resolve;
     });
@@ -184,5 +190,19 @@ describe('session safety', () => {
     expect(await getAccessToken()).toBeNull();
     expect(await getRefreshToken()).toBeNull();
     expect(onExpired).not.toHaveBeenCalled();
+  });
+  it('starts a new session generation when refresh fails', async () => {
+    fetchMock.mockImplementation((url: string) => {
+      if (url.endsWith('/auth/refresh')) {
+        return Promise.resolve(jsonResponse(401, null));
+      }
+      return Promise.resolve(jsonResponse(401, null));
+    });
+    const before = getAuthSessionGeneration();
+
+    await apiRequest('/requests').catch(() => undefined);
+
+    expect(getAuthSessionGeneration()).toBe(before + 1);
+    expect(onExpired).toHaveBeenCalledTimes(1);
   });
 });

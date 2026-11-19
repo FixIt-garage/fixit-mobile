@@ -123,6 +123,7 @@ function refreshAccessToken(baseUrl: string, generation: number): Promise<string
 }
 
 async function endSession(): Promise<void> {
+  invalidateAuthSession();
   await clearTokens();
   onSessionExpired?.();
 }

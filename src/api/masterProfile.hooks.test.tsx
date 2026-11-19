@@ -9,6 +9,19 @@ jest.mock('../../api/client', () => ({
     apiRequest: jest.fn(),
 }));
 
+jest.mock('expo-secure-store', () => {
+    const store = new Map<string, string>();
+    return {
+        getItemAsync: jest.fn(async (key: string) => store.get(key) ?? null),
+        setItemAsync: jest.fn(async (key: string, value: string) => {
+            store.set(key, value);
+        }),
+        deleteItemAsync: jest.fn(async (key: string) => {
+            store.delete(key);
+        }),
+    };
+});
+
 const apiRequest = jest.mocked(client.apiRequest);
 
 const OLD_RESPONSE = {
@@ -124,5 +137,39 @@ describe('useSetVolunteer across sessions', () => {
         await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
         expect(queryClient.getQueryData(key)).toMatchObject({ isVolunteer: false });
+    });
+    it('ignores a late success after an automatic sign-out', async () => {
+        const { queryClient, wrapper } = setup();
+        const key = myMasterProfileKey(1);
+        queryClient.setQueryData(key, MOCK_MASTER_PROFILE);
+        const request = deferred<unknown>();
+        apiRequest.mockReturnValueOnce(request.promise as never);
+
+        const { result } = await renderHook(() => useSetVolunteer(1), { wrapper });
+
+        await act(async () => {
+            result.current.mutate(false);
+        });
+
+        process.env.EXPO_PUBLIC_API_URL = 'https://api.test';
+        globalThis.fetch = jest.fn(async () => ({
+            ok: false,
+            status: 401,
+            json: async () => null,
+        })) as unknown as typeof fetch;
+        const actualClient = jest.requireActual<typeof client>('../../api/client');
+
+        await expect(actualClient.apiRequest('/requests')).rejects.toBeInstanceOf(client.ApiError);
+
+        queryClient.clear();
+        const fresh = { ...MOCK_MASTER_PROFILE, isVolunteer: true, reviewsCount: 40 };
+        queryClient.setQueryData(key, fresh);
+
+        await act(async () => {
+            request.resolve(OLD_RESPONSE);
+        });
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+        expect(queryClient.getQueryData(key)).toEqual(fresh);
     });
 });
