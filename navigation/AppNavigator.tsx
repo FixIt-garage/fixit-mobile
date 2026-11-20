@@ -105,6 +105,10 @@ function SignedInStack() {
 export default function AppNavigator() {
   const { state } = useAuth();
 
+  if (state.status === 'loading') {
+    return null;
+  }
+
   if (state.status === 'signedIn') {
     return <SignedInStack />;
   }

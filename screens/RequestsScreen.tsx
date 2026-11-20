@@ -7,6 +7,7 @@ import type {
   MainTabParamList,
 } from '../navigation/AppNavigator';
 import { useMemo, useState } from 'react';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ActivityIndicator,
   FlatList,
@@ -14,7 +15,6 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { useInfiniteQuery } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '../components/Button';
@@ -24,7 +24,7 @@ import { RequestCard } from '../components/RequestCard';
 import { issueStatusToChipStatus, type Status } from '../components/StatusChip';
 import { Text } from '../components/Text';
 
-import { fetchIssues } from '../src/api/issues';
+import { fetchIssues, type IssueCounts } from '../src/api/issues';
 import { useCategories } from '../src/api/categories';
 import { useTheme } from '../src/theme';
 
@@ -40,16 +40,17 @@ const FILTER_OPTIONS: readonly ChipOption<RequestFilter>[] = [
 
 export default function RequestsScreen() {
   const navigation =
-  useNavigation<
-    CompositeNavigationProp<
-      BottomTabNavigationProp<MainTabParamList, 'requests'>,
-      NativeStackNavigationProp<MainStackParamList>
-    >
-  >();
+    useNavigation<
+      CompositeNavigationProp<
+        BottomTabNavigationProp<MainTabParamList, 'requests'>,
+        NativeStackNavigationProp<MainStackParamList>
+      >
+    >();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
   const [filter, setFilter] = useState<RequestFilter>('all');
+  const queryClient = useQueryClient();
 
   const categoriesQuery = useCategories();
 
@@ -74,13 +75,18 @@ export default function RequestsScreen() {
   );
 
   const counts = useMemo(
-    () =>
-      issuesQuery.data?.pages[0]?.counts ?? {
-        all: 0,
-        active: 0,
-        done: 0,
-      },
-    [issuesQuery.data],
+  () =>
+    issuesQuery.data?.pages[0]?.counts ??
+    queryClient.getQueryData<{ pages: { counts: IssueCounts }[] }>([
+      'issues',
+      'requests-tab',
+      'all',
+    ])?.pages[0]?.counts ?? {
+      all: 0,
+      active: 0,
+      done: 0,
+    },
+  [issuesQuery.data, queryClient],
   );
 
   const filterOptions = useMemo(

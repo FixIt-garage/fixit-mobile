@@ -1,8 +1,5 @@
 import { render, screen } from '@testing-library/react-native';
-import {
-  StatusChip,
-  issueStatusToChipStatus,
-} from './StatusChip';
+import { StatusChip, issueStatusToChipStatus } from './StatusChip';
 
 describe('StatusChip', () => {
   it.each([
@@ -11,18 +8,20 @@ describe('StatusChip', () => {
     ['inProgress', 'В РОБОТІ'],
     ['done', 'ВИКОНАНА'],
     ['declined', 'ВІДХИЛЕНА'],
-  ] as const)('renders the correct label for status "%s"', async (status, label) => {
-    await render(<StatusChip status={status} />);
+    ['cancelled', 'СКАСОВАНА'],
+  ] as const)(
+    'renders the correct label for status "%s"',
+    async (status, label) => {
+      await render(<StatusChip status={status} />);
 
-    expect(screen.getByText(label)).toBeTruthy();
-  });
+      expect(screen.getByText(label)).toBeTruthy();
+    },
+  );
 
   it('has an accessible label', async () => {
     await render(<StatusChip status="accepted" />);
 
-    expect(
-      screen.getByLabelText('ПРИЙНЯТА'),
-    ).toBeTruthy();
+    expect(screen.getByLabelText('ПРИЙНЯТА')).toBeTruthy();
   });
 });
 
@@ -33,7 +32,7 @@ describe('issueStatusToChipStatus', () => {
     ['in_progress', 'inProgress'],
     ['done', 'done'],
     ['declined', 'declined'],
-    ['cancelled', null],
+    ['cancelled', 'cancelled'],
   ] as const)(
     'maps backend status "%s" to chip status "%s"',
     (backendStatus, chipStatus) => {

@@ -20,7 +20,14 @@ export function HomeTabScreen() {
 }
 
 export function RequestsTabScreen() {
-  return <RequestsScreen />;
+  const { state } = useAuth();
+  const role = state.status === 'signedIn' ? state.user.role : null;
+
+  if (role === 'client') {
+    return <RequestsScreen />;
+  }
+
+  return <TabPlaceholderScreen title="Мої заявки" />;
 }
 
 export function ChatsTabScreen() {

@@ -94,10 +94,24 @@ const mockIssues: Issue[] = [
     created_at: '2026-11-14T10:00:00Z',
     updated_at: '2026-11-14T10:00:00Z',
   },
+  {
+    id: 5,
+    title: 'Скасована заявка на ремонт',
+    description: '',
+    category_id: 1,
+    address: null,
+    district: null,
+    status: 'cancelled',
+    owner_id: 1,
+    assignee_master_id: null,
+    assignee_company_id: null,
+    created_at: '2026-11-15T10:00:00Z',
+    updated_at: '2026-11-15T10:00:00Z',
+  },
 ];
 
 const mockCounts = {
-  all: 4,
+  all: 5,
   active: 3,
   done: 1,
 };
@@ -171,9 +185,9 @@ describe('RequestsScreen', () => {
 
     expect(await screen.findByText('Мої заявки')).toBeTruthy();
 
-    expect(screen.getByText('Усі · 4')).toBeTruthy();
-    expect(screen.getByText('Активні · 3')).toBeTruthy();
-    expect(screen.getByText('Виконані · 1')).toBeTruthy();
+    expect(await screen.findByText('Усі · 5')).toBeTruthy();
+    expect(await screen.findByText('Активні · 3')).toBeTruthy();
+    expect(await screen.findByText('Виконані · 1')).toBeTruthy();
 
     expect(
       await screen.findByText('Пральна машина не зливає воду'),
@@ -182,6 +196,10 @@ describe('RequestsScreen', () => {
     expect(screen.getByText('Не працюють розетки на кухні')).toBeTruthy();
     expect(screen.getByText('Тече змішувач у ванній')).toBeTruthy();
     expect(screen.getByText('Розбитий екран iPhone 13')).toBeTruthy();
+
+    expect(screen.getByText('Скасована заявка на ремонт')).toBeTruthy();
+
+    expect(screen.getByText('СКАСОВАНА')).toBeTruthy();
   });
 
   it('shows only active requests when active filter is selected', async () => {
@@ -201,11 +219,46 @@ describe('RequestsScreen', () => {
     expect(screen.getByText('Тече змішувач у ванній')).toBeTruthy();
     expect(screen.getByText('Розбитий екран iPhone 13')).toBeTruthy();
 
+    expect(screen.queryByText('Скасована заявка на ремонт')).toBeNull();
+
     expect(mockedFetchIssues).toHaveBeenLastCalledWith(
       expect.objectContaining({
         statusGroup: 'active',
       }),
     );
+  });
+
+  it('keeps filters available after a filter request fails', async () => {
+    await render(<RequestsScreen />, { wrapper: Wrapper });
+
+    // Спочатку завантажуємо всі заявки.
+    expect(
+      await screen.findByText('Пральна машина не зливає воду'),
+    ).toBeTruthy();
+
+    // Імітуємо помилку завантаження активних заявок.
+    mockedFetchIssues.mockRejectedValueOnce(new Error('Network error'));
+
+    fireEvent.press(screen.getByText('Активні · 3'));
+
+    // Перевіряємо повідомлення про помилку.
+    expect(
+      await screen.findByText('Не вдалося завантажити заявки.'),
+    ).toBeTruthy();
+
+    // Фільтри та попередні лічильники мають залишитися.
+    expect(screen.getByText('Усі · 5')).toBeTruthy();
+    expect(screen.getByText('Активні · 3')).toBeTruthy();
+    expect(screen.getByText('Виконані · 1')).toBeTruthy();
+
+    // Повертаємося до всіх заявок.
+    fireEvent.press(screen.getByText('Усі · 5'));
+
+    expect(
+      await screen.findByText('Пральна машина не зливає воду'),
+    ).toBeTruthy();
+
+    expect(screen.queryByText('Не вдалося завантажити заявки.')).toBeNull();
   });
 
   it('shows only completed requests when done filter is selected', async () => {
@@ -222,7 +275,6 @@ describe('RequestsScreen', () => {
     ).toBeTruthy();
 
     expect(screen.queryByText('Не працюють розетки на кухні')).toBeNull();
-
     expect(screen.queryByText('Тече змішувач у ванній')).toBeNull();
 
     expect(mockedFetchIssues).toHaveBeenLastCalledWith(
@@ -247,7 +299,7 @@ describe('RequestsScreen', () => {
     });
   });
 
-    it('shows empty state when there are no requests', async () => {
+  it('shows empty state when there are no requests', async () => {
     mockedFetchIssues.mockResolvedValue({
       items: [],
       counts: {
@@ -260,7 +312,6 @@ describe('RequestsScreen', () => {
     await render(<RequestsScreen />, { wrapper: Wrapper });
 
     expect(await screen.findByText('Поки що заявок немає')).toBeTruthy();
-
     expect(screen.getByText('Створити заявку')).toBeTruthy();
   });
 
