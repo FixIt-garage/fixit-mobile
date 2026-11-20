@@ -11,6 +11,7 @@ const STATUS_NAMES: Record<Status, string> = {
   inProgress: 'в роботі',
   done: 'виконана',
   declined: 'відхилена',
+  cancelled: 'скасована',
 };
 
 export type RequestCardProps = {
@@ -41,7 +42,12 @@ export function RequestCard({
       style={[styles.column, style]}
     >
       <View style={styles.header}>
-        <Text variant="labelMono" color="secondary" numberOfLines={1} style={styles.category}>
+        <Text
+          variant="labelMono"
+          color="secondary"
+          numberOfLines={1}
+          style={styles.category}
+        >
           {category}
         </Text>
         <StatusChip status={status} />
@@ -53,7 +59,12 @@ export function RequestCard({
 
       <View style={styles.meta}>
         <Icon name="user" size={16} color="text/secondary" />
-        <Text variant="bodySmall" color="secondary" numberOfLines={1} style={styles.metaText}>
+        <Text
+          variant="bodySmall"
+          color="secondary"
+          numberOfLines={1}
+          style={styles.metaText}
+        >
           {meta}
         </Text>
       </View>

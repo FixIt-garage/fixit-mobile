@@ -3,19 +3,10 @@ import { useTheme } from '../src/theme';
 import { Text } from './Text';
 
 export type Status =
-  | 'sent'
-  | 'accepted'
-  | 'inProgress'
-  | 'done'
-  | 'declined';
+  'sent' | 'accepted' | 'inProgress' | 'done' | 'declined' | 'cancelled';
 
 export type BackendIssueStatus =
-  | 'sent'
-  | 'accepted'
-  | 'in_progress'
-  | 'done'
-  | 'declined'
-  | 'cancelled';
+  'sent' | 'accepted' | 'in_progress' | 'done' | 'declined' | 'cancelled';
 
 export const issueStatusToChipStatus: Record<
   BackendIssueStatus,
@@ -26,7 +17,7 @@ export const issueStatusToChipStatus: Record<
   in_progress: 'inProgress',
   done: 'done',
   declined: 'declined',
-  cancelled: null,
+  cancelled: 'cancelled',
 };
 
 type StatusConfig = {
@@ -41,6 +32,7 @@ const statusLabels: Record<Status, string> = {
   inProgress: 'В РОБОТІ',
   done: 'ВИКОНАНА',
   declined: 'ВІДХИЛЕНА',
+  cancelled: 'СКАСОВАНА',
 };
 
 export type StatusChipProps = {
@@ -50,10 +42,7 @@ export type StatusChipProps = {
 export function StatusChip({ status }: StatusChipProps) {
   const theme = useTheme();
 
-  const statusColors: Record<
-    Status,
-    Omit<StatusConfig, 'label'>
-  > = {
+  const statusColors: Record<Status, Omit<StatusConfig, 'label'>> = {
     sent: {
       backgroundColor: theme.colors.bg.subtle,
       foregroundColor: theme.colors.text.secondary,
@@ -74,6 +63,10 @@ export function StatusChip({ status }: StatusChipProps) {
       backgroundColor: theme.colors.bg.errorSoft,
       foregroundColor: theme.colors.text.error,
     },
+    cancelled: {
+      backgroundColor: theme.colors.bg.subtle,
+      foregroundColor: theme.colors.text.secondary,
+    },
   };
 
   const config: StatusConfig = {
@@ -93,17 +86,9 @@ export function StatusChip({ status }: StatusChipProps) {
       accessibilityRole="text"
       accessibilityLabel={config.label}
     >
-      <View
-        style={[
-          styles.dot,
-          { backgroundColor: config.foregroundColor },
-        ]}
-      />
+      <View style={[styles.dot, { backgroundColor: config.foregroundColor }]} />
 
-      <Text
-        variant="labelMonoBold"
-        style={{ color: config.foregroundColor }}
-      >
+      <Text variant="labelMonoBold" style={{ color: config.foregroundColor }}>
         {config.label}
       </Text>
     </View>
