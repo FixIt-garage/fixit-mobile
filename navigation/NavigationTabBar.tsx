@@ -9,6 +9,7 @@ export function NavigationTabBar({ state, navigation }: BottomTabBarProps) {
     <TabBar
       tabs={MAIN_TABS}
       activeKey={activeKey}
+      floating={false}
       onTabPress={(key) => {
         const route = state.routes.find((item) => item.name === key);
         if (!route) {

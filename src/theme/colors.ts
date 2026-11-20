@@ -10,6 +10,8 @@ export const colors = {
     inverse: '#111827',
     successSoft: '#F0FDF4',
     errorSoft: '#FEF2F2',
+    statusSentSoft: '#F0F1F5',
+    statusAcceptedSoft: '#EEF2FF',
   },
   border: {
     default: '#E3E6EB',
@@ -35,7 +37,7 @@ export const colors = {
     center: '#EA580C',
     org: '#16A34A',
   },
-    roleSoft: {
+  roleSoft: {
     center: '#FFF7ED',
   },
   icon: {

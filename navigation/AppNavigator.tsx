@@ -9,7 +9,12 @@ import ProfileScreen from '../screens/ProfileScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import WhoAreYouScreen from '../screens/WhoAreYouScreen';
-import { ChatsTabScreen, HomeTabScreen, RequestsTabScreen } from '../screens/MainTabScreens';
+import RequestDetailsPlaceholderScreen from '../screens/RequestDetailsPlaceholderScreen';
+import {
+  ChatsTabScreen,
+  HomeTabScreen,
+  RequestsTabScreen,
+} from '../screens/MainTabScreens';
 import { useAuth } from '../src/auth/AuthProvider';
 import type { MainTabKey } from '../src/mainTabs';
 import type { Role } from '../src/roles';
@@ -20,6 +25,7 @@ export type RootStackParamList = {
   WhoAreYou: undefined;
   SignUp: { role: Role };
   Login: undefined;
+  MainTabs: undefined;
 };
 
 export type MainTabParamList = Record<MainTabKey, undefined>;
@@ -29,6 +35,7 @@ export type MainStackParamList = {
   MasterProfile: { masterId: number };
   SearchResults: { city: string; categoryId: number; description: string };
   MasterProfileSetup: undefined;
+  RequestDetails: { issueId: number; title: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -38,10 +45,26 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 function AuthStack() {
   return (
     <Stack.Navigator initialRouteName="Welcome">
-      <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="WhoAreYou" component={WhoAreYouScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="Welcome"
+        component={WelcomeScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="WhoAreYou"
+        component={WhoAreYouScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="SignUp"
+        component={SignUpScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }
@@ -67,7 +90,14 @@ function SignedInStack() {
       <MainStack.Screen name="Tabs" component={MainTabs} />
       <MainStack.Screen name="MasterProfile" component={MasterProfileScreen} />
       <MainStack.Screen name="SearchResults" component={SearchResultsScreen} />
-      <MainStack.Screen name="MasterProfileSetup" component={MasterProfileSetupScreen} />
+      <MainStack.Screen
+        name="MasterProfileSetup"
+        component={MasterProfileSetupScreen}
+      />
+      <MainStack.Screen
+        name="RequestDetails"
+        component={RequestDetailsPlaceholderScreen}
+      />
     </MainStack.Navigator>
   );
 }
@@ -75,9 +105,9 @@ function SignedInStack() {
 export default function AppNavigator() {
   const { state } = useAuth();
 
-  if (state.status === 'loading') {
-    return null;
+  if (state.status === 'signedIn') {
+    return <SignedInStack />;
   }
 
-  return state.status === 'signedIn' ? <SignedInStack /> : <AuthStack />;
+  return <AuthStack />;
 }

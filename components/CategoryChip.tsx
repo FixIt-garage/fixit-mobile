@@ -9,9 +9,15 @@ export type CategoryChipProps = {
   onPress: () => void;
 };
 
-export function CategoryChip({ label, selected, accent = 'brand', onPress }: CategoryChipProps) {
+export function CategoryChip({
+  label,
+  selected,
+  accent = 'brand',
+  onPress,
+}: CategoryChipProps) {
   const theme = useTheme();
-  const selectedColor = accent === 'master' ? theme.colors.role.master : theme.colors.bg.brand;
+  const selectedColor =
+    accent === 'master' ? theme.colors.role.master : theme.colors.bg.brand;
 
   return (
     <Pressable

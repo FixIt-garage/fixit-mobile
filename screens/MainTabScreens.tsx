@@ -2,6 +2,7 @@ import { Button } from '../components/Button';
 import { useAuth } from '../src/auth/AuthProvider';
 import TabPlaceholderScreen from './TabPlaceholderScreen';
 import ClientHomeScreen from './ClientHomeScreen';
+import RequestsScreen from './RequestsScreen';
 
 export function HomeTabScreen() {
   const { state } = useAuth();
@@ -10,14 +11,16 @@ export function HomeTabScreen() {
   if (role === 'client') {
     return <ClientHomeScreen />;
   }
+
   if (role === 'master') {
     return <TabPlaceholderScreen title="Головна майстра" />;
   }
+
   return <TabPlaceholderScreen title="Головний екран" />;
 }
 
 export function RequestsTabScreen() {
-  return <TabPlaceholderScreen title="Мої заявки" />;
+  return <RequestsScreen />;
 }
 
 export function ChatsTabScreen() {
@@ -29,7 +32,11 @@ export function ProfileTabScreen() {
 
   return (
     <TabPlaceholderScreen title="Мій профіль">
-      <Button label="Вийти" variant="secondary" onPress={() => void signOut()} />
+      <Button
+        label="Вийти"
+        variant="secondary"
+        onPress={() => void signOut()}
+      />
     </TabPlaceholderScreen>
   );
 }
