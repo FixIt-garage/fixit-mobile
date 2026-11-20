@@ -230,16 +230,14 @@ export default function RequestsScreen() {
             );
           }}
           ListHeaderComponent={
-            counts.all > 0 ? (
-              <View style={styles.filters}>
-                <ChipGroup
-                  mode="single"
-                  options={filterOptions}
-                  value={filter}
-                  onChange={setFilter}
-                />
-              </View>
-            ) : undefined
+            <View style={styles.filters}>
+              <ChipGroup
+                mode="single"
+                options={filterOptions}
+                value={filter}
+                onChange={setFilter}
+              />
+            </View>
           }
           ListEmptyComponent={renderEmptyState}
           ItemSeparatorComponent={() => (

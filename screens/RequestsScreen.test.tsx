@@ -116,16 +116,16 @@ const mockCounts = {
   done: 1,
 };
 
-function Wrapper({ children }: PropsWithChildren) {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        gcTime: Infinity,
-      },
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      gcTime: Infinity,
     },
-  });
+  },
+});
 
+function Wrapper({ children }: PropsWithChildren) {
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider
@@ -142,6 +142,7 @@ function Wrapper({ children }: PropsWithChildren) {
 
 describe('RequestsScreen', () => {
   beforeEach(() => {
+    queryClient.clear();
     jest.clearAllMocks();
 
     mockedUseNavigation.mockReturnValue({
@@ -259,6 +260,42 @@ describe('RequestsScreen', () => {
     ).toBeTruthy();
 
     expect(screen.queryByText('Не вдалося завантажити заявки.')).toBeNull();
+  });
+
+  it('keeps filters available when the all requests cache is removed', async () => {
+    await render(<RequestsScreen />, { wrapper: Wrapper });
+
+    // Завантажуємо всі заявки.
+    expect(
+      await screen.findByText('Пральна машина не зливає воду'),
+    ).toBeTruthy();
+
+    // Переходимо до активних і чекаємо успішного завантаження.
+    fireEvent.press(screen.getByText('Активні · 3'));
+
+    expect(
+      await screen.findByText('Не працюють розетки на кухні'),
+    ).toBeTruthy();
+
+    // Імітуємо видалення кешу неактивного фільтра «Усі».
+    queryClient.removeQueries({
+      queryKey: ['issues', 'requests-tab', 'all'],
+      exact: true,
+    });
+
+    // Запит «Виконані» завершиться помилкою.
+    mockedFetchIssues.mockRejectedValueOnce(new Error('Network error'));
+
+    fireEvent.press(screen.getByText('Виконані · 1'));
+
+    expect(
+      await screen.findByText('Не вдалося завантажити заявки.'),
+    ).toBeTruthy();
+
+    // Усі три фільтри мають залишатися доступними.
+    expect(screen.getByText(/^Усі/)).toBeTruthy();
+    expect(screen.getByText(/^Активні/)).toBeTruthy();
+    expect(screen.getByText(/^Виконані/)).toBeTruthy();
   });
 
   it('shows only completed requests when done filter is selected', async () => {
