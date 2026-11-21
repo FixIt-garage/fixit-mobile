@@ -227,4 +227,28 @@ describe('ServiceCenterProfileView', () => {
 
     expect(screen.getByText('Пн–Пт 9:00–19:00 · Сб 10:00–16:00')).toBeTruthy();
   });
+  it('does not group days across a closed day', async () => {
+    const center = {
+      ...MOCK_SERVICE_CENTER,
+      openingHours: {
+        monday: { open: '09:00', close: '18:00' },
+        tuesday: null,
+        wednesday: { open: '09:00', close: '18:00' },
+        thursday: null,
+        friday: null,
+        saturday: null,
+        sunday: null,
+      },
+    };
+
+    await render(
+      <ServiceCenterProfileView
+        center={center}
+        onBack={jest.fn()}
+        onCall={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByText('Пн 9:00–18:00 · Ср 9:00–18:00')).toBeTruthy();
+  });
 });

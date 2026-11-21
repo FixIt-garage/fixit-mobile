@@ -103,20 +103,28 @@ function formatOpeningHours(openingHours: OpeningHours | null): string | null {
   ] as const;
 
   const groups: { start: string; end: string; hours: string }[] = [];
+  let currentGroup: { start: string; end: string; hours: string } | null = null;
 
   for (const [day, interval] of days) {
-    if (!interval) continue;
+    if (!interval) {
+      if (currentGroup) {
+        groups.push(currentGroup);
+        currentGroup = null;
+      }
+      continue;
+    }
 
     const hours = `${formatTime(interval.open)}–${formatTime(interval.close)}`;
-    const lastGroup = groups[groups.length - 1];
 
-    if (lastGroup && lastGroup.hours === hours) {
-      lastGroup.end = day;
+    if (currentGroup && currentGroup.hours === hours) {
+      currentGroup.end = day;
     } else {
-      groups.push({ start: day, end: day, hours });
+      if (currentGroup) groups.push(currentGroup);
+      currentGroup = { start: day, end: day, hours };
     }
   }
 
+  if (currentGroup) groups.push(currentGroup);
   if (groups.length === 0) return null;
 
   return groups
