@@ -102,13 +102,29 @@ function formatOpeningHours(openingHours: OpeningHours | null): string | null {
     ['Нд', openingHours.sunday],
   ] as const;
 
-  const parts = days.flatMap(([label, hours]) =>
-    hours
-      ? [`${label} ${formatTime(hours.open)}–${formatTime(hours.close)}`]
-      : [],
-  );
+  const groups: { start: string; end: string; hours: string }[] = [];
 
-  return parts.length > 0 ? parts.join(' · ') : null;
+  for (const [day, interval] of days) {
+    if (!interval) continue;
+
+    const hours = `${formatTime(interval.open)}–${formatTime(interval.close)}`;
+    const lastGroup = groups[groups.length - 1];
+
+    if (lastGroup && lastGroup.hours === hours) {
+      lastGroup.end = day;
+    } else {
+      groups.push({ start: day, end: day, hours });
+    }
+  }
+
+  if (groups.length === 0) return null;
+
+  return groups
+    .map(
+      ({ start, end, hours }) =>
+        `${start === end ? start : `${start}–${end}`} ${hours}`,
+    )
+    .join(' · ');
 }
 
 function ServiceCenterMap({
@@ -217,12 +233,7 @@ function ProfileInfoRow({
         color={icon === 'map-pin' ? 'text/primary' : 'text/secondary'}
         strokeWidth={1.75}
       />
-      <Text
-        variant="body"
-        color="primary"
-        numberOfLines={1}
-        style={styles.profileInfoText}
-      >
+      <Text variant="body" color="primary" style={styles.profileInfoText}>
         {text}
       </Text>
     </View>

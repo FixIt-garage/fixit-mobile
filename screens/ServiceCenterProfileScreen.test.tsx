@@ -203,16 +203,16 @@ describe('ServiceCenterProfileView', () => {
     expect(screen.getByText('Нд 11:00–15:00')).toBeTruthy();
   });
 
-  it('displays weekdays with different opening hours separately', async () => {
+  it('groups consecutive weekdays with the same opening hours', async () => {
     const center = {
       ...MOCK_SERVICE_CENTER,
       openingHours: {
-        monday: { open: '08:00', close: '18:00' },
+        monday: { open: '09:00', close: '19:00' },
         tuesday: { open: '09:00', close: '19:00' },
-        wednesday: null,
-        thursday: null,
-        friday: null,
-        saturday: null,
+        wednesday: { open: '09:00', close: '19:00' },
+        thursday: { open: '09:00', close: '19:00' },
+        friday: { open: '09:00', close: '19:00' },
+        saturday: { open: '10:00', close: '16:00' },
         sunday: null,
       },
     };
@@ -225,6 +225,6 @@ describe('ServiceCenterProfileView', () => {
       />,
     );
 
-    expect(screen.getByText('Пн 8:00–18:00 · Вт 9:00–19:00')).toBeTruthy();
+    expect(screen.getByText('Пн–Пт 9:00–19:00 · Сб 10:00–16:00')).toBeTruthy();
   });
 });
