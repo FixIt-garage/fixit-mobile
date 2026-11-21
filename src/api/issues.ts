@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { apiGet } from '../../api/client';
+import { apiGet, apiRequest } from '../../api/client';
 import { withMock } from './mock';
 
 export type BackendIssueStatus =
@@ -18,6 +18,15 @@ export type Issue = {
   assignee_company_id: number | null;
   created_at: string;
   updated_at: string;
+};
+
+export type CreateIssueInput = {
+  title: string;
+  description: string;
+  category_id: number;
+  address?: string | null;
+  district?: string | null;
+  assignee_company_id: number;
 };
 
 export type IssueStatusEvent = {
@@ -213,6 +222,13 @@ export async function fetchIssueDetails(
       return issue;
     },
   );
+}
+
+export async function createIssue(input: CreateIssueInput): Promise<Issue> {
+  return apiRequest<Issue>('/issues', {
+    method: 'POST',
+    body: input,
+  });
 }
 
 export function useIssues(params: IssuesParams = {}) {
