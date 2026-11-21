@@ -57,3 +57,20 @@ const originalFetch = globalThis.fetch;
 afterEach(() => {
   globalThis.fetch = originalFetch;
 });
+jest.mock('react-native-maps', () => {
+  const React = jest.requireActual<typeof import('react')>('react');
+  const { View } = jest.requireActual<typeof import('react-native')>('react-native');
+
+  const MockMapView = ({ children }: { children?: React.ReactNode }) =>
+    React.createElement(View, { testID: 'mock-map-view' }, children);
+
+  const MockMarker = ({ children }: { children?: React.ReactNode }) =>
+    React.createElement(View, { testID: 'mock-map-marker' }, children);
+
+  return {
+    __esModule: true,
+    default: MockMapView,
+    Marker: MockMarker,
+    PROVIDER_GOOGLE: 'google',
+  };
+});

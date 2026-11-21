@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react-native';
 import * as client from '../../api/client';
 import {
+  createIssue,
   fetchIssueDetails,
   fetchIssues,
   MOCK_ISSUES,
@@ -10,15 +11,18 @@ import {
   useIssues,
   type IssueDetail,
   type IssueListResponse,
+  type CreateIssueInput,
 } from './issues';
 import { setMockMode } from './mock';
 
 jest.mock('../../api/client', () => ({
   ...jest.requireActual('../../api/client'),
   apiGet: jest.fn(),
+  apiRequest: jest.fn(),
 }));
 
 const apiGet = jest.mocked(client.apiGet);
+const apiRequest = jest.mocked(client.apiRequest);
 
 function wrapper({ children }: { children: ReactNode }) {
   const queryClient = new QueryClient({
@@ -172,5 +176,37 @@ describe('mock mode', () => {
 
     expect(result.items).toHaveLength(1);
     expect(result.items[0].status).toBe('done');
+  });
+});
+
+describe('createIssue', () => {
+  beforeEach(() => {
+    apiRequest.mockReset();
+    setMockMode(false);
+  });
+
+  it('creates an issue assigned to a service center', async () => {
+    const input: CreateIssueInput = {
+      title: 'Ремонт смартфона',
+      description: 'Розбитий екран',
+      category_id: 2,
+      address: 'вул. Наукова, 7А',
+      assignee_company_id: 18,
+    };
+
+    apiRequest.mockResolvedValueOnce({
+      ...MOCK_ISSUES[0],
+      ...input,
+    });
+
+    const result = await createIssue(input);
+
+    expect(apiRequest).toHaveBeenCalledWith('/issues', {
+      method: 'POST',
+      body: input,
+    });
+
+    expect(result.assignee_company_id).toBe(18);
+    expect(result.category_id).toBe(2);
   });
 });
