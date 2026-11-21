@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiGet, apiRequest } from '../../api/client';
-import { withMock } from './mock';
+import { withMock, isMockMode } from './mock';
 
 export type BackendIssueStatus =
   'sent' | 'accepted' | 'in_progress' | 'done' | 'declined' | 'cancelled';
@@ -207,9 +207,7 @@ export async function fetchIssues(
   );
 }
 
-export async function fetchIssueDetails(
-  issueId: number,
-): Promise<IssueDetail> {
+export async function fetchIssueDetails(issueId: number): Promise<IssueDetail> {
   return withMock(
     () => apiGet<IssueDetail>(`/issues/${issueId}`),
     () => {
@@ -225,6 +223,10 @@ export async function fetchIssueDetails(
 }
 
 export async function createIssue(input: CreateIssueInput): Promise<Issue> {
+  if (isMockMode()) {
+    throw new Error('Creating issues is disabled in demo mode');
+  }
+
   return apiRequest<Issue>('/issues', {
     method: 'POST',
     body: input,

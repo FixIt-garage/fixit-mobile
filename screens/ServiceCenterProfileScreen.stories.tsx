@@ -15,7 +15,7 @@ const meta = {
       phone: '+380 32 245 67 89',
     },
     onBack: action('back'),
-    onRequest: action('request'),
+    onCall: action('call'),
   },
   decorators: [
     (Story) => (
@@ -34,6 +34,7 @@ export const Default: Story = {};
 
 export const Closed: Story = {
   args: {
+    onCall: action('call'),
     center: {
       ...MOCK_SERVICE_CENTER,
       address: 'вул. Городоцька, 15',

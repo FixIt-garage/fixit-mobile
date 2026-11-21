@@ -35,9 +35,12 @@ export type MainTabParamList = Record<MainTabKey, undefined>;
 export type MainStackParamList = {
   Tabs: undefined;
   MasterProfile: { masterId: number };
-  ServiceCenterProfile: { serviceCenterId: number };
+  ServiceCenterProfile: { serviceCenterId: number; draftDescription?: string };
   SearchResults: { city: string; categoryId: number; description: string };
-  CreateServiceCenterRequest: { serviceCenterId: number };
+  CreateServiceCenterRequest: {
+    serviceCenterId: number;
+    description?: string;
+  };
   MasterProfileSetup: undefined;
   RequestDetails: { issueId: number; title: string };
 };

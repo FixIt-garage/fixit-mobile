@@ -28,11 +28,11 @@ export default function CreateServiceCenterRequestScreen({
   const theme = useTheme();
   const queryClient = useQueryClient();
 
-  const { serviceCenterId } = route.params;
+  const { serviceCenterId, description: draftDescription } = route.params;
   const centerQuery = useServiceCenter(serviceCenterId);
 
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState(draftDescription ?? '');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
   );

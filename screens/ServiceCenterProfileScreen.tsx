@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -12,7 +13,9 @@ import type { MainStackParamList } from '../navigation/AppNavigator';
 import { ApiError } from '../api/client';
 import {
   useServiceCenter,
+  useServiceCenterReviews,
   type OpeningHours,
+  type ServiceCenterReview,
   type ServiceCenter,
 } from '../src/api/serviceCenters';
 import { useTheme } from '../src/theme';
@@ -27,7 +30,8 @@ type Props = NativeStackScreenProps<MainStackParamList, 'ServiceCenterProfile'>;
 type ServiceCenterProfileViewProps = {
   center: ServiceCenter;
   onBack: () => void;
-  onRequest: () => void;
+  onCall: () => void;
+  reviews?: ServiceCenterReview[];
 };
 
 const MAP_HEIGHT = 330;
@@ -88,31 +92,21 @@ function formatTime(time: string) {
 function formatOpeningHours(openingHours: OpeningHours | null): string | null {
   if (!openingHours) return null;
 
-  const weekdays = [
-    openingHours.monday,
-    openingHours.tuesday,
-    openingHours.wednesday,
-    openingHours.thursday,
-    openingHours.friday,
-  ];
+  const days = [
+    ['Пн', openingHours.monday],
+    ['Вт', openingHours.tuesday],
+    ['Ср', openingHours.wednesday],
+    ['Чт', openingHours.thursday],
+    ['Пт', openingHours.friday],
+    ['Сб', openingHours.saturday],
+    ['Нд', openingHours.sunday],
+  ] as const;
 
-  const sameWeekdays = weekdays.every(
-    (day) =>
-      day?.open === weekdays[0]?.open && day?.close === weekdays[0]?.close,
+  const parts = days.flatMap(([label, hours]) =>
+    hours
+      ? [`${label} ${formatTime(hours.open)}–${formatTime(hours.close)}`]
+      : [],
   );
-
-  const parts: string[] = [];
-
-  if (sameWeekdays && weekdays[0]) {
-    parts.push(
-      `Пн–Пт ${formatTime(weekdays[0].open)}–${formatTime(weekdays[0].close)}`,
-    );
-  }
-
-  const saturday = openingHours.saturday;
-  if (saturday) {
-    parts.push(`Сб ${formatTime(saturday.open)}–${formatTime(saturday.close)}`);
-  }
 
   return parts.length > 0 ? parts.join(' · ') : null;
 }
@@ -154,11 +148,13 @@ function ServiceCenterMap({
               latitude: location.latitude,
               longitude: location.longitude,
             }}
-            anchor={{ x: 0.5, y: 0.5 }}
+            anchor={{ x: 0.5, y: 1 }}
             tracksViewChanges
             testID="service-center-marker"
           >
-            <View style={styles.mapLabel}>
+            <View
+              style={[styles.mapLabel, { transform: [{ translateY: -30 }] }]}
+            >
               <View style={styles.mapMarkerIcon}>
                 <Icon
                   name="store"
@@ -236,7 +232,8 @@ function ProfileInfoRow({
 export function ServiceCenterProfileView({
   center,
   onBack,
-  onRequest,
+  onCall,
+  reviews = [],
 }: ServiceCenterProfileViewProps) {
   const theme = useTheme();
 
@@ -327,6 +324,32 @@ export function ServiceCenterProfileView({
             ))}
           </View>
 
+          {reviews.length > 0 ? (
+            <View style={styles.servicesSection}>
+              <Text variant="labelMono" color="secondary">
+                ВІДГУКИ
+              </Text>
+
+              {reviews.map((review) => (
+                <View key={review.id} style={styles.reviewItem}>
+                  <View style={styles.reviewHeader}>
+                    <Text variant="body" color="primary">
+                      {`${review.authorFirstName} ${review.authorLastName}`}
+                    </Text>
+                    <Text variant="bodySmall" color="secondary">
+                      {`★ ${review.rating}/5`}
+                    </Text>
+                  </View>
+                  {review.comment ? (
+                    <Text variant="bodySmall" color="secondary">
+                      {review.comment}
+                    </Text>
+                  ) : null}
+                </View>
+              ))}
+            </View>
+          ) : null}
+
           {center.services.length > 0 ? (
             <View style={styles.servicesSection}>
               <Text variant="labelMono" color="secondary">
@@ -346,9 +369,9 @@ export function ServiceCenterProfileView({
 
         <View style={styles.callButtonContainer}>
           <Button
-            label="Надіслати заявку"
+            label="Подзвонити"
             gradient="client"
-            onPress={onRequest}
+            onPress={onCall}
             style={styles.callButton}
           />
         </View>
@@ -364,6 +387,7 @@ export default function ServiceCenterProfileScreen({
   const theme = useTheme();
   const { serviceCenterId } = route.params;
   const centerQuery = useServiceCenter(serviceCenterId);
+  const reviewsQuery = useServiceCenterReviews(centerQuery.data?.id ?? 0);
 
   const goBack = () => navigation.goBack();
 
@@ -416,12 +440,14 @@ export default function ServiceCenterProfileScreen({
   return (
     <ServiceCenterProfileView
       center={centerQuery.data}
+      reviews={reviewsQuery.data?.items}
       onBack={goBack}
-      onRequest={() =>
-        navigation.navigate('CreateServiceCenterRequest', {
-          serviceCenterId: centerQuery.data.publicId,
-        })
-      }
+      onCall={() => {
+        const phone = centerQuery.data.phone;
+        if (phone) {
+          void Linking.openURL(`tel:${phone.replace(/[^\d+]/g, '')}`);
+        }
+      }}
     />
   );
 }
@@ -518,10 +544,10 @@ const styles = StyleSheet.create({
   /* ---------- Аркуш (від y = 294 до низу екрана) ---------- */
   sheet: {
     position: 'absolute',
-    top: SHEET_TOP,
+    bottom: 0,
     left: 0,
     right: 0,
-    bottom: 0,
+    height: 506,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     overflow: 'hidden',
@@ -590,6 +616,18 @@ const styles = StyleSheet.create({
   servicesSection: {
     marginTop: 20,
     gap: 10,
+  },
+  reviewItem: {
+    paddingVertical: 10,
+    gap: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: themeColors.border.default,
+  },
+  reviewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
   },
   servicesGrid: {
     flexDirection: 'row',

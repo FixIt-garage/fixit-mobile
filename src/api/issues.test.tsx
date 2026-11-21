@@ -109,9 +109,7 @@ describe('fetchIssueDetails', () => {
 
     const result = await fetchIssueDetails(MOCK_ISSUES[0].id);
 
-    expect(apiGet).toHaveBeenCalledWith(
-      `/issues/${MOCK_ISSUES[0].id}`,
-    );
+    expect(apiGet).toHaveBeenCalledWith(`/issues/${MOCK_ISSUES[0].id}`);
     expect(result).toEqual(mockDetail);
     expect(result.assigned_master?.name).toBe('Тестовий Майстер');
   });
@@ -137,15 +135,15 @@ describe('mock mode', () => {
   });
 
   it('returns mock issue details without calling the API', async () => {
-  setMockMode(true);
+    setMockMode(true);
 
-  const issueId = MOCK_ISSUES[0].id;
-  const result = await fetchIssueDetails(issueId);
+    const issueId = MOCK_ISSUES[0].id;
+    const result = await fetchIssueDetails(issueId);
 
-  expect(result).toEqual(MOCK_ISSUE_DETAILS[issueId]);
-  expect(result.timeline).toHaveLength(1);
-  expect(result.assigned_master).toBeNull();
-  expect(apiGet).not.toHaveBeenCalled();
+    expect(result).toEqual(MOCK_ISSUE_DETAILS[issueId]);
+    expect(result.timeline).toHaveLength(1);
+    expect(result.assigned_master).toBeNull();
+    expect(apiGet).not.toHaveBeenCalled();
   });
 
   it('filters and paginates active mock issues', async () => {
@@ -185,6 +183,10 @@ describe('createIssue', () => {
     setMockMode(false);
   });
 
+  afterEach(() => {
+    setMockMode(false);
+  });
+
   it('creates an issue assigned to a service center', async () => {
     const input: CreateIssueInput = {
       title: 'Ремонт смартфона',
@@ -208,5 +210,22 @@ describe('createIssue', () => {
 
     expect(result.assignee_company_id).toBe(18);
     expect(result.category_id).toBe(2);
+  });
+
+  it('does not send a real API request in mock mode', async () => {
+    setMockMode(true);
+
+    const input: CreateIssueInput = {
+      title: 'Ремонт смартфона',
+      description: 'Розбитий екран',
+      category_id: 2,
+      assignee_company_id: 18,
+    };
+
+    await expect(createIssue(input)).rejects.toThrow(
+      'Creating issues is disabled in demo mode',
+    );
+
+    expect(apiRequest).not.toHaveBeenCalled();
   });
 });

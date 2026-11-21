@@ -39,7 +39,10 @@ const navigation = {
 const route = {
   key: 'CreateServiceCenterRequest',
   name: 'CreateServiceCenterRequest',
-  params: { serviceCenterId: 1182 },
+  params: {
+    serviceCenterId: 1182,
+    description: undefined as string | undefined,
+  },
 };
 
 async function renderScreen() {
@@ -94,6 +97,16 @@ describe('CreateServiceCenterRequestScreen', () => {
       screen.getByRole('button', { name: 'Надіслати заявку' }).props
         .accessibilityState.disabled,
     ).toBe(true);
+  });
+
+  it('prefills the problem description from navigation params', async () => {
+    route.params.description = 'Потрібно відремонтувати розбитий екран';
+
+    await renderScreen();
+
+    expect(screen.getByLabelText('Опис проблеми').props.value).toBe(
+      'Потрібно відремонтувати розбитий екран',
+    );
   });
 
   it('creates an issue with the selected category and service center', async () => {

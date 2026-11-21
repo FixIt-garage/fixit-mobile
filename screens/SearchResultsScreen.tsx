@@ -1,9 +1,4 @@
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { MainStackParamList } from '../navigation/AppNavigator';
@@ -20,17 +15,13 @@ export default function SearchResultsScreen({ route, navigation }: Props) {
   const theme = useTheme();
   const { city, categoryId, description } = route.params;
 
-  const {
-    data,
-    isLoading,
-    isError,
-    refetch,
-    isRefetching,
-  } = useServiceCenters({
-    city,
-    categoryId,
-    query: description,
-  });
+  const { data, isLoading, isError, refetch, isRefetching } = useServiceCenters(
+    {
+      city,
+      categoryId,
+      query: '',
+    },
+  );
 
   return (
     <SafeAreaView
@@ -65,9 +56,7 @@ export default function SearchResultsScreen({ route, navigation }: Props) {
           </View>
         ) : isError ? (
           <View style={styles.state}>
-            <Text variant="bodyBold">
-              Не вдалося завантажити результати
-            </Text>
+            <Text variant="bodyBold">Не вдалося завантажити результати</Text>
             <Text variant="bodySmall" color="secondary">
               Перевірте з’єднання та спробуйте ще раз.
             </Text>
@@ -81,9 +70,7 @@ export default function SearchResultsScreen({ route, navigation }: Props) {
           </View>
         ) : data && data.items.length === 0 ? (
           <View style={styles.state}>
-            <Text variant="bodyBold">
-              Сервісних центрів не знайдено
-            </Text>
+            <Text variant="bodyBold">Сервісних центрів не знайдено</Text>
             <Text variant="bodySmall" color="secondary">
               Спробуйте змінити місто або опис проблеми.
             </Text>
@@ -105,6 +92,7 @@ export default function SearchResultsScreen({ route, navigation }: Props) {
                 onPress={() =>
                   navigation.navigate('ServiceCenterProfile', {
                     serviceCenterId: center.publicId,
+                    draftDescription: description,
                   })
                 }
               />

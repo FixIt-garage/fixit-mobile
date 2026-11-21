@@ -15,10 +15,19 @@ type MockQuery = {
 };
 
 let mockSearchQuery: MockQuery;
+let mockSearchParams:
+  { city: string; categoryId: number; query: string } | undefined;
 
 jest.mock('../src/api/serviceCenters', () => ({
   ...jest.requireActual('../src/api/serviceCenters'),
-  useServiceCenters: () => mockSearchQuery,
+  useServiceCenters: (params: {
+    city: string;
+    categoryId: number;
+    query: string;
+  }) => {
+    mockSearchParams = params;
+    return mockSearchQuery;
+  },
 }));
 
 type Props = ComponentProps<typeof SearchResultsScreen>;
@@ -35,20 +44,25 @@ const route = {
     categoryId: 1,
     description: 'Ремонт смартфона',
   },
-} as Props['route'];
+} as unknown as {
+  key: string;
+  name: 'SearchResults';
+  params: {
+    city: string;
+    categoryId: number;
+    description: string;
+  };
+};
 
 async function renderScreen() {
-  await render(
-    <SearchResultsScreen
-      navigation={navigation}
-      route={route}
-    />,
-  );
+  await render(<SearchResultsScreen navigation={navigation} route={route} />);
 }
 
 describe('SearchResultsScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockSearchParams = undefined;
+    route.params.description = 'Ремонт смартфона';
 
     mockSearchQuery = {
       data: {
@@ -76,14 +90,32 @@ describe('SearchResultsScreen', () => {
   it('opens the service center profile using its public ID', async () => {
     await renderScreen();
 
-    await fireEvent.press(
-      screen.getByRole('button', { name: /ТехноСервіс/ }),
-    );
+    await fireEvent.press(screen.getByRole('button', { name: /ТехноСервіс/ }));
 
-    expect(navigation.navigate).toHaveBeenCalledWith(
-      'ServiceCenterProfile',
-      { serviceCenterId: 1182 },
-    );
+    expect(navigation.navigate).toHaveBeenCalledWith('ServiceCenterProfile', {
+      serviceCenterId: 1182,
+      draftDescription: 'Ремонт смартфона',
+    });
+  });
+
+  it('does not use a long problem description as a search query', async () => {
+    const longDescription = 'Ремонт смартфона. '.repeat(25);
+    route.params.description = longDescription;
+
+    await renderScreen();
+
+    expect(mockSearchParams).toEqual({
+      city: 'Львів',
+      categoryId: 1,
+      query: '',
+    });
+
+    await fireEvent.press(screen.getByRole('button', { name: /ТехноСервіс/ }));
+
+    expect(navigation.navigate).toHaveBeenCalledWith('ServiceCenterProfile', {
+      serviceCenterId: 1182,
+      draftDescription: longDescription,
+    });
   });
 
   it('shows a loader while search results are loading', async () => {
@@ -113,9 +145,7 @@ describe('SearchResultsScreen', () => {
 
     await renderScreen();
 
-    expect(
-      screen.getByText('Сервісних центрів не знайдено'),
-    ).toBeTruthy();
+    expect(screen.getByText('Сервісних центрів не знайдено')).toBeTruthy();
   });
 
   it('shows an error and retries the search', async () => {
@@ -130,9 +160,7 @@ describe('SearchResultsScreen', () => {
 
     await renderScreen();
 
-    expect(
-      screen.getByText('Не вдалося завантажити результати'),
-    ).toBeTruthy();
+    expect(screen.getByText('Не вдалося завантажити результати')).toBeTruthy();
 
     await fireEvent.press(
       screen.getByRole('button', { name: 'Спробувати ще раз' }),
