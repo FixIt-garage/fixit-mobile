@@ -80,6 +80,7 @@ describe('ServiceCenterProfileScreen', () => {
     expect(screen.getByText('Побутова техніка')).toBeTruthy();
     expect(screen.getByText('Телевізори')).toBeTruthy();
 
+    expect(screen.queryByText('Надіслати заявку')).toBeNull();
     expect(screen.getByText('Подзвонити')).toBeTruthy();
     expect(screen.getByText('ВІДГУКИ')).toBeTruthy();
     expect(screen.getByText('Олена Коваль')).toBeTruthy();

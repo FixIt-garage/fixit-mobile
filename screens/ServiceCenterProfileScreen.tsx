@@ -368,12 +368,14 @@ export function ServiceCenterProfileView({
         </ScrollView>
 
         <View style={styles.callButtonContainer}>
-          <Button
-            label="Подзвонити"
-            gradient="client"
-            onPress={onCall}
-            style={styles.callButton}
-          />
+          {center.phone ? (
+            <Button
+              label="Подзвонити"
+              gradient="client"
+              onPress={onCall}
+              style={styles.callButton}
+            />
+          ) : null}
         </View>
       </View>
     </View>
