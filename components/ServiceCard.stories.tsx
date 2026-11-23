@@ -10,6 +10,7 @@ const meta = {
     address: 'вул. Городоцька, 15',
     rating: 4.6,
     hours: 'Відчинено до 19:00',
+    open: true,
     onPress: action('press'),
   },
 } satisfies Meta<typeof ServiceCard>;
@@ -20,8 +21,16 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
+export const Closed: Story = {
+  args: { hours: 'Зачинено', open: false },
+};
+
 export const WithoutHours: Story = {
   args: { hours: undefined },
+};
+
+export const WithoutRating: Story = {
+  args: { rating: null },
 };
 
 export const LongText: Story = {

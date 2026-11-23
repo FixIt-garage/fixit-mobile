@@ -8,25 +8,39 @@ import { Text } from './Text';
 
 export type ServiceCardProps = {
   name: string;
-  address: string;
-  rating: number;
+  address?: string;
+  rating: number | null;
   hours?: string;
+  open?: boolean;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
 };
 
-export function ServiceCard({ name, address, rating, hours, onPress, style }: ServiceCardProps) {
+export function ServiceCard({
+  name,
+  address,
+  rating,
+  hours,
+  open = true,
+  onPress,
+  style,
+}: ServiceCardProps) {
   const theme = useTheme();
 
   return (
     <Card
       onPress={onPress}
-      accessibilityLabel={[name, address, hours, `рейтинг ${formatRating(rating)}`]
+      accessibilityLabel={[
+        name,
+        address,
+        hours,
+        rating !== null ? `рейтинг ${formatRating(rating)}` : null,
+      ]
         .filter(Boolean)
         .join(', ')}
       style={[styles.row, style]}
     >
-        <View style={[styles.iconBox, { backgroundColor: theme.colors.roleSoft.center }]}>
+      <View style={[styles.iconBox, { backgroundColor: theme.colors.roleSoft.center }]}>
         <Icon name="store" size={26} color="role/center" />
       </View>
 
@@ -34,24 +48,34 @@ export function ServiceCard({ name, address, rating, hours, onPress, style }: Se
         <Text variant="bodyBold" numberOfLines={1}>
           {name}
         </Text>
-        <Text variant="bodySmall" color="secondary" numberOfLines={1}>
-          {address}
-        </Text>
+        {address ? (
+          <Text variant="bodySmall" color="secondary" numberOfLines={1}>
+            {address}
+          </Text>
+        ) : null}
         {hours ? (
           <View
+            testID="service-card-hours"
             style={[
               styles.hours,
-              { backgroundColor: theme.colors.bg.successSoft, borderRadius: theme.radius.pill },
+              {
+                backgroundColor: open ? theme.colors.bg.successSoft : theme.colors.bg.subtle,
+                borderRadius: theme.radius.pill,
+              },
             ]}
           >
-            <Text variant="labelMonoBold" color="success">
+            <Text
+              variant="labelMonoBold"
+              color={open ? 'success' : 'secondary'}
+              numberOfLines={1}
+            >
               {hours}
             </Text>
           </View>
         ) : null}
       </View>
 
-      <NutRating mode="display" rating={rating} size={44} />
+      {rating !== null ? <NutRating mode="display" rating={rating} size={44} /> : null}
     </Card>
   );
 }

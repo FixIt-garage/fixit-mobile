@@ -10,7 +10,7 @@ import { VolunteerBadge } from './VolunteerBadge';
 export type MasterCardProps = {
     name: string;
     specialization: string;
-    rating: number;
+    rating: number | null;
     reviewsCount: number;
     volunteer?: boolean;
     avatarUri?: string;
@@ -48,7 +48,7 @@ export function MasterCard({
                 name,
                 volunteer ? 'волонтер' : null,
                 specialization,
-                `рейтинг ${formatRating(rating)}`,
+                rating !== null ? `рейтинг ${formatRating(rating)}` : null,
                 reviews,
             ]
                 .filter(Boolean)
@@ -68,7 +68,7 @@ export function MasterCard({
                 <Text variant="labelMono">{`· ${reviews}`}</Text>
             </View>
 
-            <NutRating mode="display" rating={rating} size={44} />
+            {rating !== null ? <NutRating mode="display" rating={rating} size={44} /> : null}
         </Card>
     );
 }
