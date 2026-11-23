@@ -44,6 +44,7 @@ function queryResult(overrides: Record<string, unknown> = {}) {
     isRefetching: false,
     hasNextPage: false,
     isFetchingNextPage: false,
+    isFetchNextPageError: false,
     fetchNextPage: jest.fn(),
     refetch: jest.fn(),
     ...overrides,
@@ -171,5 +172,39 @@ describe('SearchResultsScreen', () => {
     await fireEvent.press(screen.getByText('Спробувати ще раз'));
 
     expect(refetch).toHaveBeenCalled();
+  });
+
+  it('keeps loaded cards when the next page fails', async () => {
+    const fetchNextPage = jest.fn();
+    const refetch = jest.fn();
+    mockMasters({
+      data: { pages: [MOCK_MASTER_RESULTS] },
+      isError: true,
+      isFetchNextPageError: true,
+      hasNextPage: true,
+      fetchNextPage,
+      refetch,
+    });
+
+    await renderScreen();
+
+    expect(screen.getByText('Андрій Мельник')).toBeTruthy();
+    expect(screen.getByText('Знайдено 3 майстри')).toBeTruthy();
+    expect(screen.queryByText('Не вдалося завантажити результати.')).toBeNull();
+    expect(screen.getByText('Не вдалося завантажити ще')).toBeTruthy();
+
+    await fireEvent.press(screen.getByText('Спробувати ще раз'));
+
+    expect(fetchNextPage).toHaveBeenCalled();
+    expect(refetch).not.toHaveBeenCalled();
+  });
+
+  it('keeps loaded cards when a refresh fails', async () => {
+    mockMasters({ data: { pages: [MOCK_MASTER_RESULTS] }, isError: true });
+
+    await renderScreen();
+
+    expect(screen.getByText('Андрій Мельник')).toBeTruthy();
+    expect(screen.queryByText('Не вдалося завантажити результати.')).toBeNull();
   });
 });

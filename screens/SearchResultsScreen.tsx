@@ -56,10 +56,12 @@ export type SearchResultsViewProps = {
   total: number;
   state: SearchResultsState;
   loadingMore?: boolean;
+  loadMoreError?: boolean;
   refreshing?: boolean;
   onEndReached?: () => void;
   onRefresh?: () => void;
   onRetry: () => void;
+  onRetryLoadMore?: () => void;
   onOpenMaster: (masterId: number) => void;
   onBack?: () => void;
 };
@@ -74,10 +76,12 @@ export function SearchResultsView({
   total,
   state,
   loadingMore = false,
+  loadMoreError = false,
   refreshing = false,
   onEndReached,
   onRefresh,
   onRetry,
+  onRetryLoadMore,
   onOpenMaster,
   onBack,
 }: SearchResultsViewProps) {
@@ -168,8 +172,32 @@ export function SearchResultsView({
     );
   };
 
+  const renderFooter = () => {
+    if (loadMoreError) {
+      return (
+        <View
+          style={[styles.message, { gap: theme.spacing.sm, paddingVertical: theme.spacing.lg }]}
+        >
+          <Text variant="bodySmall" color="secondary" style={styles.centerText}>
+            Не вдалося завантажити ще
+          </Text>
+          {onRetryLoadMore ? (
+            <Button label="Спробувати ще раз" variant="secondary" onPress={onRetryLoadMore} />
+          ) : null}
+        </View>
+      );
+    }
+
+    if (loadingMore) {
+      return <ActivityIndicator color={theme.colors.text.brand} style={styles.footerLoader} />;
+    }
+
+    return null;
+  };
+
   const showSummary = state === 'ready' && rows.length > 0;
   const listData = state === 'ready' ? rows : [];
+
   return (
     <View style={[styles.screen, { backgroundColor: theme.colors.bg.screen }]}>
       <BackBar title={title} subtitle={subtitle} onBack={onBack} />
@@ -202,11 +230,7 @@ export function SearchResultsView({
         }
         ListEmptyComponent={renderEmpty}
         ItemSeparatorComponent={() => <View style={{ height: theme.spacing.md }} />}
-        ListFooterComponent={
-          loadingMore ? (
-            <ActivityIndicator color={theme.colors.text.brand} style={styles.footerLoader} />
-          ) : undefined
-        }
+        ListFooterComponent={renderFooter}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.4}
         refreshControl={
@@ -253,9 +277,10 @@ export default function SearchResultsScreen({ navigation, route }: Props) {
     [servicesQuery.data],
   );
 
+  const hasData = (active.data?.pages.length ?? 0) > 0;
   const state: SearchResultsState = active.isLoading
     ? 'loading'
-    : active.isError
+    : active.isError && !hasData
       ? 'error'
       : 'ready';
 
@@ -270,14 +295,16 @@ export default function SearchResultsScreen({ navigation, route }: Props) {
       total={active.data?.pages[0]?.total ?? 0}
       state={state}
       loadingMore={active.isFetchingNextPage}
+      loadMoreError={active.isFetchNextPageError}
       refreshing={active.isRefetching && !active.isFetchingNextPage}
       onEndReached={() => {
-        if (active.hasNextPage && !active.isFetchingNextPage) {
+        if (active.hasNextPage && !active.isFetchingNextPage && !active.isFetchNextPageError) {
           void active.fetchNextPage();
         }
       }}
       onRefresh={() => void active.refetch()}
       onRetry={() => void active.refetch()}
+      onRetryLoadMore={() => void active.fetchNextPage()}
       onOpenMaster={(masterId) => navigation.navigate('MasterProfile', { masterId })}
       onBack={() => navigation.goBack()}
     />

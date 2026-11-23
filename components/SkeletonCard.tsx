@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Animated, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useTheme } from '../src/theme';
 import { Card } from './Card';
@@ -10,7 +10,7 @@ export type SkeletonCardProps = {
 
 export function SkeletonCard({ opacity = 1, style }: SkeletonCardProps) {
   const theme = useTheme();
-  const pulse = useRef(new Animated.Value(1)).current;
+  const [pulse] = useState(() => new Animated.Value(1));
 
   useEffect(() => {
     const animation = Animated.loop(

@@ -46,3 +46,6 @@ export const Error: Story = {
 export const LoadingMore: Story = {
   args: { loadingMore: true },
 };
+export const LoadMoreError: Story = {
+  args: { loadMoreError: true, onRetryLoadMore: action('retry load more') },
+};
