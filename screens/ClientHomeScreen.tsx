@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -11,7 +11,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { MainStackParamList } from '../navigation/AppNavigator';
@@ -20,6 +20,12 @@ import { useAuth } from '../src/auth/AuthProvider';
 import { useCategories, type Category } from '../src/api/categories';
 import { useMyProfile } from '../src/api/profile';
 import { greeting } from '../src/greeting';
+import {
+  clearRequestDraft,
+  loadRequestDraft,
+  saveRequestDraft,
+  type RequestDraft,
+} from '../src/requestDraft';
 import { BottomSheet, BOTTOM_SHEET_RADIUS } from '../components/BottomSheet';
 import { Button } from '../components/Button';
 import { ChipGroup } from '../components/ChipGroup';
@@ -59,6 +65,10 @@ export type ClientHomeViewProps = {
   categoriesState: CategoriesState;
   onRetryCategories: () => void;
   onSearch: (search: ClientHomeSearch) => void;
+  /** Збережена чернетка: підставляється в поля, яких людина ще не торкалася */
+  draft?: RequestDraft | null;
+  /** Викликається на кожну зміну форми, щоб зберегти чернетку */
+  onDraftChange?: (draft: RequestDraft) => void;
 };
 
 export function ClientHomeView({
@@ -68,6 +78,8 @@ export function ClientHomeView({
   categoriesState,
   onRetryCategories,
   onSearch,
+  draft,
+  onDraftChange,
 }: ClientHomeViewProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -83,6 +95,32 @@ export function ClientHomeView({
       setValue('city', initialCity);
     }
   }, [initialCity, getValues, getFieldState, setValue]);
+
+  // Чернетка приходить зі сховища із затримкою: не перезаписуємо те, що людина вже ввела
+  useEffect(() => {
+    if (!draft) return;
+    (['city', 'categoryId', 'description'] as const).forEach((field) => {
+      if (draft[field] && !getFieldState(field).isDirty) {
+        setValue(field, draft[field]);
+      }
+    });
+  }, [draft, getFieldState, setValue]);
+
+  // Зберігаємо чернетку лише після того, як людина щось змінила сама:
+  // автопідставлене місто чи відновлена чернетка не перезаписують сховище
+  const watched = useWatch({ control });
+  const userEdited = useRef(false);
+  const { isDirty } = formState;
+
+  useEffect(() => {
+    if (isDirty) userEdited.current = true;
+    if (!userEdited.current || !onDraftChange) return;
+    onDraftChange({
+      city: watched.city ?? '',
+      categoryId: watched.categoryId ?? '',
+      description: watched.description ?? '',
+    });
+  }, [watched.city, watched.categoryId, watched.description, isDirty, onDraftChange]);
 
   const submit = handleSubmit((values) => {
     onSearch({
@@ -221,6 +259,22 @@ export default function ClientHomeScreen() {
       : 'ready';
   const topCategories = (categoriesQuery.data ?? []).filter((category) => category.parentId === null);
 
+  const [draft, setDraft] = useState<RequestDraft | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void loadRequestDraft().then((saved) => {
+      if (active) setDraft(saved);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const handleDraftChange = useCallback((next: RequestDraft) => {
+    void saveRequestDraft(next);
+  }, []);
+
   return (
     <ClientHomeView
       firstName={firstName}
@@ -229,7 +283,13 @@ export default function ClientHomeScreen() {
       categories={topCategories}
       categoriesState={categoriesState}
       onRetryCategories={() => void categoriesQuery.refetch()}
-      onSearch={(search) => navigation.navigate('SearchResults', search)}
+      onSearch={(search) => {
+        // Запит пішов у пошук — чернетка більше не потрібна
+        void clearRequestDraft();
+        navigation.navigate('SearchResults', search);
+      }}
+      draft={draft}
+      onDraftChange={handleDraftChange}
     />
   );
 }

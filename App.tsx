@@ -9,8 +9,11 @@ import { queryClient } from './src/api/queryClient';
 import AppNavigator from './navigation/AppNavigator';
 import { AuthProvider, useAuth } from './src/auth/AuthProvider';
 import { ThemeProvider, useAppFonts } from './src/theme';
+import { OfflineGate } from './components/OfflineGate';
+import { connectQueryOnlineManager } from './src/network';
 
 SplashScreen.preventAutoHideAsync();
+connectQueryOnlineManager();
 
 function Root() {
   const { state } = useAuth();
@@ -46,7 +49,9 @@ export default function App() {
         <ThemeProvider>
            <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <Root />
+            <OfflineGate>
+              <Root />
+            </OfflineGate>
           </AuthProvider>
            </QueryClientProvider>
         </ThemeProvider>

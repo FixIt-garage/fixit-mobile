@@ -49,6 +49,8 @@ import * as ServiceCardStories from './components/ServiceCard.stories';
 import * as RequestCardStories from './components/RequestCard.stories';
 import * as VolunteerRequestCardStories from './components/VolunteerRequestCard.stories';
 import * as ReviewCardStories from './components/ReviewCard.stories';
+import * as ErrorStateStories from './components/ErrorState.stories';
+import * as OfflineScreenStories from './screens/OfflineScreen.stories';
 
 setProjectAnnotations(preview);
 
@@ -99,6 +101,8 @@ const storyFiles = {
   MasterProfileScreen: MasterProfileScreenStories,
   ClientHomeScreen: ClientHomeScreenStories,
   MasterProfileSetupScreen: MasterProfileSetupScreenStories,
+  ErrorState: ErrorStateStories,
+  OfflineScreen: OfflineScreenStories,
 };
 
 describe.each(Object.entries(storyFiles))('%s stories', (_name, storiesModule) => {
