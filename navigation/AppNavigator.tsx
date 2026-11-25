@@ -16,6 +16,7 @@ import {
   RequestsTabScreen,
 } from '../screens/MainTabScreens';
 import { useAuth } from '../src/auth/AuthProvider';
+import type { IssueDraft } from '../src/issueDraft';
 import type { MainTabKey } from '../src/mainTabs';
 import type { Role } from '../src/roles';
 import { NavigationTabBar } from './NavigationTabBar';
@@ -32,7 +33,7 @@ export type MainTabParamList = Record<MainTabKey, undefined>;
 
 export type MainStackParamList = {
   Tabs: undefined;
-  MasterProfile: { masterId: number };
+  MasterProfile: { masterId: number; draft?: IssueDraft };
   SearchResults: { city: string; categoryId: number; description: string };
   MasterProfileSetup: undefined;
   RequestDetails: { issueId: number; title: string };

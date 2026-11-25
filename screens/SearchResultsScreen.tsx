@@ -305,7 +305,9 @@ export default function SearchResultsScreen({ navigation, route }: Props) {
       onRefresh={() => void active.refetch()}
       onRetry={() => void active.refetch()}
       onRetryLoadMore={() => void active.fetchNextPage()}
-      onOpenMaster={(masterId) => navigation.navigate('MasterProfile', { masterId })}
+      onOpenMaster={(masterId) =>
+        navigation.navigate('MasterProfile', { masterId, draft: { categoryId, description } })
+      }
       onBack={() => navigation.goBack()}
     />
   );

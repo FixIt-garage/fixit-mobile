@@ -15,6 +15,10 @@ let mockMasterQuery: MockQuery;
 let mockReviewsQuery: MockQuery;
 const mockReviewsRefetch = jest.fn();
 
+jest.mock('../src/api/issueCreate', () => ({
+  useCreateIssue: () => ({ mutate: jest.fn(), isPending: false, isError: false }),
+}));
+
 jest.mock('../src/api/masterPublic', () => ({
   ...jest.requireActual('../src/api/masterPublic'),
   useMasterPublic: () => mockMasterQuery,

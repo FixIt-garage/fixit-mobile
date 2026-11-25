@@ -11,6 +11,7 @@ import {
   type MasterPublic,
   type Review,
 } from '../src/api/masterPublic';
+import { useCreateIssue } from '../src/api/issueCreate';
 import { formatPrice, formatYears } from '../src/format';
 import { formatPublicId } from '../src/profileView';
 import { Button } from '../components/Button';
@@ -28,6 +29,7 @@ type Props = NativeStackScreenProps<MainStackParamList, 'MasterProfile'>;
 const HERO_SIDE_PADDING = 16;
 const ACTION_BAR_BOTTOM = 20;
 const EMPTY_VALUE = '—';
+export const SEND_REQUEST_ERROR = 'Не вдалося надіслати заявку. Спробуйте ще раз.';
 
 export type ReviewsState = 'loading' | 'error' | 'ready';
 
@@ -73,6 +75,8 @@ export type MasterProfileViewProps = {
   onRetryReviews: () => void;
   onBack: () => void;
   onSendRequest?: () => void;
+  sending?: boolean;
+  sendError?: string;
   onAllReviews?: () => void;
 };
 
@@ -138,6 +142,8 @@ export function MasterProfileView({
   onRetryReviews,
   onBack,
   onSendRequest,
+  sending = false,
+  sendError,
   onAllReviews,
 }: MasterProfileViewProps) {
   const theme = useTheme();
@@ -210,9 +216,15 @@ export function MasterProfileView({
             paddingTop: theme.spacing.md,
             paddingHorizontal: theme.layout.screenPadding,
             paddingBottom: Math.max(insets.bottom, ACTION_BAR_BOTTOM),
+            gap: theme.spacing.sm,
           }}
         >
-          <Button label="Надіслати заявку" onPress={onSendRequest} />
+          {sendError ? (
+            <Text variant="bodySmall" color="error" style={styles.centerText}>
+              {sendError}
+            </Text>
+          ) : null}
+          <Button label="Надіслати заявку" loading={sending} onPress={onSendRequest} />
         </View>
       ) : null}
     </View>
@@ -220,11 +232,27 @@ export function MasterProfileView({
 }
 
 export default function MasterProfileScreen({ navigation, route }: Props) {
-  const { masterId } = route.params;
+  const { masterId, draft } = route.params;
   const theme = useTheme();
   const masterQuery = useMasterPublic(masterId);
   const reviewsQuery = useMasterReviews(masterId);
+  const createIssue = useCreateIssue();
   const goBack = () => navigation.goBack();
+
+  const sendRequest = draft
+    ? () => {
+        if (createIssue.isPending) {
+          return;
+        }
+        createIssue.mutate(
+          { draft, assignee: { masterId } },
+          {
+            onSuccess: (issue) =>
+              navigation.replace('RequestDetails', { issueId: issue.id, title: issue.title }),
+          },
+        );
+      }
+    : undefined;
 
   if (masterQuery.isError) {
     const notFound = masterQuery.error instanceof ApiError && masterQuery.error.status === 404;
@@ -272,6 +300,9 @@ export default function MasterProfileScreen({ navigation, route }: Props) {
       reviewsState={reviewsState}
       onRetryReviews={() => void reviewsQuery.refetch()}
       onBack={goBack}
+      onSendRequest={sendRequest}
+      sending={createIssue.isPending}
+      sendError={createIssue.isError ? SEND_REQUEST_ERROR : undefined}
     />
   );
 }

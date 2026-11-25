@@ -128,7 +128,10 @@ describe('SearchResultsScreen', () => {
 
     await fireEvent.press(screen.getByText('Андрій Мельник'));
 
-    expect(navigate).toHaveBeenCalledWith('MasterProfile', { masterId: 12 });
+    expect(navigate).toHaveBeenCalledWith('MasterProfile', {
+      masterId: 12,
+      draft: { categoryId: 1, description: 'Не крутить барабан' },
+    });
   });
 
   it('switches to service centers', async () => {
