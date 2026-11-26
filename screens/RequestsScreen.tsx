@@ -239,7 +239,11 @@ export default function RequestsScreen() {
               />
             </View>
           }
-          ListEmptyComponent={renderEmptyState}
+          ListEmptyComponent={
+            <View style={styles.emptyListContent}>
+              {renderEmptyState()}
+            </View>
+          }
           ItemSeparatorComponent={() => (
             <View style={{ height: theme.spacing.md }} />
           )}
@@ -271,7 +275,6 @@ export default function RequestsScreen() {
             {
               paddingBottom: 110 + insets.bottom,
             },
-            allIssues.length === 0 && styles.emptyListContent,
           ]}
           showsVerticalScrollIndicator={false}
         />
@@ -299,6 +302,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   emptyListContent: {
+    flex: 1,
     justifyContent: 'center',
   },
   emptyContainer: {
