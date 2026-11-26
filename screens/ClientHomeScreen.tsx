@@ -21,7 +21,6 @@ import { useCategories, type Category } from '../src/api/categories';
 import { useMyProfile } from '../src/api/profile';
 import { greeting } from '../src/greeting';
 import {
-  clearRequestDraft,
   loadRequestDraft,
   saveRequestDraft,
   type RequestDraft,
@@ -259,21 +258,29 @@ export default function ClientHomeScreen() {
       : 'ready';
   const topCategories = (categoriesQuery.data ?? []).filter((category) => category.parentId === null);
 
+  // Чернетка належить акаунту: інша людина на цьому телефоні її не побачить.
+  // Видаляється вона лише після створення заявки (POST /issues), а не після пошуку:
+  // пошук ще нічого не надсилає на сервер.
+  const userId = state.status === 'signedIn' ? state.user.id : null;
   const [draft, setDraft] = useState<RequestDraft | null>(null);
 
   useEffect(() => {
+    if (userId === null) return;
     let active = true;
-    void loadRequestDraft().then((saved) => {
+    void loadRequestDraft(userId).then((saved) => {
       if (active) setDraft(saved);
     });
     return () => {
       active = false;
     };
-  }, []);
+  }, [userId]);
 
-  const handleDraftChange = useCallback((next: RequestDraft) => {
-    void saveRequestDraft(next);
-  }, []);
+  const handleDraftChange = useCallback(
+    (next: RequestDraft) => {
+      if (userId !== null) void saveRequestDraft(userId, next);
+    },
+    [userId],
+  );
 
   return (
     <ClientHomeView
@@ -283,11 +290,7 @@ export default function ClientHomeScreen() {
       categories={topCategories}
       categoriesState={categoriesState}
       onRetryCategories={() => void categoriesQuery.refetch()}
-      onSearch={(search) => {
-        // Запит пішов у пошук — чернетка більше не потрібна
-        void clearRequestDraft();
-        navigation.navigate('SearchResults', search);
-      }}
+      onSearch={(search) => navigation.navigate('SearchResults', search)}
       draft={draft}
       onDraftChange={handleDraftChange}
     />

@@ -75,6 +75,7 @@ describe('LoginScreen', () => {
       signIn: mockSignIn,
       signUp: jest.fn(),
       signOut: jest.fn(),
+      retryRestore: jest.fn(),
     });
 
     mockSignIn.mockResolvedValue(undefined);

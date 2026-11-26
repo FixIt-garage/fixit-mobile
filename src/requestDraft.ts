@@ -2,7 +2,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Чернетка форми «Що зламалося?» з екрана 08. Лежить у пам'яті телефона,
 // тож не губиться, якщо зникне інтернет або застосунок закриють.
-export const REQUEST_DRAFT_KEY = 'fixit/request-draft';
+// У кожного акаунта своя чернетка: на одному телефоні можуть по черзі входити різні люди.
+const REQUEST_DRAFT_KEY_PREFIX = 'fixit/request-draft';
+
+export function requestDraftKey(userId: number) {
+  return `${REQUEST_DRAFT_KEY_PREFIX}/${userId}`;
+}
 
 export type RequestDraft = {
   city: string;
@@ -25,9 +30,11 @@ function isRequestDraft(value: unknown): value is RequestDraft {
   );
 }
 
-export async function loadRequestDraft(): Promise<RequestDraft | null> {
+export async function loadRequestDraft(
+  userId: number,
+): Promise<RequestDraft | null> {
   try {
-    const raw = await AsyncStorage.getItem(REQUEST_DRAFT_KEY);
+    const raw = await AsyncStorage.getItem(requestDraftKey(userId));
     if (!raw) return null;
     const parsed: unknown = JSON.parse(raw);
     return isRequestDraft(parsed) ? parsed : null;
@@ -37,21 +44,25 @@ export async function loadRequestDraft(): Promise<RequestDraft | null> {
   }
 }
 
-export async function saveRequestDraft(draft: RequestDraft) {
+export async function saveRequestDraft(userId: number, draft: RequestDraft) {
   try {
     if (hasDraftContent(draft)) {
-      await AsyncStorage.setItem(REQUEST_DRAFT_KEY, JSON.stringify(draft));
+      await AsyncStorage.setItem(
+        requestDraftKey(userId),
+        JSON.stringify(draft),
+      );
     } else {
-      await AsyncStorage.removeItem(REQUEST_DRAFT_KEY);
+      await AsyncStorage.removeItem(requestDraftKey(userId));
     }
   } catch {
     // Не вдалося зберегти — форма однаково працює, втрачається лише чернетка
   }
 }
 
-export async function clearRequestDraft() {
+/** Для екрана створення заявки: викликати після успішного `POST /issues`. */
+export async function clearRequestDraft(userId: number) {
   try {
-    await AsyncStorage.removeItem(REQUEST_DRAFT_KEY);
+    await AsyncStorage.removeItem(requestDraftKey(userId));
   } catch {
     // Нічого страшного: стара чернетка просто підставиться наступного разу
   }

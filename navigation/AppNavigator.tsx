@@ -105,7 +105,8 @@ function SignedInStack() {
 export default function AppNavigator() {
   const { state } = useAuth();
 
-  if (state.status === 'loading') {
+  // `offline`: сесію ще не перевірено (App показує екран 22), тож не відкриваємо вхід
+  if (state.status === 'loading' || state.status === 'offline') {
     return null;
   }
 
