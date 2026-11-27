@@ -5,6 +5,7 @@ export const NAME_MAX = 100;
 export const ADDRESS_MAX = 255;
 export const PASSWORD_MIN = 8;
 export const PASSWORD_MAX = 128;
+export const PHONE_DIGITS = 9;
 
 export const signUpSchema = z.object({
   firstName: z
@@ -40,7 +41,7 @@ export function phoneDigits(text: string): string {
   if (digits.startsWith('0')) {
     digits = digits.slice(1);
   }
-  return digits.slice(0, 9);
+  return digits.slice(0, PHONE_DIGITS);
 }
 
 export function formatPhone(digits: string): string {

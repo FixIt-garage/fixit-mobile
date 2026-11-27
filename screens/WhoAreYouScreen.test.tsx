@@ -9,8 +9,9 @@ type ScreenProps = Parameters<typeof WhoAreYouScreen>[0];
 
 function renderScreen() {
   const navigate = jest.fn();
-  const props = { navigation: { navigate }, route: {} } as unknown as ScreenProps;
-  return { navigate, result: render(<WhoAreYouScreen {...props} />) };
+  const goBack = jest.fn();
+  const props = { navigation: { navigate, goBack }, route: {} } as unknown as ScreenProps;
+  return { navigate, goBack, result: render(<WhoAreYouScreen {...props} />) };
 }
 
 describe('WhoAreYouScreen', () => {
@@ -28,5 +29,13 @@ describe('WhoAreYouScreen', () => {
 
     await fireEvent.press(screen.getByRole('button', { name: 'Я — майстер' }));
     expect(navigate).toHaveBeenCalledWith('SignUp', { role: 'master' });
+  });
+
+  it('goes back to the welcome screen', async () => {
+    const { goBack, result } = renderScreen();
+    await result;
+
+    await fireEvent.press(screen.getByLabelText('Назад'));
+    expect(goBack).toHaveBeenCalledTimes(1);
   });
 });

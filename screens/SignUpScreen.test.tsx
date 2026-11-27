@@ -19,10 +19,10 @@ async function renderScreen() {
 }
 
 async function fillForm() {
-    await fireEvent.changeText(screen.getByLabelText('Імʼя'), 'Анна');
-    await fireEvent.changeText(screen.getByLabelText('Прізвище'), 'Шеремета');
+    await fireEvent.changeText(screen.getByLabelText('Імʼя'), 'Андрій');
+    await fireEvent.changeText(screen.getByLabelText('Прізвище'), 'Мельник');
     await fireEvent.changeText(screen.getByLabelText('Телефон'), '0671234567');
-    await fireEvent.changeText(screen.getByLabelText('Пошта'), 'anna@gmail.com');
+    await fireEvent.changeText(screen.getByLabelText('Пошта'), 'poshta@gmail.com');
     await fireEvent.changeText(screen.getByLabelText('Адреса'), 'Львів, Городоцька, 15');
     await fireEvent.changeText(screen.getByLabelText('Пароль'), 'password1');
 }
@@ -55,6 +55,41 @@ describe('SignUpScreen', () => {
 
         expect(screen.getByDisplayValue('+380 67 123 45 67')).toBeTruthy();
     });
+
+    it('keeps a pasted number with brackets and dashes', async () => {
+        await renderScreen();
+
+        await fireEvent.changeText(screen.getByLabelText('Телефон'), '+380 (67) 123-45-67');
+
+        expect(screen.getByDisplayValue('+380 67 123 45 67')).toBeTruthy();
+    });
+
+    it('replaces a full number with a pasted one', async () => {
+        await renderScreen();
+
+        await fireEvent.changeText(screen.getByLabelText('Телефон'), '0671234567');
+        await fireEvent.changeText(screen.getByLabelText('Телефон'), '+380 (50) 765-43-21');
+
+        expect(screen.getByDisplayValue('+380 50 765 43 21')).toBeTruthy();
+    });
+
+    it('keeps the number when an extra digit is typed after it', async () => {
+        await renderScreen();
+
+        await fireEvent.changeText(screen.getByLabelText('Телефон'), '0671234567');
+        await fireEvent.changeText(screen.getByLabelText('Телефон'), '+380 67 123 45 678');
+
+        expect(screen.getByDisplayValue('+380 67 123 45 67')).toBeTruthy();
+    });
+
+    it('does not cut the raw text natively', async () => {
+        await renderScreen();
+
+        await fireEvent.changeText(screen.getByLabelText('Телефон'), '0671234567');
+
+        expect(screen.getByLabelText('Телефон').props.maxLength).toBeUndefined();
+    });
+
     it('shows a validation error instead of a network error for 422', async () => {
         mockSignUp.mockRejectedValueOnce(
             new ApiError(422, { detail: [{ loc: ['body', 'address'], msg: 'too long' }] }),
@@ -77,10 +112,10 @@ describe('SignUpScreen', () => {
 
         await waitFor(() =>
             expect(mockSignUp).toHaveBeenCalledWith({
-                firstName: 'Анна',
-                lastName: 'Шеремета',
+                firstName: 'Андрій',
+                lastName: 'Мельник',
                 phone: '+380671234567',
-                email: 'anna@gmail.com',
+                email: 'poshta@gmail.com',
                 address: 'Львів, Городоцька, 15',
                 password: 'password1',
                 role: 'client',

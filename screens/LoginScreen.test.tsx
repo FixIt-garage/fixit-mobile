@@ -1,4 +1,3 @@
-import { Alert } from 'react-native';
 import {
   fireEvent,
   render,
@@ -170,18 +169,4 @@ describe('LoginScreen', () => {
     expect(mockGoBack).toHaveBeenCalledTimes(1);
   });
 
-  it('shows a placeholder alert for forgot password', async () => {
-    const alertSpy = jest.spyOn(Alert, 'alert');
-
-    await renderLoginScreen();
-
-    await fireEvent.press(screen.getByText('Забули пароль?'));
-
-    expect(alertSpy).toHaveBeenCalledWith(
-      'Відновлення пароля',
-      'Функція відновлення пароля буде доступна пізніше.',
-    );
-
-    alertSpy.mockRestore();
-  });
 });

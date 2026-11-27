@@ -23,6 +23,15 @@ describe('phone mask', () => {
     expect(formatPhone('671234567')).toBe('+380 67 123 45 67');
   });
 
+  it('reads pasted numbers with brackets and dashes', () => {
+    expect(phoneDigits('+380 (67) 123-45-67')).toBe('671234567');
+    expect(phoneDigits('+380 (50) 765-43-21')).toBe('507654321');
+  });
+
+  it('ignores an extra digit after a full number', () => {
+    expect(phoneDigits('+380 67 123 45 678')).toBe('671234567');
+  });
+
   it('builds the API phone', () => {
     expect(toApiPhone('671234567')).toBe('+380671234567');
   });
@@ -30,10 +39,10 @@ describe('phone mask', () => {
 
 describe('signUpSchema', () => {
   const valid = {
-    firstName: 'Анна',
-    lastName: 'Шеремета',
+    firstName: 'Андрій',
+    lastName: 'Мельник',
     phone: '671234567',
-    email: 'anna@gmail.com',
+    email: 'poshta@gmail.com',
     address: 'Львів, Городоцька, 15',
     password: 'password1',
   };

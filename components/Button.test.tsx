@@ -34,6 +34,11 @@ describe('Button', () => {
     await render(<Button label="Надіслати" icon={<Text testID="icon">★</Text>} />);
     expect(screen.getByTestId('icon')).toBeTruthy();
   });
+  it('keeps the gradient out of the touch path', async () => {
+    await render(<Button label="Надіслати" />);
+
+    expect(screen.getByTestId('button-gradient').props.pointerEvents).toBe('none');
+  });
 });
 
-// Простий Text для іконки-заглушки в тесті
+

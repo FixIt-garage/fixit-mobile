@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   FlatList,
+  Pressable,
   StyleSheet,
   View,
   useWindowDimensions,
@@ -13,6 +14,7 @@ import type { RootStackParamList } from '../navigation/AppNavigator';
 import { useTheme } from '../src/theme';
 import { ROLES } from '../src/roles';
 import { CARD_GAP, SNAP, activeIndexForOffset, carouselEndPadding } from '../src/roleCarousel';
+import { Icon } from '../components/Icon/Icon';
 import { Text } from '../components/Text';
 import { ProgressBar } from '../components/ProgressBar';
 import { RoleCard } from '../components/RoleCard';
@@ -34,6 +36,14 @@ export default function WhoAreYouScreen({ navigation }: Props) {
     <SafeAreaView style={[styles.screen, { backgroundColor: theme.colors.bg.screen }]}>
       <View style={{ paddingHorizontal: sidePadding, paddingTop: theme.spacing.md }}>
         <View style={[styles.stepRow, { gap: theme.spacing.sm }]}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Назад"
+            onPress={() => navigation.goBack()}
+            hitSlop={12}
+          >
+            <Icon name="chevron-left" size={24} color="icon/default" />
+          </Pressable>
           <Text variant="labelMonoBold" color="brand">
             Крок 1 / 2
           </Text>
@@ -60,7 +70,6 @@ export default function WhoAreYouScreen({ navigation }: Props) {
         style={styles.carousel}
         contentContainerStyle={{
           paddingLeft: sidePadding,
-          // Щоб остання картка могла стати на місце першої навіть на iPad
           paddingRight: carouselEndPadding(width, sidePadding),
           gap: CARD_GAP,
           paddingVertical: theme.spacing.xxl,
@@ -74,7 +83,6 @@ export default function WhoAreYouScreen({ navigation }: Props) {
             buttonLabel={item.buttonLabel}
             gradient={item.role}
             onPress={() => navigation.navigate('SignUp', { role: item.role })}
-            // Картки не в центрі — напівпрозорі, як у Figma
             style={index !== activeIndex && styles.inactiveCard}
           />
         )}

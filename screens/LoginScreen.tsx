@@ -1,7 +1,5 @@
-
 import { useState } from 'react';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -151,13 +149,6 @@ export default function LoginScreen({ navigation }: Props) {
     }
   };
 
-  const handleForgotPassword = () => {
-    Alert.alert(
-      'Відновлення пароля',
-      'Функція відновлення пароля буде доступна пізніше.',
-    );
-  };
-
   return (
     <View
       style={[
@@ -167,7 +158,6 @@ export default function LoginScreen({ navigation }: Props) {
     >
       <StatusBar barStyle="light-content" />
 
-      {/* Header */}
       <View
         style={[
           styles.header,
@@ -221,7 +211,6 @@ export default function LoginScreen({ navigation }: Props) {
         </View>
       </View>
 
-      {/* White form sheet */}
       <KeyboardAvoidingView
         style={[
           styles.sheet,
@@ -265,19 +254,6 @@ export default function LoginScreen({ navigation }: Props) {
             autoComplete="current-password"
             textContentType="password"
           />
-
-          <Pressable
-            accessibilityRole="link"
-            onPress={handleForgotPassword}
-            style={styles.forgotPassword}
-          >
-            <Text
-              variant="bodyBold"
-              style={{ color: theme.colors.text.brand }}
-            >
-              Забули пароль?
-            </Text>
-          </Pressable>
 
           {!!loginError && (
             <Text
@@ -360,9 +336,6 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingHorizontal: 20,
     paddingBottom: 24,
-  },
-  forgotPassword: {
-    alignSelf: 'flex-start',
   },
   spacer: {
     flexGrow: 1,
