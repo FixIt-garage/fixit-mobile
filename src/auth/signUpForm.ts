@@ -5,6 +5,7 @@ export const NAME_MAX = 100;
 export const ADDRESS_MAX = 255;
 export const PASSWORD_MIN = 8;
 export const PASSWORD_MAX = 128;
+export const PHONE_DIGITS = 9;
 
 export const signUpSchema = z.object({
   firstName: z
@@ -40,7 +41,7 @@ export function phoneDigits(text: string): string {
   if (digits.startsWith('0')) {
     digits = digits.slice(1);
   }
-  return digits.slice(0, 9);
+  return digits.slice(0, PHONE_DIGITS);
 }
 
 export function formatPhone(digits: string): string {
@@ -54,13 +55,6 @@ export function formatPhone(digits: string): string {
     digits.slice(7, 9),
   ].filter(Boolean);
   return `+380 ${parts.join(' ')}`;
-}
-
-export const PHONE_DIGITS = 9;
-export const PHONE_INPUT_MAX = formatPhone('0'.repeat(PHONE_DIGITS)).length;
-
-export function phoneMaxLength(digits: string): number | undefined {
-  return digits.length >= PHONE_DIGITS ? PHONE_INPUT_MAX : undefined;
 }
 
 export function toApiPhone(digits: string): string {

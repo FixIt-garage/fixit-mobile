@@ -11,7 +11,6 @@ import {
   formatPhone,
   invalidFields,
   phoneDigits,
-  phoneMaxLength,
   signUpSchema,
   toApiPhone,
   type SignUpValues,
@@ -32,18 +31,14 @@ const ACCOUNT_NAMES: Record<Role, string> = {
   org: 'організації',
 };
 
-type FormInputProps = Omit<
-  InputProps,
-  'value' | 'onChangeText' | 'onBlur' | 'error' | 'maxLength'
-> & {
+type FormInputProps = Omit<InputProps, 'value' | 'onChangeText' | 'onBlur' | 'error'> & {
   control: Control<SignUpValues>;
   name: keyof SignUpValues;
   format?: (value: string) => string;
   parse?: (text: string) => string;
-  maxLengthFor?: (value: string) => number | undefined;
 };
 
-function FormInput({ control, name, format, parse, maxLengthFor, ...props }: FormInputProps) {
+function FormInput({ control, name, format, parse, ...props }: FormInputProps) {
   const { field, fieldState } = useController({ control, name });
 
   return (
@@ -52,7 +47,6 @@ function FormInput({ control, name, format, parse, maxLengthFor, ...props }: For
       value={format ? format(field.value) : field.value}
       onChangeText={(text) => field.onChange(parse ? parse(text) : text)}
       onBlur={field.onBlur}
-      maxLength={maxLengthFor?.(field.value)}
       error={fieldState.error?.message}
     />
   );
@@ -164,7 +158,6 @@ export default function SignUpScreen({ navigation, route }: Props) {
                 textContentType="telephoneNumber"
                 format={formatPhone}
                 parse={phoneDigits}
-                maxLengthFor={phoneMaxLength}
               />
 
               <FormInput

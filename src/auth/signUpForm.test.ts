@@ -6,8 +6,6 @@ import {
   phoneDigits,
   signUpSchema,
   toApiPhone,
-  PHONE_INPUT_MAX,
-  phoneMaxLength,
 } from './signUpForm';
 
 describe('phone mask', () => {
@@ -25,15 +23,13 @@ describe('phone mask', () => {
     expect(formatPhone('671234567')).toBe('+380 67 123 45 67');
   });
 
-  it('keeps pasted numbers with brackets and dashes whole', () => {
-    expect(phoneMaxLength('')).toBeUndefined();
-    expect(phoneMaxLength('6712345')).toBeUndefined();
+  it('reads pasted numbers with brackets and dashes', () => {
     expect(phoneDigits('+380 (67) 123-45-67')).toBe('671234567');
+    expect(phoneDigits('+380 (50) 765-43-21')).toBe('507654321');
   });
 
-  it('blocks a tenth digit once the number is full', () => {
-    expect(phoneMaxLength('671234567')).toBe(PHONE_INPUT_MAX);
-    expect(PHONE_INPUT_MAX).toBe('+380 67 123 45 67'.length);
+  it('ignores an extra digit after a full number', () => {
+    expect(phoneDigits('+380 67 123 45 678')).toBe('671234567');
   });
 
   it('builds the API phone', () => {
