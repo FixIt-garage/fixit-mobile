@@ -2,6 +2,7 @@ import { Button } from '../components/Button';
 import { useAuth } from '../src/auth/AuthProvider';
 import TabPlaceholderScreen from './TabPlaceholderScreen';
 import ClientHomeScreen from './ClientHomeScreen';
+import MasterHomeScreen from './MasterHomeScreen';
 import RequestsScreen from './RequestsScreen';
 
 export function HomeTabScreen() {
@@ -13,7 +14,7 @@ export function HomeTabScreen() {
   }
 
   if (role === 'master') {
-    return <TabPlaceholderScreen title="Головна майстра" />;
+    return <MasterHomeScreen />;
   }
 
   return <TabPlaceholderScreen title="Головний екран" />;

@@ -20,6 +20,7 @@ export type RequestCardProps = {
   status: Status;
   date: Date;
   author?: string;
+  meta?: string;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
 };
@@ -30,15 +31,18 @@ export function RequestCard({
   status,
   date,
   author,
+  meta,
   onPress,
   style,
 }: RequestCardProps) {
-  const meta = [author, formatShortDate(date)].filter(Boolean).join(' · ');
+  const metaText = meta ?? [author, formatShortDate(date)].filter(Boolean).join(' · ');
 
   return (
     <Card
       onPress={onPress}
-      accessibilityLabel={`${title}, ${category}, ${STATUS_NAMES[status]}, ${meta}`}
+      accessibilityLabel={[title, category, STATUS_NAMES[status], metaText]
+        .filter(Boolean)
+        .join(', ')}
       style={[styles.column, style]}
     >
       <View style={styles.header}>
@@ -65,7 +69,7 @@ export function RequestCard({
           numberOfLines={1}
           style={styles.metaText}
         >
-          {meta}
+          {metaText}
         </Text>
       </View>
     </Card>
