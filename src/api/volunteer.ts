@@ -112,6 +112,6 @@ export function useNearbyVolunteerRequests(
   return useQuery({
     queryKey: ['volunteer-requests', 'nearby', userId, city],
     queryFn: () => fetchVolunteerRequests(city, NEARBY_VOLUNTEER_LIMIT),
-    enabled: enabled && userId !== undefined,
+    enabled: enabled && userId !== undefined && Boolean(city),
   });
 }

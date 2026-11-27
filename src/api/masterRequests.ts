@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useMutationState, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiGet, apiRequest, getAuthSessionGeneration } from '../../api/client';
 import { withMock } from './mock';
 
@@ -95,10 +95,15 @@ export function respondToRequest(issueId: number, decision: RequestDecision): Pr
   );
 }
 
+export function respondMutationKey(userId: number | undefined) {
+  return ['masters', 'me', 'requests', 'respond', userId] as const;
+}
+
 export function useRespondToRequest(userId: number | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: respondMutationKey(userId),
     mutationFn: ({ issueId, decision }: { issueId: number; decision: RequestDecision }) =>
       respondToRequest(issueId, decision),
     onMutate: async ({ issueId }) => {
@@ -134,4 +139,17 @@ export function useRespondToRequest(userId: number | undefined) {
       void queryClient.invalidateQueries({ queryKey: ['issues'] });
     },
   });
+}
+
+export function usePendingDecisionIds(userId: number | undefined): number[] {
+  return useMutationState({
+    filters: { mutationKey: respondMutationKey(userId), status: 'pending' },
+    select: (mutation) => (mutation.state.variables as { issueId: number } | undefined)?.issueId,
+  }).filter((issueId): issueId is number => issueId !== undefined);
+}
+
+export function visibleRequests(requests: MasterRequest[], pendingIds: number[]): MasterRequest[] {
+  return pendingIds.length === 0
+    ? requests
+    : requests.filter((request) => !pendingIds.includes(request.id));
 }

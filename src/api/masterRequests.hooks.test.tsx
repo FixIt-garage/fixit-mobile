@@ -6,7 +6,9 @@ import {
   MOCK_MASTER_REQUESTS,
   incomingRequestsKey,
   toMasterRequest,
+  usePendingDecisionIds,
   useRespondToRequest,
+  visibleRequests,
   type MasterRequest,
 } from './masterRequests';
 
@@ -125,5 +127,61 @@ describe('useRespondToRequest', () => {
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(apiRequest).toHaveBeenCalledWith('/issues/41/decline', { method: 'POST' });
     expect(cachedIds(queryClient)).toEqual([41, 42]);
+  });
+});
+
+describe('requests with a decision in flight', () => {
+  beforeEach(() => {
+    apiRequest.mockReset();
+    client.invalidateAuthSession();
+  });
+
+  it('hides only the pending requests', () => {
+    expect(visibleRequests(MOCK_MASTER_REQUESTS, []).map((request) => request.id)).toEqual([41, 42]);
+    expect(visibleRequests(MOCK_MASTER_REQUESTS, [42]).map((request) => request.id)).toEqual([41]);
+  });
+
+  it('does not bring a request back while its decision is still being sent', async () => {
+    const { queryClient, wrapper } = setup();
+    const key = incomingRequestsKey(1);
+    queryClient.setQueryData(key, MOCK_MASTER_REQUESTS);
+    const first = deferred<unknown>();
+    const second = deferred<unknown>();
+    apiRequest
+      .mockReturnValueOnce(first.promise as never)
+      .mockReturnValueOnce(second.promise as never);
+
+    const { result } = await renderHook(
+      () => ({ respond: useRespondToRequest(1), pending: usePendingDecisionIds(1) }),
+      { wrapper },
+    );
+
+    await act(async () => {
+      result.current.respond.mutate({ issueId: 41, decision: 'accept' });
+    });
+    await act(async () => {
+      result.current.respond.mutate({ issueId: 42, decision: 'decline' });
+    });
+    await waitFor(() => expect(result.current.pending.sort()).toEqual([41, 42]));
+
+    await act(async () => {
+      first.resolve({});
+    });
+    await waitFor(() => expect(result.current.pending).toEqual([42]));
+
+    await act(async () => {
+      queryClient.setQueryData(key, [MOCK_MASTER_REQUESTS[1]]);
+    });
+
+    const shown = visibleRequests(
+      queryClient.getQueryData<MasterRequest[]>(key) ?? [],
+      result.current.pending,
+    );
+    expect(shown).toEqual([]);
+
+    await act(async () => {
+      second.resolve({});
+    });
+    await waitFor(() => expect(result.current.pending).toEqual([]));
   });
 });

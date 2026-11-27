@@ -114,4 +114,18 @@ describe('MasterHomeView', () => {
     expect(screen.queryByText('Волонтерські запити поруч')).toBeNull();
     expect(screen.queryByText('Полагодити обігрівачі в притулку')).toBeNull();
   });
+
+  it('asks for a city instead of showing requests from everywhere', async () => {
+    const onFillCity = jest.fn();
+    await renderView({ volunteerNeedsCity: true, volunteerRequests: [], onFillCity });
+
+    expect(
+      screen.getByText('Вкажіть місто в профілі, щоб бачити волонтерські запити поруч.'),
+    ).toBeTruthy();
+    expect(screen.queryByText('Полагодити обігрівачі в притулку')).toBeNull();
+
+    await fireEvent.press(screen.getByText('Заповнити'));
+
+    expect(onFillCity).toHaveBeenCalled();
+  });
 });

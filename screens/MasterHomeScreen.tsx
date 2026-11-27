@@ -1,11 +1,16 @@
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { MainStackParamList } from '../navigation/AppNavigator';
 import { useAuth } from '../src/auth/AuthProvider';
 import { useCategories, type Category } from '../src/api/categories';
 import { useMyMasterProfile } from '../src/api/masterProfile';
 import {
   useIncomingRequests,
+  usePendingDecisionIds,
   useRespondToRequest,
+  visibleRequests,
   type MasterRequest,
 } from '../src/api/masterRequests';
 import { useNearbyVolunteerRequests, type VolunteerRequest } from '../src/api/volunteer';
@@ -101,6 +106,8 @@ export type MasterHomeViewProps = {
   volunteerRequests: VolunteerRequest[];
   volunteerState: LoadState;
   onRetryVolunteer: () => void;
+  volunteerNeedsCity?: boolean;
+  onFillCity?: () => void;
 };
 
 export function MasterHomeView({
@@ -117,6 +124,8 @@ export function MasterHomeView({
   volunteerRequests,
   volunteerState,
   onRetryVolunteer,
+  volunteerNeedsCity = false,
+  onFillCity,
 }: MasterHomeViewProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -164,6 +173,23 @@ export function MasterHomeView({
   };
 
   const renderVolunteer = () => {
+    if (volunteerNeedsCity) {
+      return (
+        <Card style={{ gap: theme.spacing.sm }}>
+          <Text variant="bodySmall" color="secondary">
+            Вкажіть місто в профілі, щоб бачити волонтерські запити поруч.
+          </Text>
+          {onFillCity ? (
+            <Pressable accessibilityRole="button" onPress={onFillCity} hitSlop={8}>
+              <Text variant="bodyBold" style={{ color: theme.colors.role.master }}>
+                Заповнити
+              </Text>
+            </Pressable>
+          ) : null}
+        </Card>
+      );
+    }
+
     if (volunteerState === 'loading') {
       return (
         <ActivityIndicator
@@ -254,23 +280,22 @@ export default function MasterHomeScreen() {
   const { state } = useAuth();
   const user = state.status === 'signedIn' ? state.user : null;
   const userId = user?.id;
+  const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
 
   const masterQuery = useMyMasterProfile(userId, userId !== undefined);
   const categoriesQuery = useCategories();
   const requestsQuery = useIncomingRequests(userId);
   const respond = useRespondToRequest(userId);
+  const pendingIds = usePendingDecisionIds(userId);
   const showVolunteer = masterQuery.data?.isVolunteer === true;
-  const volunteerQuery = useNearbyVolunteerRequests(
-    userId,
-    masterQuery.data?.city ?? null,
-    showVolunteer,
-  );
+  const city = masterQuery.data?.city ?? null;
+  const volunteerQuery = useNearbyVolunteerRequests(userId, city, showVolunteer);
 
   return (
     <MasterHomeView
       firstName={user?.firstName ?? ''}
       now={new Date()}
-      requests={requestsQuery.data ?? []}
+      requests={visibleRequests(requestsQuery.data ?? [], pendingIds)}
       requestsState={loadState(requestsQuery)}
       categories={categoriesQuery.data ?? []}
       onRetryRequests={() => void requestsQuery.refetch()}
@@ -281,6 +306,8 @@ export default function MasterHomeScreen() {
       volunteerRequests={volunteerQuery.data?.items ?? []}
       volunteerState={loadState(volunteerQuery)}
       onRetryVolunteer={() => void volunteerQuery.refetch()}
+      volunteerNeedsCity={showVolunteer && !city}
+      onFillCity={() => navigation.navigate('MasterProfileSetup')}
     />
   );
 }

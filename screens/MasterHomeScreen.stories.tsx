@@ -61,3 +61,7 @@ export const DecisionError: Story = {
 export const Evening: Story = {
   args: { now: new Date(2026, 10, 27, 19, 30) },
 };
+
+export const NoCity: Story = {
+  args: { volunteerNeedsCity: true, volunteerRequests: [], onFillCity: action('fill city') },
+};
