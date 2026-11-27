@@ -12,17 +12,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme, type GradientName } from '../src/theme';
 import { Text } from './Text';
 
-// Спінер у Figma 22×22, а стандартний iOS «small» — 20
 const SPINNER_SCALE = 22 / 20;
 
 export type ButtonProps = Omit<PressableProps, 'style' | 'children' | 'disabled'> & {
   label: string;
   variant?: 'primary' | 'secondary';
-  /** Градієнт primary-кнопки, за замовчуванням client */
   gradient?: GradientName;
   disabled?: boolean;
   loading?: boolean;
-  /** Необовʼязкова іконка зліва від тексту */
   icon?: ReactNode;
   style?: StyleProp<ViewStyle>;
 };
@@ -42,8 +39,6 @@ export function Button({
 
   const textColor = disabled ? 'disabled' : isPrimary ? 'onBrand' : 'brand';
   const spinnerColor = isPrimary ? theme.colors.text.onBrand : theme.colors.text.brand;
-  // Натиснута primary: суцільний колір. Для клієнта — bg/brand-pressed з Figma,
-  // для інших ролей — темніший колір їхнього градієнта
   const pressedPrimary =
     gradient === 'client' ? theme.colors.bg.brandPressed : theme.gradients[gradient][1];
 
@@ -67,7 +62,6 @@ export function Button({
           borderRadius: theme.radius.pill,
           backgroundColor: backgroundFor(pressed),
         },
-        // Натиснута secondary: рамка 1.5px всередину, висота не змінюється
         pressed && !isPrimary && !disabled && {
           borderWidth: 1.5,
           borderColor: theme.colors.text.brand,
@@ -78,17 +72,19 @@ export function Button({
     >
       {({ pressed }) => (
         <>
-          {isPrimary && !disabled && !pressed && (
+          {isPrimary && !disabled ? (
             <LinearGradient
+              testID="button-gradient"
+              pointerEvents="none"
               colors={theme.gradients[gradient]}
               start={theme.gradientDirection.start}
               end={theme.gradientDirection.end}
-              style={StyleSheet.absoluteFill}
+              style={[StyleSheet.absoluteFill, { opacity: pressed ? 0 : 1 }]}
             />
-          )}
+          ) : null}
 
-          {/* Під час loading текст схований, але займає місце — ширина кнопки не змінюється */}
           <View
+            pointerEvents="none"
             style={[styles.content, { gap: theme.spacing.sm }, loading && styles.hidden]}
             accessibilityElementsHidden={loading}
             importantForAccessibility={loading ? 'no-hide-descendants' : 'auto'}
@@ -99,7 +95,7 @@ export function Button({
             </Text>
           </View>
 
-          {loading && (
+          {loading ? (
             <View style={styles.spinner} pointerEvents="none">
               <ActivityIndicator
                 testID="button-loading"
@@ -107,7 +103,7 @@ export function Button({
                 style={{ transform: [{ scale: SPINNER_SCALE }] }}
               />
             </View>
-          )}
+          ) : null}
         </>
       )}
     </Pressable>

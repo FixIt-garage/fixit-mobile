@@ -12,7 +12,6 @@ import {
   type Review,
 } from '../src/api/masterPublic';
 import { formatPrice, formatYears } from '../src/format';
-import { formatPublicId } from '../src/profileView';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import type { IconName } from '../components/Icon/Icon';
@@ -159,7 +158,7 @@ export function MasterProfileView({
       >
         <MasterHero
           name={`${master.firstName} ${master.lastName}`}
-          meta={`Майстер · ${formatPublicId(master.publicId)}`}
+          meta="Майстер"
           specializations={master.specializations.join(' · ')}
           volunteer={master.isVolunteer}
           avatarUri={master.avatarUrl ?? undefined}

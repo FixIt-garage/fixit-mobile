@@ -40,7 +40,7 @@ describe('MasterProfileScreen', () => {
     await renderScreen();
 
     expect(screen.getByRole('header', { name: 'Андрій Мельник' })).toBeTruthy();
-    expect(screen.getByText('Майстер · ID 0247')).toBeTruthy();
+    expect(screen.getByText('Майстер')).toBeTruthy();
     expect(screen.getByText('Побутова техніка · Електрика')).toBeTruthy();
     expect(screen.getByLabelText('Волонтер')).toBeTruthy();
     expect(screen.getByLabelText('Рейтинг 4,8')).toBeTruthy();

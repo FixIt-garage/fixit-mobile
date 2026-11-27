@@ -7,6 +7,7 @@ import type { RootStackParamList } from '../navigation/AppNavigator';
 import { useTheme } from '../src/theme';
 import { useAuth } from '../src/auth/AuthProvider';
 import {
+  PHONE_INPUT_MAX,
   conflictField,
   formatPhone,
   invalidFields,
@@ -158,6 +159,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
                 textContentType="telephoneNumber"
                 format={formatPhone}
                 parse={phoneDigits}
+                maxLength={PHONE_INPUT_MAX}
               />
 
               <FormInput

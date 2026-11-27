@@ -3,19 +3,14 @@ import { MOCK_MASTER_PROFILE } from './api/masterProfile';
 import {
   MASTER_FALLBACK_HINT,
   displayPhone,
-  formatPublicId,
   profileCompletion,
   profileMeta,
 } from './profileView';
 
 describe('profileView', () => {
-  it('builds the meta line', () => {
-    expect(profileMeta(MOCK_PROFILE)).toBe('Клієнт · Львів · ID 3120');
-    expect(profileMeta({ ...MOCK_PROFILE, city: null })).toBe('Клієнт · ID 3120');
-  });
-
-  it('pads the public id', () => {
-    expect(formatPublicId(247)).toBe('ID 0247');
+    it('builds the meta line', () => {
+    expect(profileMeta(MOCK_PROFILE)).toBe('Клієнт · Львів');
+    expect(profileMeta({ ...MOCK_PROFILE, city: null })).toBe('Клієнт');
   });
 
   it('formats the phone for display', () => {

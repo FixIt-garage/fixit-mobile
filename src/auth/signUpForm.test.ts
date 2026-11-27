@@ -6,6 +6,7 @@ import {
   phoneDigits,
   signUpSchema,
   toApiPhone,
+  PHONE_INPUT_MAX,
 } from './signUpForm';
 
 describe('phone mask', () => {
@@ -21,6 +22,10 @@ describe('phone mask', () => {
     expect(formatPhone('67')).toBe('+380 67');
     expect(formatPhone('6712')).toBe('+380 67 12');
     expect(formatPhone('671234567')).toBe('+380 67 123 45 67');
+  });
+
+  it('limits the phone field to a full number', () => {
+    expect(PHONE_INPUT_MAX).toBe('+380 67 123 45 67'.length);
   });
 
   it('builds the API phone', () => {
