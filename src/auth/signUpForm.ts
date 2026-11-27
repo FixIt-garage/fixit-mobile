@@ -56,7 +56,12 @@ export function formatPhone(digits: string): string {
   return `+380 ${parts.join(' ')}`;
 }
 
-export const PHONE_INPUT_MAX = formatPhone('000000000').length;
+export const PHONE_DIGITS = 9;
+export const PHONE_INPUT_MAX = formatPhone('0'.repeat(PHONE_DIGITS)).length;
+
+export function phoneMaxLength(digits: string): number | undefined {
+  return digits.length >= PHONE_DIGITS ? PHONE_INPUT_MAX : undefined;
+}
 
 export function toApiPhone(digits: string): string {
   return `+380${digits}`;

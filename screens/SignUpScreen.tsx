@@ -7,11 +7,11 @@ import type { RootStackParamList } from '../navigation/AppNavigator';
 import { useTheme } from '../src/theme';
 import { useAuth } from '../src/auth/AuthProvider';
 import {
-  PHONE_INPUT_MAX,
   conflictField,
   formatPhone,
   invalidFields,
   phoneDigits,
+  phoneMaxLength,
   signUpSchema,
   toApiPhone,
   type SignUpValues,
@@ -32,14 +32,18 @@ const ACCOUNT_NAMES: Record<Role, string> = {
   org: 'організації',
 };
 
-type FormInputProps = Omit<InputProps, 'value' | 'onChangeText' | 'onBlur' | 'error'> & {
+type FormInputProps = Omit<
+  InputProps,
+  'value' | 'onChangeText' | 'onBlur' | 'error' | 'maxLength'
+> & {
   control: Control<SignUpValues>;
   name: keyof SignUpValues;
   format?: (value: string) => string;
   parse?: (text: string) => string;
+  maxLengthFor?: (value: string) => number | undefined;
 };
 
-function FormInput({ control, name, format, parse, ...props }: FormInputProps) {
+function FormInput({ control, name, format, parse, maxLengthFor, ...props }: FormInputProps) {
   const { field, fieldState } = useController({ control, name });
 
   return (
@@ -48,6 +52,7 @@ function FormInput({ control, name, format, parse, ...props }: FormInputProps) {
       value={format ? format(field.value) : field.value}
       onChangeText={(text) => field.onChange(parse ? parse(text) : text)}
       onBlur={field.onBlur}
+      maxLength={maxLengthFor?.(field.value)}
       error={fieldState.error?.message}
     />
   );
@@ -159,7 +164,7 @@ export default function SignUpScreen({ navigation, route }: Props) {
                 textContentType="telephoneNumber"
                 format={formatPhone}
                 parse={phoneDigits}
-                maxLength={PHONE_INPUT_MAX}
+                maxLengthFor={phoneMaxLength}
               />
 
               <FormInput

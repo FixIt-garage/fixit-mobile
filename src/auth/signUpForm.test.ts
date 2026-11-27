@@ -7,6 +7,7 @@ import {
   signUpSchema,
   toApiPhone,
   PHONE_INPUT_MAX,
+  phoneMaxLength,
 } from './signUpForm';
 
 describe('phone mask', () => {
@@ -24,7 +25,14 @@ describe('phone mask', () => {
     expect(formatPhone('671234567')).toBe('+380 67 123 45 67');
   });
 
-  it('limits the phone field to a full number', () => {
+  it('keeps pasted numbers with brackets and dashes whole', () => {
+    expect(phoneMaxLength('')).toBeUndefined();
+    expect(phoneMaxLength('6712345')).toBeUndefined();
+    expect(phoneDigits('+380 (67) 123-45-67')).toBe('671234567');
+  });
+
+  it('blocks a tenth digit once the number is full', () => {
+    expect(phoneMaxLength('671234567')).toBe(PHONE_INPUT_MAX);
     expect(PHONE_INPUT_MAX).toBe('+380 67 123 45 67'.length);
   });
 
@@ -35,10 +43,10 @@ describe('phone mask', () => {
 
 describe('signUpSchema', () => {
   const valid = {
-    firstName: 'Анна',
-    lastName: 'Шеремета',
+    firstName: 'Андрій',
+    lastName: 'Мельник',
     phone: '671234567',
-    email: 'anna@gmail.com',
+    email: 'poshta@gmail.com',
     address: 'Львів, Городоцька, 15',
     password: 'password1',
   };
