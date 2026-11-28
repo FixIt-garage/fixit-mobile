@@ -65,7 +65,18 @@ jest.mock('./src/api/masterProfile', () => ({
   }),
   useSetVolunteer: () => ({ mutate: jest.fn() }),
 }));
-
+jest.mock('./src/api/masterRequests', () => {
+  const actual = jest.requireActual('./src/api/masterRequests');
+  return {
+    ...actual,
+    useIncomingRequests: () => ({
+      data: actual.MOCK_MASTER_REQUESTS,
+      isPending: false,
+      isError: false,
+      refetch: jest.fn(),
+    }),
+  };
+});
 const mockedSession = jest.mocked(session);
 const mockedApi = jest.mocked(api);
 
@@ -115,7 +126,7 @@ describe('App navigation by session', () => {
     mockedApi.fetchCurrentUser.mockResolvedValue(userWithRole('master'));
 
     await render(<App />);
-    expect(await screen.findByText('Головна майстра')).toBeTruthy();
+    expect(await screen.findByRole('header', { name: '2 нові заявки' })).toBeTruthy();
   });
 
   it('switches tabs from the tab bar', async () => {
