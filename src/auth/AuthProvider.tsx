@@ -25,11 +25,17 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 /**
- * `fetch` кидає `TypeError`, коли сервер узагалі не відповів (немає мережі).
- * Відповідь сервера з помилкою (401 тощо) приходить як `ApiError` — тоді сесія справді недійсна.
+ * Чи можна повторити перевірку сесії пізніше, не виходячи з акаунта:
+ * - `fetch` кинув `TypeError` — сервер узагалі не відповів (немає мережі);
+ * - `ApiUnavailableError` (`retryable`) — не вдалося оновити токен, бо сервер недоступний або відповів 5xx;
+ * - `ApiError` з кодом 5xx — сервер тимчасово не працює.
+ * Відповідь 401 після невдалого оновлення токена означає, що сесія справді недійсна.
  */
-function isNetworkError(error: unknown) {
-  return error instanceof TypeError;
+function isRetryableError(error: unknown) {
+  if (error instanceof TypeError) return true;
+  if (typeof error !== 'object' || error === null) return false;
+  const { retryable, status } = error as { retryable?: unknown; status?: unknown };
+  return retryable === true || (typeof status === 'number' && status >= 500);
 }
 
 /** Перевіряє збережену сесію і повертає, в якому стані має бути застосунок. */
@@ -40,7 +46,7 @@ async function resolveStoredSession(): Promise<AuthState> {
     }
     return { status: 'signedIn', user: await fetchCurrentUser() };
   } catch (error) {
-    return isNetworkError(error) ? { status: 'offline' } : { status: 'signedOut' };
+    return isRetryableError(error) ? { status: 'offline' } : { status: 'signedOut' };
   }
 }
 
