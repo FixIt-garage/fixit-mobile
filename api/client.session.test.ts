@@ -3,6 +3,7 @@ import { clearTokens, getAccessToken, getRefreshToken, saveTokens } from '../src
 import { logout } from '../src/auth/api';
 import {
   ApiError,
+  ApiUnavailableError,
   apiRequest,
   getAuthSessionGeneration,
   invalidateAuthSession,
@@ -96,13 +97,52 @@ describe('session safety', () => {
     expect(onExpired).not.toHaveBeenCalled();
   });
 
-  it('ends the session when refresh fails with a network error', async () => {
+  it('keeps the session when refresh fails with a network error', async () => {
     fetchMock.mockImplementation((url: string) => {
       if (url.endsWith('/auth/refresh')) {
         return Promise.reject(new TypeError('Network request failed'));
       }
       return Promise.resolve(jsonResponse(401, null));
     });
+
+    const error = await apiRequest('/requests').catch((caught: unknown) => caught);
+
+    // Сервер оновлення недоступний — це не означає, що сесія недійсна: токени лишаються
+    expect(error).toBeInstanceOf(ApiUnavailableError);
+    expect(onExpired).not.toHaveBeenCalled();
+    expect(await getAccessToken()).toBe('old-access');
+    expect(await getRefreshToken()).toBe('old-refresh');
+  });
+
+  it('keeps the session when refresh answers 5xx and refreshes on the next try', async () => {
+    let refreshStatus = 503;
+    fetchMock.mockImplementation((url: string, init?: RequestInit) => {
+      if (url.endsWith('/auth/refresh')) {
+        return Promise.resolve(
+          refreshStatus === 200
+            ? jsonResponse(200, { access_token: 'new-access', refresh_token: 'new-refresh', token_type: 'bearer' })
+            : jsonResponse(refreshStatus, null),
+        );
+      }
+      const auth = (init?.headers as Record<string, string> | undefined)?.Authorization;
+      return Promise.resolve(
+        auth === 'Bearer new-access' ? jsonResponse(200, { ok: true }) : jsonResponse(401, null),
+      );
+    });
+
+    const first = await apiRequest('/requests').catch((caught: unknown) => caught);
+    expect(first).toBeInstanceOf(ApiUnavailableError);
+    expect(onExpired).not.toHaveBeenCalled();
+    expect(await getRefreshToken()).toBe('old-refresh');
+
+    refreshStatus = 200;
+    await expect(apiRequest('/requests')).resolves.toEqual({ ok: true });
+    expect(await getAccessToken()).toBe('new-access');
+    expect(onExpired).not.toHaveBeenCalled();
+  });
+
+  it('still ends the session when refresh is rejected with 401', async () => {
+    fetchMock.mockImplementation(() => Promise.resolve(jsonResponse(401, null)));
 
     const error = await apiRequest('/requests').catch((caught: unknown) => caught);
 

@@ -1,5 +1,6 @@
 import { Pressable, Text } from 'react-native';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
+import { onlineManager } from '@tanstack/react-query';
 import * as client from '../../api/client';
 import * as api from './api';
 import * as session from './session';
@@ -30,7 +31,7 @@ const master: api.User = {
 };
 
 function Probe() {
-  const { state, signIn, signOut } = useAuth();
+  const { state, signIn, signOut, retryRestore } = useAuth();
   return (
     <>
       <Text>{state.status === 'signedIn' ? `signedIn:${state.user.role}` : state.status}</Text>
@@ -40,6 +41,7 @@ function Probe() {
         onPress={() => void signIn('a@b.ua', 'password1')}
       />
       <Pressable accessibilityRole="button" accessibilityLabel="sign out" onPress={() => void signOut()} />
+      <Pressable accessibilityRole="button" accessibilityLabel="retry" onPress={() => void retryRestore()} />
     </>
   );
 }
@@ -94,5 +96,60 @@ describe('AuthProvider', () => {
     await act(async () => handler?.());
 
     expect(await screen.findByText('signedOut')).toBeTruthy();
+  });
+
+  describe('starting without internet', () => {
+    afterEach(() => onlineManager.setOnline(true));
+
+    it('keeps the session instead of signing out when the server is unreachable', async () => {
+      mockedSession.hasStoredAccessToken.mockResolvedValue(true);
+      mockedApi.fetchCurrentUser.mockRejectedValue(new TypeError('Network request failed'));
+
+      await renderProbe();
+
+      expect(await screen.findByText('offline')).toBeTruthy();
+      expect(screen.queryByText('signedOut')).toBeNull();
+    });
+
+    it('still signs out when the server rejects the session', async () => {
+      mockedSession.hasStoredAccessToken.mockResolvedValue(true);
+      mockedApi.fetchCurrentUser.mockRejectedValue(
+        Object.assign(new Error('API request failed: 401'), { status: 401 }),
+      );
+
+      await renderProbe();
+
+      expect(await screen.findByText('signedOut')).toBeTruthy();
+    });
+
+    it('restores the same account when the internet comes back', async () => {
+      mockedSession.hasStoredAccessToken.mockResolvedValue(true);
+      mockedApi.fetchCurrentUser
+        .mockRejectedValueOnce(new TypeError('Network request failed'))
+        .mockResolvedValue(master);
+      onlineManager.setOnline(false);
+
+      await renderProbe();
+      await screen.findByText('offline');
+
+      await act(async () => onlineManager.setOnline(true));
+
+      expect(await screen.findByText('signedIn:master')).toBeTruthy();
+      expect(mockedApi.login).not.toHaveBeenCalled();
+    });
+
+    it('retries on demand', async () => {
+      mockedSession.hasStoredAccessToken.mockResolvedValue(true);
+      mockedApi.fetchCurrentUser
+        .mockRejectedValueOnce(new TypeError('Network request failed'))
+        .mockResolvedValue(master);
+
+      await renderProbe();
+      await screen.findByText('offline');
+
+      await fireEvent.press(screen.getByRole('button', { name: 'retry' }));
+
+      expect(await screen.findByText('signedIn:master')).toBeTruthy();
+    });
   });
 });

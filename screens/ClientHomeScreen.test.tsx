@@ -1,6 +1,8 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { MOCK_CATEGORIES } from '../src/api/categories';
 import { MOCK_PROFILE } from '../src/api/profile';
+import { loadRequestDraft, saveRequestDraft } from '../src/requestDraft';
 import ClientHomeScreen from './ClientHomeScreen';
 
 const mockNavigate = jest.fn();
@@ -11,9 +13,11 @@ jest.mock('@react-navigation/native', () => ({
     useNavigation: () => ({ navigate: mockNavigate }),
 }));
 
+let mockUserId = 7;
+
 jest.mock('../src/auth/AuthProvider', () => ({
     useAuth: () => ({
-        state: { status: 'signedIn', user: { firstName: 'Олександр', lastName: 'Коваль' } },
+        state: { status: 'signedIn', user: { id: mockUserId, firstName: 'Олександр', lastName: 'Коваль' } },
     }),
 }));
 
@@ -28,8 +32,11 @@ jest.mock('../src/api/categories', () => ({
 }));
 
 describe('ClientHomeScreen', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         jest.clearAllMocks();
+        // Чернетка з попереднього тесту не має потрапити в наступний
+        await AsyncStorage.clear();
+        mockUserId = 7;
         mockCategoriesQuery = { data: MOCK_CATEGORIES, isPending: false, isError: false, refetch: jest.fn() };
     });
 
@@ -90,5 +97,52 @@ describe('ClientHomeScreen', () => {
         await fireEvent.press(screen.getByText('Спробувати ще раз'));
 
         expect(mockCategoriesQuery.refetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('restores the saved request draft', async () => {
+        await saveRequestDraft(7, { city: 'Київ', categoryId: '3', description: 'Тече кран на кухні' });
+        await render(<ClientHomeScreen />);
+
+        expect(await screen.findByDisplayValue('Тече кран на кухні')).toBeTruthy();
+        expect(screen.getByDisplayValue('Київ')).toBeTruthy();
+        expect(screen.getByRole('button', { name: 'Сантехніка' }).props.accessibilityState).toMatchObject({
+            selected: true,
+        });
+    });
+
+    it('saves the draft while typing', async () => {
+        await render(<ClientHomeScreen />);
+
+        await fireEvent.changeText(screen.getByLabelText('Що зламалося?'), 'Не працює розетка');
+
+        await waitFor(async () =>
+            expect(await loadRequestDraft(7)).toMatchObject({ description: 'Не працює розетка' }),
+        );
+    });
+
+    it('keeps the draft after the search: the request is not sent yet', async () => {
+        await saveRequestDraft(7, { city: 'Львів', categoryId: '3', description: 'Тече кран на кухні' });
+        await render(<ClientHomeScreen />);
+        await screen.findByDisplayValue('Тече кран на кухні');
+
+        await fireEvent.press(screen.getByText('Знайти майстра'));
+
+        await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
+        expect(await loadRequestDraft(7)).toMatchObject({ description: 'Тече кран на кухні' });
+    });
+
+    it('does not show one account\'s draft to another account on the same phone', async () => {
+        await saveRequestDraft(7, { city: 'Львів', categoryId: '3', description: 'Тече кран на кухні' });
+        mockUserId = 8;
+
+        await render(<ClientHomeScreen />);
+        await screen.findByText('Привіт, Олександре');
+        // Даємо сховищу час відповісти, щоб перевірка не пройшла лише через поспіх
+        await act(async () => {
+            await new Promise((resolve) => setTimeout(resolve, 0));
+        });
+
+        expect(screen.queryByDisplayValue('Тече кран на кухні')).toBeNull();
+        expect(await loadRequestDraft(7)).toMatchObject({ description: 'Тече кран на кухні' });
     });
 });

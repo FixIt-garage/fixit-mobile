@@ -1,7 +1,10 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { onlineManager } from '@tanstack/react-query';
 import * as api from './src/auth/api';
 import * as session from './src/auth/session';
 import { queryClient } from './src/api/queryClient';
+import { saveRequestDraft } from './src/requestDraft';
 import App from './App';
 
 jest.mock('expo-font', () => ({
@@ -166,5 +169,26 @@ describe('App navigation by session', () => {
 
     resolveToken(false);
     await waitFor(() => expect(screen.getByText('Welcome test screen')).toBeTruthy());
+  });
+
+  it('opened without internet: keeps the account and the draft until the connection returns', async () => {
+    await AsyncStorage.clear();
+    await saveRequestDraft(1, { city: 'Львів', categoryId: '3', description: 'Тече кран на кухні' });
+    mockedSession.hasStoredAccessToken.mockResolvedValue(true);
+    mockedApi.fetchCurrentUser
+      .mockRejectedValueOnce(new TypeError('Network request failed'))
+      .mockResolvedValue(userWithRole('client'));
+    onlineManager.setOnline(false);
+
+    await render(<App />);
+
+    expect(await screen.findByRole('header', { name: "Немає з'єднання" })).toBeTruthy();
+    expect(screen.queryByText('Welcome test screen')).toBeNull();
+
+    await act(async () => onlineManager.setOnline(true));
+
+    expect(await screen.findByRole('header', { name: 'Що зламалося?' })).toBeTruthy();
+    expect(await screen.findByDisplayValue('Тече кран на кухні')).toBeTruthy();
+    expect(mockedApi.login).not.toHaveBeenCalled();
   });
 });
