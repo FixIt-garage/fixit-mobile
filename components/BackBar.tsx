@@ -10,14 +10,32 @@ const HIT_SIZE = 44;
 
 export type BackBarProps = {
   title: string;
+  subtitle?: string;
   onBack?: () => void;
   right?: ReactNode;
   style?: StyleProp<ViewStyle>;
 };
 
-export function BackBar({ title, onBack, right, style }: BackBarProps) {
-  const theme = useTheme();
+function BackButton({ onPress }: { onPress: () => void }) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Назад"
+      onPress={onPress}
+      style={styles.back}
+    >
+      <Icon name="chevron-left" color="icon/default" />
+    </Pressable>
+  );
+}
+
+function NavigationBackButton() {
   const navigation = useNavigation();
+  return <BackButton onPress={() => navigation.goBack()} />;
+}
+
+export function BackBar({ title, subtitle, onBack, right, style }: BackBarProps) {
+  const theme = useTheme();
   const insets = useSafeAreaInsets();
 
   return (
@@ -33,18 +51,18 @@ export function BackBar({ title, onBack, right, style }: BackBarProps) {
           },
         ]}
       >
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Назад"
-          onPress={onBack ?? (() => navigation.goBack())}
-          style={styles.back}
-        >
-          <Icon name="chevron-left" color="icon/default" />
-        </Pressable>
+        {onBack ? <BackButton onPress={onBack} /> : <NavigationBackButton />}
 
-        <Text variant="h3" accessibilityRole="header" numberOfLines={1} style={styles.title}>
-          {title}
-        </Text>
+        <View style={styles.titleBlock}>
+          <Text variant="h3" accessibilityRole="header" numberOfLines={1}>
+            {title}
+          </Text>
+          {subtitle ? (
+            <Text variant="caption" color="secondary" numberOfLines={1}>
+              {subtitle}
+            </Text>
+          ) : null}
+        </View>
 
         {right}
       </View>
@@ -63,7 +81,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  title: {
+  titleBlock: {
     flex: 1,
   },
 });
