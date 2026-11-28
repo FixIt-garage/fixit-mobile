@@ -7,6 +7,7 @@ import { useAuth } from '../src/auth/AuthProvider';
 import { useCategories, type Category } from '../src/api/categories';
 import { useMyMasterProfile } from '../src/api/masterProfile';
 import {
+  useFailedDecisionIds,
   useIncomingRequests,
   usePendingDecisionIds,
   useRespondToRequest,
@@ -51,11 +52,18 @@ function loadState(query: { data: unknown; isError: boolean }): LoadState {
 type IncomingRequestCardProps = {
   request: MasterRequest;
   category: string;
+  failed: boolean;
   onAccept: () => void;
   onDecline: () => void;
 };
 
-function IncomingRequestCard({ request, category, onAccept, onDecline }: IncomingRequestCardProps) {
+function IncomingRequestCard({
+  request,
+  category,
+  failed,
+  onAccept,
+  onDecline,
+}: IncomingRequestCardProps) {
   const theme = useTheme();
 
   return (
@@ -67,6 +75,16 @@ function IncomingRequestCard({ request, category, onAccept, onDecline }: Incomin
         date={request.createdAt}
         meta={requestMeta(request)}
       />
+      {failed ? (
+        <Text
+          variant="bodySmall"
+          color="error"
+          accessibilityRole="alert"
+          style={{ paddingHorizontal: theme.spacing.lg }}
+        >
+          {RESPOND_ERROR}
+        </Text>
+      ) : null}
       <View style={[styles.actions, { gap: theme.spacing.sm, paddingHorizontal: theme.spacing.lg }]}>
         <Button label="Відхилити" variant="secondary" onPress={onDecline} style={styles.action} />
         <Button label="Прийняти" gradient="master" onPress={onAccept} style={styles.action} />
@@ -101,7 +119,7 @@ export type MasterHomeViewProps = {
   onRetryRequests: () => void;
   onAccept: (issueId: number) => void;
   onDecline: (issueId: number) => void;
-  actionError?: string;
+  failedRequestIds?: number[];
   showVolunteer: boolean;
   volunteerRequests: VolunteerRequest[];
   volunteerState: LoadState;
@@ -119,7 +137,7 @@ export function MasterHomeView({
   onRetryRequests,
   onAccept,
   onDecline,
-  actionError,
+  failedRequestIds = [],
   showVolunteer,
   volunteerRequests,
   volunteerState,
@@ -168,6 +186,7 @@ export function MasterHomeView({
         category={categoryName(request.categoryId)}
         onAccept={() => onAccept(request.id)}
         onDecline={() => onDecline(request.id)}
+        failed={failedRequestIds.includes(request.id)}
       />
     ));
   };
@@ -253,12 +272,6 @@ export function MasterHomeView({
           ]}
         >
           <View style={{ paddingTop: theme.spacing.md, gap: theme.spacing.md }}>
-            {actionError ? (
-              <Text variant="bodySmall" color="error" accessibilityRole="alert">
-                {actionError}
-              </Text>
-            ) : null}
-
             {renderRequests()}
 
             {showVolunteer ? (
@@ -287,6 +300,7 @@ export default function MasterHomeScreen() {
   const requestsQuery = useIncomingRequests(userId);
   const respond = useRespondToRequest(userId);
   const pendingIds = usePendingDecisionIds(userId);
+  const failedIds = useFailedDecisionIds(userId);
   const showVolunteer = masterQuery.data?.isVolunteer === true;
   const city = masterQuery.data?.city ?? null;
   const volunteerQuery = useNearbyVolunteerRequests(userId, city, showVolunteer);
@@ -301,7 +315,7 @@ export default function MasterHomeScreen() {
       onRetryRequests={() => void requestsQuery.refetch()}
       onAccept={(issueId) => respond.mutate({ issueId, decision: 'accept' })}
       onDecline={(issueId) => respond.mutate({ issueId, decision: 'decline' })}
-      actionError={respond.isError ? RESPOND_ERROR : undefined}
+      failedRequestIds={failedIds}
       showVolunteer={showVolunteer}
       volunteerRequests={volunteerQuery.data?.items ?? []}
       volunteerState={loadState(volunteerQuery)}

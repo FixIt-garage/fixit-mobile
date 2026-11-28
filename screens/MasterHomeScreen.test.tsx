@@ -95,10 +95,11 @@ describe('MasterHomeView', () => {
     expect(viewProps.onRetryRequests).toHaveBeenCalled();
   });
 
-  it('shows an error when a decision fails', async () => {
-    await renderView({ actionError: RESPOND_ERROR });
+  it('shows a failed decision on its own request', async () => {
+    await renderView({ failedRequestIds: [41] });
 
-    expect(screen.getByText(RESPOND_ERROR)).toBeTruthy();
+    expect(screen.getAllByText(RESPOND_ERROR)).toHaveLength(1);
+    expect(screen.getByText('Пральна машина не зливає воду')).toBeTruthy();
   });
 
   it('shows nearby volunteer requests to a volunteer', async () => {

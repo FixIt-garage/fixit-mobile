@@ -156,6 +156,13 @@ export function usePendingDecisionIds(userId: number | undefined): number[] {
   }).filter((issueId): issueId is number => issueId !== undefined);
 }
 
+export function useFailedDecisionIds(userId: number | undefined): number[] {
+  return useMutationState({
+    filters: { mutationKey: respondMutationKey(userId), status: 'error' },
+    select: (mutation) => (mutation.state.variables as { issueId: number } | undefined)?.issueId,
+  }).filter((issueId): issueId is number => issueId !== undefined);
+}
+
 export function visibleRequests(requests: MasterRequest[], pendingIds: number[]): MasterRequest[] {
   return pendingIds.length === 0
     ? requests

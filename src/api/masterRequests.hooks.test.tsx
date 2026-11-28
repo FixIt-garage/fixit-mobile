@@ -6,6 +6,7 @@ import {
   MOCK_MASTER_REQUESTS,
   incomingRequestsKey,
   toMasterRequest,
+  useFailedDecisionIds,
   useIncomingRequests,
   usePendingDecisionIds,
   useRespondToRequest,
@@ -200,5 +201,51 @@ describe('requests with a decision in flight', () => {
     expect(
       visibleRequests(queryClient.getQueryData<MasterRequest[]>(key) ?? [], result.current.pending),
     ).toEqual([]);
+  });
+
+  it('keeps the failed request with its own error when another decision succeeds', async () => {
+    const { queryClient, wrapper } = setup();
+    const key = incomingRequestsKey(1);
+    queryClient.setQueryData(key, MOCK_MASTER_REQUESTS);
+    let rejectFirst: (error: unknown) => void = () => {};
+    const first = new Promise((_resolve, reject) => {
+      rejectFirst = reject;
+    });
+    const second = deferred<unknown>();
+    apiRequest
+      .mockReturnValueOnce(first as never)
+      .mockReturnValueOnce(second.promise as never);
+
+    const { result } = await renderHook(
+      () => ({
+        respond: useRespondToRequest(1),
+        pending: usePendingDecisionIds(1),
+        failed: useFailedDecisionIds(1),
+      }),
+      { wrapper },
+    );
+
+    await act(async () => {
+      result.current.respond.mutate({ issueId: 41, decision: 'accept' });
+    });
+    await act(async () => {
+      result.current.respond.mutate({ issueId: 42, decision: 'decline' });
+    });
+
+    await act(async () => {
+      second.resolve({});
+    });
+    await waitFor(() => expect(result.current.pending).toEqual([41]));
+
+    await act(async () => {
+      rejectFirst(new Error('500'));
+    });
+    await waitFor(() => expect(result.current.failed).toEqual([41]));
+
+    expect(result.current.pending).toEqual([]);
+    expect(
+      visibleRequests(queryClient.getQueryData<MasterRequest[]>(key) ?? [], result.current.pending)
+        .map((request) => request.id),
+    ).toEqual([41]);
   });
 });

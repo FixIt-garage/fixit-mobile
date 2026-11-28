@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/react-native';
 import { MOCK_CATEGORIES } from '../src/api/categories';
 import { MOCK_MASTER_REQUESTS } from '../src/api/masterRequests';
 import { MOCK_VOLUNTEER_REQUESTS } from '../src/api/volunteer';
-import { MasterHomeView, RESPOND_ERROR } from './MasterHomeScreen';
+import { MasterHomeView } from './MasterHomeScreen';
 
 const meta = {
   title: 'Screens/15 Головна майстра',
@@ -55,7 +55,7 @@ export const LoadError: Story = {
 };
 
 export const DecisionError: Story = {
-  args: { actionError: RESPOND_ERROR },
+  args: { failedRequestIds: [41] },
 };
 
 export const Evening: Story = {
