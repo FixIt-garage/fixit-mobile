@@ -120,6 +120,14 @@ export function useRespondToRequest(userId: number | undefined) {
       }
       return { key, generation, removed };
     },
+    onSuccess: (_data, { issueId }, context) => {
+      if (!context || context.generation !== getAuthSessionGeneration()) {
+        return;
+      }
+      queryClient.setQueryData<MasterRequest[]>(context.key, (current) =>
+        current?.filter((request) => request.id !== issueId),
+      );
+    },
     onError: (_error, _variables, context) => {
       if (!context?.removed || context.generation !== getAuthSessionGeneration()) {
         return;

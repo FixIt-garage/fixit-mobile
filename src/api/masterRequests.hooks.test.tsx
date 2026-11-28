@@ -6,6 +6,7 @@ import {
   MOCK_MASTER_REQUESTS,
   incomingRequestsKey,
   toMasterRequest,
+  useIncomingRequests,
   usePendingDecisionIds,
   useRespondToRequest,
   visibleRequests,
@@ -14,6 +15,7 @@ import {
 
 jest.mock('../../api/client', () => ({
   ...jest.requireActual('../../api/client'),
+  apiGet: jest.fn(),
   apiRequest: jest.fn(),
 }));
 
@@ -30,6 +32,7 @@ jest.mock('expo-secure-store', () => {
   };
 });
 
+const apiGet = jest.mocked(client.apiGet);
 const apiRequest = jest.mocked(client.apiRequest);
 
 function setup() {
@@ -85,6 +88,7 @@ describe('toMasterRequest', () => {
 
 describe('useRespondToRequest', () => {
   beforeEach(() => {
+    apiGet.mockReset();
     apiRequest.mockReset();
     client.invalidateAuthSession();
   });
@@ -132,6 +136,7 @@ describe('useRespondToRequest', () => {
 
 describe('requests with a decision in flight', () => {
   beforeEach(() => {
+    apiGet.mockReset();
     apiRequest.mockReset();
     client.invalidateAuthSession();
   });
@@ -151,8 +156,14 @@ describe('requests with a decision in flight', () => {
       .mockReturnValueOnce(first.promise as never)
       .mockReturnValueOnce(second.promise as never);
 
+    apiGet.mockReturnValue(new Promise(() => {}) as never);
+
     const { result } = await renderHook(
-      () => ({ respond: useRespondToRequest(1), pending: usePendingDecisionIds(1) }),
+      () => ({
+        requests: useIncomingRequests(1),
+        respond: useRespondToRequest(1),
+        pending: usePendingDecisionIds(1),
+      }),
       { wrapper },
     );
 
@@ -183,5 +194,11 @@ describe('requests with a decision in flight', () => {
       second.resolve({});
     });
     await waitFor(() => expect(result.current.pending).toEqual([]));
+
+    expect(apiGet).toHaveBeenCalled();
+    expect(result.current.requests.isFetching).toBe(true);
+    expect(
+      visibleRequests(queryClient.getQueryData<MasterRequest[]>(key) ?? [], result.current.pending),
+    ).toEqual([]);
   });
 });
