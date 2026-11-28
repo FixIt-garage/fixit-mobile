@@ -10,14 +10,8 @@ const ROLE_LABELS: Record<Role, string> = {
   org: 'Організація',
 };
 
-export function formatPublicId(publicId: number): string {
-  return `ID ${String(publicId).padStart(4, '0')}`;
-}
-
 export function profileMeta(profile: Profile): string {
-  return [ROLE_LABELS[profile.role], profile.city, formatPublicId(profile.publicId)]
-    .filter(Boolean)
-    .join(' · ');
+  return [ROLE_LABELS[profile.role], profile.city].filter(Boolean).join(' · ');
 }
 
 export function displayPhone(phone: string): string {

@@ -9,19 +9,15 @@ export const ROLE_CARD_WIDTH = 296;
 const CARD_WIDTH = ROLE_CARD_WIDTH;
 const CARD_RADIUS = 28;
 const HERO_HEIGHT = 236;
-// Крок сітки-креслення у верхньому блоці
 const GRID_STEP = 24;
+const TITLE_MIN_SCALE = 0.7;
 
 export type RoleCardProps = {
-  /** Бирка зліва вгорі, наприклад «Потрібен ремонт» */
   kicker: string;
   title: string;
   description: string;
-  /** Текст кнопки, наприклад «Я — клієнт» */
   buttonLabel: string;
-  /** Колір ролі: градієнт верхнього блоку і кнопки */
   gradient: GradientName;
-  /** Іконка ролі по центру (поки необовʼязкова, до FIX-16) */
   icon?: ReactNode;
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
@@ -71,7 +67,14 @@ export function RoleCard({
       </View>
 
       <View style={{ paddingHorizontal: theme.spacing.sm, gap: theme.spacing.xs }}>
-        <Text variant="h2">{title}</Text>
+        <Text
+          variant="h2"
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={TITLE_MIN_SCALE}
+        >
+          {title}
+        </Text>
         <Text variant="body" color="secondary">
           {description}
         </Text>
@@ -82,7 +85,6 @@ export function RoleCard({
   );
 }
 
-// Тонкі білі лінії кожні 24 px — фірмова «сітка креслення»
 function BlueprintGrid({ color }: { color: string }) {
   const columns = Math.ceil(CARD_WIDTH / GRID_STEP);
   const rows = Math.ceil(HERO_HEIGHT / GRID_STEP);

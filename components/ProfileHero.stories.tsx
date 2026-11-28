@@ -10,7 +10,7 @@ const meta = {
   args: {
     role: 'client',
     name: 'Олександр Коваль',
-    meta: 'Клієнт · Львів · ID 3120',
+    meta: 'Клієнт · Львів',
     stats: [
       { label: 'Заявки', value: '3' },
       { label: 'Відгуки', value: '2' },
@@ -33,7 +33,7 @@ export const LongName: Story = {
 export const Master: Story = {
   args: {
     role: 'master',
-    meta: 'Майстер · Львів · ID 0247',
+    meta: 'Майстер · Львів',
     stats: [
       {
         label: 'Рейтинг',

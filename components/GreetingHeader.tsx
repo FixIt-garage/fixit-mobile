@@ -14,13 +14,21 @@ export type GreetingHeaderProps = {
   title: string;
   action?: ReactNode;
   overlap?: number;
+  accent?: 'client' | 'master';
 };
 
-export function GreetingHeader({ kicker, title, action, overlap = 0 }: GreetingHeaderProps) {
+export function GreetingHeader({
+  kicker,
+  title,
+  action,
+  overlap = 0,
+  accent = 'client',
+}: GreetingHeaderProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const height = insets.top + CONTENT_HEIGHT;
+  const glowColor = accent === 'master' ? theme.colors.role.master : theme.colors.bg.brand;
 
   return (
     <View
@@ -36,7 +44,7 @@ export function GreetingHeader({ kicker, title, action, overlap = 0 }: GreetingH
       ]}
     >
       <StatusBar style="light" />
-      <Glow color={theme.colors.bg.brand} style={[styles.glow, { left: width - 270 }]} />
+      <Glow color={glowColor} style={[styles.glow, { left: width - 270 }]} />
       <BlueprintGrid width={width} height={height} step={22} offset={22} color={theme.colors.glass.grid} />
 
       <View style={styles.topRow}>

@@ -43,7 +43,7 @@ describe('ProfileScreen', () => {
     await render(<ProfileScreen />);
 
     expect(screen.getByText('Олександр Коваль')).toBeTruthy();
-    expect(screen.getByText('Клієнт · Львів · ID 3120')).toBeTruthy();
+    expect(screen.getByText('Клієнт · Львів')).toBeTruthy();
     expect(screen.getByText('З нами з')).toBeTruthy();
     expect(screen.getByText('75%')).toBeTruthy();
     expect(screen.getByText('+380 67 123 45 67')).toBeTruthy();
@@ -64,7 +64,7 @@ describe('ProfileScreen', () => {
     };
     await render(<ProfileScreen />);
 
-    expect(screen.getByText('Майстер · Львів · ID 0247')).toBeTruthy();
+    expect(screen.getByText('Майстер · Львів')).toBeTruthy();
     expect(screen.getByLabelText('Рейтинг 4,8')).toBeTruthy();
     expect(screen.getByText('7 р.')).toBeTruthy();
     expect(screen.getByText('40%')).toBeTruthy();

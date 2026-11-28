@@ -4,7 +4,7 @@ import { ProfileHero } from './ProfileHero';
 const props = {
   role: 'client' as const,
   name: 'Олександр Коваль',
-  meta: 'Клієнт · Львів · ID 3120',
+  meta: 'Клієнт · Львів',
   stats: [
     { label: 'Заявки', value: '3' },
     { label: 'Відгуки', value: '2' },
@@ -17,7 +17,7 @@ describe('ProfileHero', () => {
     await render(<ProfileHero {...props} onEdit={jest.fn()} onLogout={jest.fn()} />);
 
     expect(screen.getByRole('header', { name: 'Олександр Коваль' })).toBeTruthy();
-    expect(screen.getByText('Клієнт · Львів · ID 3120')).toBeTruthy();
+    expect(screen.getByText('Клієнт · Львів')).toBeTruthy();
     expect(screen.getByText('ОК')).toBeTruthy();
     expect(screen.getByText('Заявки')).toBeTruthy();
     expect(screen.getByText('2026')).toBeTruthy();

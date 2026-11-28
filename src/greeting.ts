@@ -36,3 +36,22 @@ export function greeting(firstName: string): string {
   const name = toVocative(firstName);
   return name ? `Привіт, ${name}` : 'Привіт';
 }
+
+export function timeOfDayGreeting(hour: number): string {
+  if (hour >= 5 && hour < 12) {
+    return 'Доброго ранку';
+  }
+  if (hour >= 12 && hour < 18) {
+    return 'Добрий день';
+  }
+  if (hour >= 18 && hour < 23) {
+    return 'Добрий вечір';
+  }
+  return 'Доброї ночі';
+}
+
+export function timeGreeting(firstName: string, date: Date): string {
+  const name = toVocative(firstName);
+  const base = timeOfDayGreeting(date.getHours());
+  return name ? `${base}, ${name}` : base;
+}

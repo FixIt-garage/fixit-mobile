@@ -12,6 +12,7 @@ import { render } from '@testing-library/react-native';
 import { composeStories, setProjectAnnotations } from '@storybook/react';
 import * as preview from './.rnstorybook/preview';
 
+import * as MasterHomeScreenStories from './screens/MasterHomeScreen.stories';
 import * as MasterProfileSetupScreenStories from './screens/MasterProfileSetupScreen.stories';
 import * as ClientHomeScreenStories from './screens/ClientHomeScreen.stories';
 import * as MasterProfileScreenStories from './screens/MasterProfileScreen.stories';
@@ -101,6 +102,7 @@ const storyFiles = {
   MasterProfileScreen: MasterProfileScreenStories,
   ClientHomeScreen: ClientHomeScreenStories,
   MasterProfileSetupScreen: MasterProfileSetupScreenStories,
+  MasterHomeScreen: MasterHomeScreenStories,
   ErrorState: ErrorStateStories,
   OfflineScreen: OfflineScreenStories,
 };

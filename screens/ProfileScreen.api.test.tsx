@@ -52,7 +52,7 @@ describe('ProfileScreen with the real API hooks', () => {
     await renderWithQuery(<ProfileScreen />);
 
     expect(await screen.findByText('Олександр Коваль')).toBeTruthy();
-    expect(screen.getByText('Майстер · Львів · ID 0247')).toBeTruthy();
+    expect(screen.getByText('Майстер · Львів')).toBeTruthy();
     expect(screen.getByText('32')).toBeTruthy();
     expect(screen.getAllByText('—')).toHaveLength(2);
     expect(screen.getByText('oleksandr.koval@gmail.com')).toBeTruthy();
