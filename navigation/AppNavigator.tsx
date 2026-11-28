@@ -8,6 +8,8 @@ import MasterProfileScreen from '../screens/MasterProfileScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
+import ServiceCenterProfileScreen from '../screens/ServiceCenterProfileScreen';
+import CreateServiceCenterRequestScreen from '../screens/CreateServiceCenterRequestScreen';
 import WhoAreYouScreen from '../screens/WhoAreYouScreen';
 import RequestDetailsPlaceholderScreen from '../screens/RequestDetailsPlaceholderScreen';
 import {
@@ -33,7 +35,12 @@ export type MainTabParamList = Record<MainTabKey, undefined>;
 export type MainStackParamList = {
   Tabs: undefined;
   MasterProfile: { masterId: number };
+  ServiceCenterProfile: { serviceCenterId: number; draftDescription?: string };
   SearchResults: { city: string; categoryId: number; description: string };
+  CreateServiceCenterRequest: {
+    serviceCenterId: number;
+    description?: string;
+  };
   MasterProfileSetup: undefined;
   RequestDetails: { issueId: number; title: string };
 };
@@ -89,10 +96,18 @@ function SignedInStack() {
     <MainStack.Navigator screenOptions={{ headerShown: false }}>
       <MainStack.Screen name="Tabs" component={MainTabs} />
       <MainStack.Screen name="MasterProfile" component={MasterProfileScreen} />
+      <MainStack.Screen
+        name="CreateServiceCenterRequest"
+        component={CreateServiceCenterRequestScreen}
+      />
       <MainStack.Screen name="SearchResults" component={SearchResultsScreen} />
       <MainStack.Screen
         name="MasterProfileSetup"
         component={MasterProfileSetupScreen}
+      />
+      <MainStack.Screen
+        name="ServiceCenterProfile"
+        component={ServiceCenterProfileScreen}
       />
       <MainStack.Screen
         name="RequestDetails"

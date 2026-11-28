@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react-native';
 import * as client from '../../api/client';
 import {
+  createIssue,
   fetchIssueDetails,
   fetchIssues,
   MOCK_ISSUES,
@@ -10,15 +11,18 @@ import {
   useIssues,
   type IssueDetail,
   type IssueListResponse,
+  type CreateIssueInput,
 } from './issues';
 import { setMockMode } from './mock';
 
 jest.mock('../../api/client', () => ({
   ...jest.requireActual('../../api/client'),
   apiGet: jest.fn(),
+  apiRequest: jest.fn(),
 }));
 
 const apiGet = jest.mocked(client.apiGet);
+const apiRequest = jest.mocked(client.apiRequest);
 
 function wrapper({ children }: { children: ReactNode }) {
   const queryClient = new QueryClient({
@@ -105,9 +109,7 @@ describe('fetchIssueDetails', () => {
 
     const result = await fetchIssueDetails(MOCK_ISSUES[0].id);
 
-    expect(apiGet).toHaveBeenCalledWith(
-      `/issues/${MOCK_ISSUES[0].id}`,
-    );
+    expect(apiGet).toHaveBeenCalledWith(`/issues/${MOCK_ISSUES[0].id}`);
     expect(result).toEqual(mockDetail);
     expect(result.assigned_master?.name).toBe('Тестовий Майстер');
   });
@@ -133,15 +135,15 @@ describe('mock mode', () => {
   });
 
   it('returns mock issue details without calling the API', async () => {
-  setMockMode(true);
+    setMockMode(true);
 
-  const issueId = MOCK_ISSUES[0].id;
-  const result = await fetchIssueDetails(issueId);
+    const issueId = MOCK_ISSUES[0].id;
+    const result = await fetchIssueDetails(issueId);
 
-  expect(result).toEqual(MOCK_ISSUE_DETAILS[issueId]);
-  expect(result.timeline).toHaveLength(1);
-  expect(result.assigned_master).toBeNull();
-  expect(apiGet).not.toHaveBeenCalled();
+    expect(result).toEqual(MOCK_ISSUE_DETAILS[issueId]);
+    expect(result.timeline).toHaveLength(1);
+    expect(result.assigned_master).toBeNull();
+    expect(apiGet).not.toHaveBeenCalled();
   });
 
   it('filters and paginates active mock issues', async () => {
@@ -172,5 +174,58 @@ describe('mock mode', () => {
 
     expect(result.items).toHaveLength(1);
     expect(result.items[0].status).toBe('done');
+  });
+});
+
+describe('createIssue', () => {
+  beforeEach(() => {
+    apiRequest.mockReset();
+    setMockMode(false);
+  });
+
+  afterEach(() => {
+    setMockMode(false);
+  });
+
+  it('creates an issue assigned to a service center', async () => {
+    const input: CreateIssueInput = {
+      title: 'Ремонт смартфона',
+      description: 'Розбитий екран',
+      category_id: 2,
+      address: 'вул. Наукова, 7А',
+      assignee_company_id: 18,
+    };
+
+    apiRequest.mockResolvedValueOnce({
+      ...MOCK_ISSUES[0],
+      ...input,
+    });
+
+    const result = await createIssue(input);
+
+    expect(apiRequest).toHaveBeenCalledWith('/issues', {
+      method: 'POST',
+      body: input,
+    });
+
+    expect(result.assignee_company_id).toBe(18);
+    expect(result.category_id).toBe(2);
+  });
+
+  it('does not send a real API request in mock mode', async () => {
+    setMockMode(true);
+
+    const input: CreateIssueInput = {
+      title: 'Ремонт смартфона',
+      description: 'Розбитий екран',
+      category_id: 2,
+      assignee_company_id: 18,
+    };
+
+    await expect(createIssue(input)).rejects.toThrow(
+      'Creating issues is disabled in demo mode',
+    );
+
+    expect(apiRequest).not.toHaveBeenCalled();
   });
 });
